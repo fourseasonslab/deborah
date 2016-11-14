@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": false,
+        "preserveConstEnums": false,
+        "sourceMap": false
+    },
+    "files": [
+		"node.d.ts",
+        "deborah.ts"
+    ]
+}
