@@ -22,11 +22,11 @@ rootにsettings.jsonとして
 * channels : BOTの発言を許可するチャンネル（#から始まるものはGroup、@から始まるものはUserへのDirect Message）
 
 ## 使い方
-* slack-nikobot.js : 本体
+* deborah.js : 本体
 * settings.json : 設定ファイル。上記参照。
 の2つを同ディレクトリ内に置き、そのディレクトリに``cd``したうえで、
 ```Shell
-node slack-nikobot.js
+node deborah.js
 ```
 
 ### 必要環境
