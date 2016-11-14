@@ -31,7 +31,7 @@ node slack-nikobot.js
 
 ### 必要環境
 * Node.js
-* npm（必要モジュールは以下。もし入れていなければ，``npm install (module_name) ***``で入れる。）
+* npm（必要モジュールは以下。もし入れていなければ，``npm install (module_name)``で入れる。）
     * slackbotapi
     * fs
     * mecab-lite
