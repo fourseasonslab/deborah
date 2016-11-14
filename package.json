@@ -1,0 +1,31 @@
+{
+  "name": "deborah",
+  "version": "0.0.0",
+  "description": "A friendly chatbot.",
+  "main": "deborah.js",
+  "dependencies": {
+    "mecab-lite": "^0.0.8",
+    "slackbotapi": "^1.3.9"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fourseasonslab/deborah.git"
+  },
+  "keywords": [
+    "AI",
+    "chatbot",
+    "slack",
+    "twitter",
+    "NLP"
+  ],
+  "author": "fourseasonslab",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fourseasonslab/deborah/issues"
+  },
+  "homepage": "https://github.com/fourseasonslab/deborah#readme"
+}
