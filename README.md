@@ -4,7 +4,7 @@
 slack上で動き、postに反応するbotを作成します
 
 ## 設定
-rootにsetting.jsonとして
+rootにsettings.jsonとして
 
 ```JSON
 {
