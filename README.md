@@ -18,7 +18,7 @@ rootにsettings.jsonとして
 ### 設定パラメータの意味
 * token : APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
 * name : BOTとして発言する際の名前
-* icon : BOTとして発言する際のアイコンヴ（Slack上の絵文字の記法で書く）
+* icon : BOTとして発言する際のアイコン（Slack上の絵文字の記法で書く）
 * channels : BOTの発言を許可するチャンネル（#から始まるものはGroup、@から始まるものはUserへのDirect Message）
 
 ## 使い方
