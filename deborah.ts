@@ -40,20 +40,21 @@ reader.on('close', function() {
 slack.on('hello', function (data){
     // settings.channelsをユニークなIDに変換する
     for (var i = 0; i<settings.channels.length; i++){
+        var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
         switch (settings.channels[i].charAt(0)){
             // 指定先がChannel(public)の場合
             case "#":
-                settings.channels[i] = slack.getChannel(settings.channels[i].substr(1, settings.channels[i].length-1)).id;
+                settings.channels[i] = slack.getChannel(chname).id;
                 break;
             
             // 指定先がUserの場合
             case "@":
-                settings.channels[i] = slack.getIM(settings.channels[i].substr(1, settings.channels[i].length-1)).id
+                settings.channels[i] = slack.getIM(chname).id;
                 break;
 
             // 指定先がGroup(private)の場合
             case "%":
-                settings.channels[i] = slack.getGroup(settings.channels[i].substr(1, settings.channels[i].length-1)).id
+                settings.channels[i] = slack.getGroup(chname).id;
                 break;
 
             // その他
