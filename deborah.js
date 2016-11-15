@@ -11,6 +11,10 @@ var slack = new slackAPI({
 // モジュールmecab-liteの準備
 var MeCab = require('mecab-lite');
 var mecab = new MeCab();
+//// helloイベント（自分の起動）が発生したとき
+//slack.on('hello',function(data){
+//    
+//});
 // messageイベントが発生したとき呼ばれる
 slack.on('message', function (data) {
     // メッセージが空なら帰る
@@ -19,13 +23,15 @@ slack.on('message', function (data) {
     // 自分のメッセージなら帰る
     if (getUsername(data) === settings.name)
         return;
+    console.log(slack.slackData);
     // メッセージが投稿された先がsettings.jsonで指定されたところでなければ帰る
     var exit_flag = true;
-    for (var i in settings.channels) {
+    for (var _a = 0, _b = settings.channels; _a < _b.length; _a++) {
+        var i = _b[_a];
         switch (i.charAt(0)) {
-            // 指定先がgroupの場合
+            // 指定先がChannel(public)の場合
             case "#":
-                if (slack.getGroup(i.substr(1, i.length - 1)).id === data.channel)
+                if (slack.getChannel(i.substr(1, i.length - 1)).id === data.channel)
                     exit_flag = false;
                 break;
             // 指定先がUserの場合
@@ -33,7 +39,13 @@ slack.on('message', function (data) {
                 if (slack.getIM(i.substr(1, i.length - 1)).id === data.channel)
                     exit_flag = false;
                 break;
-            case "G":
+            // 指定先がGroup(private)の場合
+            case "%":
+                if (slack.getGroup(i.substr(1, i.length - 1)).id === data.channel)
+                    exit_flag = false;
+                break;
+            // その他
+            default:
                 if (i === data.channel)
                     exit_flag = false;
                 break;
