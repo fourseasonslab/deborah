@@ -9,7 +9,7 @@ var slack = new slackAPI({
     'autoReconnect': true
 });
 // モジュールmecab-liteの準備
-var MeCab = new require('mecab-lite');
+var MeCab = require('mecab-lite');
 var mecab = new MeCab();
 // messageイベントが発生したとき呼ばれる
 slack.on('message', function (data) {
@@ -50,8 +50,8 @@ slack.on('message', function (data) {
     if (data.text.charAt(0) === '%') {
         var command = data.text.substring(1).split(' ');
         // 2個以上の引数は取らないので、一つに結合する
-        for (var i = 2; i < command.length; i++) {
-            command[1] = command[1] + ' ' + command[i];
+        for (var _i = 2; i < command.length; _i++) {
+            command[1] = command[1] + ' ' + command[_i];
         }
         // コマンドの種類により異なる動作を選択
         switch (command[0].toLowerCase()) {
@@ -81,13 +81,13 @@ slack.on('message', function (data) {
         }
     }
 });
-// 引数に与えた名前・アイコンで送信します
 function sendAs(channel, text, name, icon) {
-    var data = new Object();
-    data.text = text;
-    data.channel = channel;
-    data.icon_emoji = icon;
-    data.username = name;
+    var data = {
+        text: text,
+        channel: channel,
+        icon_emoji: icon,
+        username: name
+    };
     slack.reqAPI("chat.postMessage", data);
 }
 // settingsで設定した名前・アイコンで送信します

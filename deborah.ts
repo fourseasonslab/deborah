@@ -11,7 +11,7 @@ var slack = new slackAPI({
 });
 
 // モジュールmecab-liteの準備
-var MeCab = new require('mecab-lite');
+var MeCab = require('mecab-lite');
 var mecab = new MeCab();
 
 // messageイベントが発生したとき呼ばれる
@@ -52,8 +52,8 @@ slack.on('message', function (data) {
         var command = data.text.substring(1).split(' ');
 
         // 2個以上の引数は取らないので、一つに結合する
-        for (var i = 2; i < command.length; i++) {
-            command[1] = command[1] + ' ' + command[i];
+        for (var _i = 2; i < command.length; _i++) {
+            command[1] = command[1] + ' ' + command[_i];
         }
 
         // コマンドの種類により異なる動作を選択
@@ -88,13 +88,19 @@ slack.on('message', function (data) {
 });
 
 // 引数に与えた名前・アイコンで送信します
+interface SlackSendData {
+    text: string;
+    channel: string;
+    icon_emoji: string;
+    username: string
+}
 function sendAs(channel, text, name, icon){
-    var data = new Object();
-    data.text = text;
-    data.channel = channel;
-    data.icon_emoji = icon;
-    data.username = name;
-    
+    var data: SlackSendData = {
+        text: text,
+        channel: channel,
+        icon_emoji:icon,
+        username: name
+    }
     slack.reqAPI("chat.postMessage",data);
 }
 
