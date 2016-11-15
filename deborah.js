@@ -11,10 +11,53 @@ var slack = new slackAPI({
 // モジュールmecab-liteの準備
 var MeCab = require('mecab-lite');
 var mecab = new MeCab();
-//// helloイベント（自分の起動）が発生したとき
-//slack.on('hello',function(data){
-//    
-//});
+// 標準入力を受け取る準備
+var reader = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+// 標準入力を受け取ったら
+reader.on('line', function (line) {
+    // コマンド実行
+    for (var _i = 0, _a = settings.channels; _i < _a.length; _i++) {
+        var i = _a[_i];
+        doCommands(line, settings.name, i);
+    }
+});
+// c-C（EOF）が入力されたら
+reader.on('close', function () {
+    // 別れの挨拶
+    sendAsBot(settings.channels[0], "Bye!", function () {
+        process.exit(0);
+    });
+});
+// helloイベント（自分の起動）が発生したとき
+slack.on('hello', function (data) {
+    // settings.channelsをユニークなIDに変換する
+    for (var i = 0; i < settings.channels.length; i++) {
+        switch (settings.channels[i].charAt(0)) {
+            // 指定先がChannel(public)の場合
+            case "#":
+                settings.channels[i] = slack.getChannel(settings.channels[i].substr(1, settings.channels[i].length - 1)).id;
+                break;
+            // 指定先がUserの場合
+            case "@":
+                settings.channels[i] = slack.getIM(settings.channels[i].substr(1, settings.channels[i].length - 1)).id;
+                break;
+            // 指定先がGroup(private)の場合
+            case "%":
+                settings.channels[i] = slack.getGroup(settings.channels[i].substr(1, settings.channels[i].length - 1)).id;
+                break;
+            // その他
+            default:
+        }
+    }
+    // ごあいさつ
+    for (var _i = 0, _a = settings.channels; _i < _a.length; _i++) {
+        var k = _a[_i];
+        sendAsBot(k, "Hi! I'm here now!");
+    }
+});
 // messageイベントが発生したとき呼ばれる
 slack.on('message', function (data) {
     // メッセージが空なら帰る
@@ -23,88 +66,36 @@ slack.on('message', function (data) {
     // 自分のメッセージなら帰る
     if (getUsername(data) === settings.name)
         return;
-    console.log(slack.slackData);
     // メッセージが投稿された先がsettings.jsonで指定されたところでなければ帰る
     var exit_flag = true;
-    for (var _a = 0, _b = settings.channels; _a < _b.length; _a++) {
-        var i = _b[_a];
-        switch (i.charAt(0)) {
-            // 指定先がChannel(public)の場合
-            case "#":
-                if (slack.getChannel(i.substr(1, i.length - 1)).id === data.channel)
-                    exit_flag = false;
-                break;
-            // 指定先がUserの場合
-            case "@":
-                if (slack.getIM(i.substr(1, i.length - 1)).id === data.channel)
-                    exit_flag = false;
-                break;
-            // 指定先がGroup(private)の場合
-            case "%":
-                if (slack.getGroup(i.substr(1, i.length - 1)).id === data.channel)
-                    exit_flag = false;
-                break;
-            // その他
-            default:
-                if (i === data.channel)
-                    exit_flag = false;
-                break;
-        }
-        if (!exit_flag)
+    for (var _i = 0, _a = settings.channels; _i < _a.length; _i++) {
+        var i = _a[_i];
+        if (i === data.channel) {
+            exit_flag = false;
             break;
+        }
     }
     if (exit_flag)
         return;
     // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
     if (data.text.match(/:fish_cake:/))
         sendAsBot(data.channel, '@' + getUsername(data) + ' やっぱなるとだよね！ :fish_cake:');
-    // %から始まる文字列をコマンドとして認識する
-    if (data.text.charAt(0) === '%') {
-        var command = data.text.substring(1).split(' ');
-        // 2個以上の引数は取らないので、一つに結合する
-        for (var _i = 2; i < command.length; _i++) {
-            command[1] = command[1] + ' ' + command[_i];
-        }
-        // コマンドの種類により異なる動作を選択
-        switch (command[0].toLowerCase()) {
-            // %hello
-            // 挨拶します
-            case 'hello':
-                sendAsBot(data.channel, 'Oh, hello @' + getUsername(data) + ' !');
-                break;
-            // %say str
-            // 指定の文字列を喋ります
-            case 'say':
-                var str = data.text.split('%say ')[1];
-                sendAsBot(data.channel, str);
-                break;
-            // %mecab str
-            // mecabに指定の文字列を渡して分かち書きの結果を返します
-            case 'mecab':
-                var str = data.text.split('%mecab ')[1];
-                mecab.parse(str, function (err, result) {
-                    var ans = "@" + getUsername(data) + " ";
-                    for (var i = 0; i < result.length - 1; i++) {
-                        ans += result[i][0] + "/";
-                    }
-                    sendAsBot(data.channel, ans);
-                });
-                break;
-        }
-    }
+    doCommands(data.text, getUsername(data), data.channel);
 });
-function sendAs(channel, text, name, icon) {
+function sendAs(channel, text, name, icon, callback) {
+    if (callback === void 0) { callback = null; }
     var data = {
         text: text,
         channel: channel,
         icon_emoji: icon,
         username: name
     };
-    slack.reqAPI("chat.postMessage", data);
+    slack.reqAPI("chat.postMessage", data, callback);
 }
 // settingsで設定した名前・アイコンで送信します
-function sendAsBot(channel, text) {
-    sendAs(channel, text, settings.name, settings.icon);
+function sendAsBot(channel, text, callback) {
+    if (callback === void 0) { callback = null; }
+    sendAs(channel, text, settings.name, settings.icon, callback);
 }
 // messageデータからusernameを割り出す
 function getUsername(data) {
@@ -114,5 +105,54 @@ function getUsername(data) {
     }
     else {
         return slack.getUser(data.user).name;
+    }
+}
+function doCommands(instr, name, channel) {
+    // %から始まる文字列をコマンドとして認識する
+    if (instr.charAt(0) === '%') {
+        var command = instr.substring(1).split(' ');
+        // コマンドの種類により異なる動作を選択
+        switch (command[0].toLowerCase()) {
+            // %hello
+            // 挨拶します
+            case 'hello':
+                sendAsBot(channel, 'Oh, hello @' + name + ' !');
+                break;
+            // %say str
+            // 指定の文字列を喋ります
+            case 'say':
+                var str = instr.split('%say ')[1];
+                sendAsBot(channel, str);
+                break;
+            // %mecab str
+            // mecabに指定の文字列を渡して分かち書きの結果を返します
+            case 'mecab':
+                var str = instr.split('%mecab ')[1];
+                mecab.parse(str, function (err, result) {
+                    var ans = "@" + name + " ";
+                    for (var i = 0; i < result.length - 1; i++) {
+                        ans += result[i][0] + "/";
+                    }
+                    sendAsBot(channel, ans);
+                });
+                break;
+            // %debug
+            // デバッグ用コマンド。
+            case 'debug':
+                switch (command[1]) {
+                    case 'slackData':
+                        if (command[2] === undefined)
+                            console.log(slack.slackData);
+                        else
+                            console.log(slack.slackData[command[2]]);
+                        break;
+                    case 'cur':
+                        console.log("instr  :" + instr);
+                        console.log("name   :" + name);
+                        console.log("channel:" + channel);
+                        break;
+                }
+                break;
+        }
     }
 }
