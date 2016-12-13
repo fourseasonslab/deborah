@@ -9,7 +9,7 @@ rootにsettings.jsonとして
     "token" : "APIトークン",
     "name" : "nikobot",
     "icon" : ":smile:",
-    "channels" : ["#general","@nikosai"]
+    "channels" : ["#general","@nikosai","%fishcake"]
 }
 ```
 
@@ -24,12 +24,15 @@ rootにsettings.jsonとして
  * BOTとして発言する際のアイコン（Slack上の絵文字の記法で書く）
 * channels : string[]
  * BOTの発言を許可するチャンネル
-  * #から始まるものはGroup
+  * #から始まるものはChannel(public)
   * @から始まるものはUserへのDirect Message
+  * %から始まるものはChannel(private) ← これをAPIではGroupとして扱う
+  * それ以外はChannelIDとみなされる
 
 ## 使い方
-* deborah.js : 本体
-* settings.json : 設定ファイル。上記参照。
+* deborah.ts : Typescriptにより記述された本体
+* deborah.js : tscによるコンパイル後の本体
+* settings.json : 設定ファイル（上記参照）
 の2つを同ディレクトリ内に置き、そのディレクトリに``cd``したうえで、
 ```Shell
 node deborah.js

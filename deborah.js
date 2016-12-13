@@ -24,6 +24,7 @@ var DeborahDriverSlack = (function () {
             m.senderName = that.getUsername(data);
             m.context = data.channel;
             m.driver = that;
+            m.rawData = data;
             //
             if (m.senderName == that.bot.settings.name)
                 return;
@@ -55,10 +56,33 @@ var DeborahDriverSlack = (function () {
 }());
 var Deborah = (function () {
     function Deborah() {
+        console.log("Initializing deborah...");
         var fs = require("fs");
         this.settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        console.log(this.settings);
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
+        var reader = require('readline').createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        // 標準入力を受け取ったら
+        reader.on('line', function (line) {
+            // コマンド実行
+            /*
+            for(var i of settings.channels){
+                doCommands(line,settings.name,i);
+            }
+            */
+        });
+        // c-C（EOF）が入力されたら
+        reader.on('close', function () {
+            // 別れの挨拶
+            console.log("Terminating...");
+            //sendAsBot(settings.channels[0],"Bye!",function (){
+            process.exit(0);
+            //});
+        });
     }
     Deborah.prototype.startWithDriver = function (driver) {
         this.driver = driver;
@@ -67,75 +91,92 @@ var Deborah = (function () {
     Deborah.prototype.receive = function (data) {
         // メッセージが空なら帰る
         /*
-                if (typeof data.text === 'undefined') return;
+        // helloイベント（自分の起動）が発生したとき
+        slack.on('hello', function (data){
+            // settings.channelsをユニークなIDに変換する
+            for (var i = 0; i<settings.channels.length; i++){
+                var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
+                switch (settings.channels[i].charAt(0)){
+                    // 指定先がChannel(public)の場合
+                    case "#":
+                        settings.channels[i] = slack.getChannel(chname).id;
+                        break;
+                    
+                    // 指定先がUserの場合
+                    case "@":
+                        settings.channels[i] = slack.getIM(chname).id;
+                        break;
         
-                // 自分のメッセージなら帰る
-                if (this.driver.getUsername(data) === this.settings.name) return;
+                    // 指定先がGroup(private)の場合
+                    case "%":
+                        settings.channels[i] = slack.getGroup(chname).id;
+                        break;
         
-                // メッセージが投稿された先がsettings.jsonで指定されたところでなければ帰る
-                var exit_flag = true;
-                for (var i in this.settings.channels){
-                    switch (i.charAt(0)){
-                        // 指定先がgroupの場合
-                        case "#":
-                            if(this.driver.getGroup(i.substr(1, i.length-1)).id === data.channel) exit_flag = false;
-                            break;
-                        
-                        // 指定先がUserの場合
-                        case "@":
-                            if(this.driver.getIM(i.substr(1, i.length-1)).id === data.channel) exit_flag = false;
-                            break;
-        
-                        case "G":
-                            if(i === data.channel) exit_flag = false;
-                            break;
-                    }
-                    if (!exit_flag) break;
+                    // その他
+                    default:
                 }
-                if (exit_flag) return;
+            }
+            // ごあいさつ
+            for(var k of settings.channels){
+                sendAsBot(k,"Hi! I'm here now!");
+            }
+        });
+        
         */
         // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
         if (data.text.match(/:fish_cake:/)) {
             this.driver.replyAsBot(data, '@' + data.senderName + ' やっぱなるとだよね！ :fish_cake:');
         }
         // %から始まる文字列をコマンドとして認識する
-        if (data.text.charAt(0) === '%') {
-            var command = data.text.substring(1).split(' ');
-            // 2個以上の引数は取らないので、一つに結合する
-            for (var i = 2; i < command.length; i++) {
-                command[1] = command[1] + ' ' + command[i];
-            }
-            // コマンドの種類により異なる動作を選択
-            switch (command[0].toLowerCase()) {
-                // %hello
-                // 挨拶します
-                case 'hello':
-                    this.driver.replyAsBot(data, 'Oh, hello @' + data.senderName + ' !');
-                    break;
-                // %say str
-                // 指定の文字列を喋ります
-                case 'say':
-                    var str = data.text.split('%say ')[1];
-                    this.driver.replyAsBot(data, str);
-                    break;
-                // %mecab str
-                // mecabに指定の文字列を渡して分かち書きの結果を返します
-                case 'mecab':
-                    var str = data.text.split('%mecab ')[1];
-                    var that = this;
-                    this.mecab.parse(str, function (err, result) {
-                        var ans = "@" + data.senderName + " ";
-                        for (var i = 0; i < result.length - 1; i++) {
-                            ans += result[i][0] + "/";
-                        }
-                        that.driver.replyAsBot(data, ans);
-                    });
-                    break;
-            }
+        this.doCommand(data);
+    };
+    Deborah.prototype.doCommand = function (data) {
+        // %から始まる文字列をコマンドとして認識する
+        if (data.text.charAt(0) !== '%')
+            return;
+        var command = data.text.substring(1).split(' ');
+        // コマンドの種類により異なる動作を選択
+        switch (command[0].toLowerCase()) {
+            // %hello
+            // 挨拶します
+            case 'hello':
+                this.driver.replyAsBot(data, 'Oh, hello @' + data.name + ' !');
+                break;
+            // %say str
+            // 指定の文字列を喋ります
+            case 'say':
+                var str = data.text.split('%say ')[1];
+                this.driver.replyAsBot(data, str);
+                break;
+            // %mecab str
+            // mecabに指定の文字列を渡して分かち書きの結果を返します
+            case 'mecab':
+                var str = data.text.split('%mecab ')[1];
+                var that = this;
+                this.mecab.parse(str, function (err, result) {
+                    var ans = "@" + data.senderName + " ";
+                    for (var i = 0; i < result.length - 1; i++) {
+                        ans += result[i][0] + "/";
+                    }
+                    that.driver.replyAsBot(data, ans);
+                });
+                break;
+            // %debug
+            // デバッグ用コマンド。
+            case 'debug':
+                switch (command[1]) {
+                    case 'slackData':
+                        console.log(data.rawData);
+                        //else console.log(slack.slackData[command[2]]);
+                        break;
+                    case 'cur':
+                        console.log(data);
+                        break;
+                }
+                break;
         }
     };
     return Deborah;
 }());
 var deborah = new Deborah();
-var slackDriver = new DeborahDriverSlack(deborah);
-deborah.startWithDriver(slackDriver);
+deborah.startWithDriver(new DeborahDriverSlack(deborah));
