@@ -4,19 +4,23 @@ var DeborahMessage = (function () {
     return DeborahMessage;
 }());
 var DeborahDriverSlack = (function () {
-    function DeborahDriverSlack(bot) {
+    function DeborahDriverSlack(bot, setting) {
+        console.log("Driver initialized: Slack (" + setting.team + ")");
         this.bot = bot;
+        this.setting = setting;
         var slackAPI = require('slackbotapi');
         this.connection = new slackAPI({
-            'token': bot.settings.token,
-            'logging': true,
+            'token': this.setting.token,
+            'logging': false,
             'autoReconnect': true
         });
+        this.connect();
     }
     DeborahDriverSlack.prototype.connect = function () {
         var that = this;
         this.connection.on('message', function (data) {
             // receive
+            console.log(JSON.stringify(data, null, " "));
             if (!data || !data.text)
                 return;
             var m = new DeborahMessage();
@@ -26,8 +30,9 @@ var DeborahDriverSlack = (function () {
             m.driver = that;
             m.rawData = data;
             //
-            if (m.senderName == that.bot.settings.name)
+            if (m.senderName == that.bot.settings.profile.name)
                 return;
+            //
             //
             that.bot.receive(m);
         });
@@ -56,10 +61,11 @@ var DeborahDriverSlack = (function () {
 }());
 var Deborah = (function () {
     function Deborah() {
+        this.driverList = [];
         console.log("Initializing deborah...");
         var fs = require("fs");
         this.settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
-        console.log(this.settings);
+        console.log(JSON.stringify(this.settings, null, 1));
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
         var reader = require('readline').createInterface({
@@ -84,9 +90,18 @@ var Deborah = (function () {
             //});
         });
     }
-    Deborah.prototype.startWithDriver = function (driver) {
-        this.driver = driver;
-        driver.connect();
+    Deborah.prototype.start = function () {
+        var interfaces = this.settings.interfaces;
+        if (!(interfaces instanceof Array)) {
+            console.log("settings.interfaces is not an Array.");
+            process.exit(0);
+        }
+        for (var i = 0; i < interfaces.length; i++) {
+            var iset = interfaces[i];
+            if (iset.type == "slack-connection") {
+                this.driverList.push(new DeborahDriverSlack(this, iset));
+            }
+        }
     };
     Deborah.prototype.receive = function (data) {
         // メッセージが空なら帰る
@@ -125,7 +140,6 @@ var Deborah = (function () {
         */
         // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
         if (data.text.match(/:fish_cake:/)) {
-            this.driver.replyAsBot(data, '@' + data.senderName + ' やっぱなるとだよね！ :fish_cake:');
         }
         // %から始まる文字列をコマンドとして認識する
         this.doCommand(data);
@@ -140,13 +154,13 @@ var Deborah = (function () {
             // %hello
             // 挨拶します
             case 'hello':
-                this.driver.replyAsBot(data, 'Oh, hello @' + data.name + ' !');
+                //this.driver.replyAsBot(data, 'Oh, hello @' + data.name + ' !');
                 break;
             // %say str
             // 指定の文字列を喋ります
             case 'say':
                 var str = data.text.split('%say ')[1];
-                this.driver.replyAsBot(data, str);
+                //this.driver.replyAsBot(data, str);
                 break;
             // %mecab str
             // mecabに指定の文字列を渡して分かち書きの結果を返します
@@ -158,7 +172,7 @@ var Deborah = (function () {
                     for (var i = 0; i < result.length - 1; i++) {
                         ans += result[i][0] + "/";
                     }
-                    that.driver.replyAsBot(data, ans);
+                    //that.driver.replyAsBot(data, ans);
                 });
                 break;
             // %debug
@@ -179,4 +193,4 @@ var Deborah = (function () {
     return Deborah;
 }());
 var deborah = new Deborah();
-deborah.startWithDriver(new DeborahDriverSlack(deborah));
+deborah.start();

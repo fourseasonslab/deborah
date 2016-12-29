@@ -20,19 +20,24 @@ class DeborahDriverSlack
 	bot: Deborah;
 	token: string;
 	connection: any;
-	constructor(bot: Deborah){
+	setting: any;
+	constructor(bot: Deborah, setting: any){
+		console.log("Driver initialized: Slack (" + setting.team + ")");
 		this.bot = bot;
+		this.setting = setting;
 		var slackAPI = require('slackbotapi');
 		this.connection = new slackAPI({
-			'token': bot.settings.token,
-			'logging': true,
+			'token': this.setting.token,
+			'logging': false,
 			'autoReconnect': true
 		});
+		this.connect();
 	}
 	connect(){
 		var that = this;
 		this.connection.on('message', function(data){
 			// receive
+			console.log(JSON.stringify(data, null, " "));
 			if(!data || !data.text) return;
 			var m = new DeborahMessage();
 			m.text = data.text;
@@ -41,7 +46,9 @@ class DeborahDriverSlack
 			m.driver = that;
 			m.rawData = data;
 			//
-			if(m.senderName == that.bot.settings.name) return;
+			if(m.senderName == that.bot.settings.profile.name) return;
+			//
+			
 			//
 			that.bot.receive(m);
 		});
@@ -69,14 +76,14 @@ class DeborahDriverSlack
 
 class Deborah
 {
-	driver: DeborahDriver;
+	driverList: DeborahDriver[] = [];
 	settings: any;
 	mecab: any;
 	constructor(){
 		console.log("Initializing deborah...");
 		var fs = require("fs");
 		this.settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
-		console.log(this.settings);
+		console.log(JSON.stringify(this.settings, null, 1));
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		var reader = require('readline').createInterface({
@@ -101,9 +108,18 @@ class Deborah
 			//});
 		});
 	}
-	startWithDriver(driver){
-    	this.driver = driver;
-		driver.connect();
+	start(){
+		var interfaces = this.settings.interfaces;
+		if(!(interfaces instanceof Array)){
+			console.log("settings.interfaces is not an Array.");
+			process.exit(0);
+		}
+		for(var i = 0; i < interfaces.length; i++){
+			var iset = interfaces[i];
+			if(iset.type == "slack-connection"){
+				this.driverList.push(new DeborahDriverSlack(this, iset));
+			}
+		}
 	}
 	receive(data: DeborahMessage){
 		// メッセージが空なら帰る
@@ -142,7 +158,7 @@ slack.on('hello', function (data){
 */
 		// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
 		if (data.text.match(/:fish_cake:/)){
-			this.driver.replyAsBot(data, '@' + data.senderName + ' やっぱなるとだよね！ :fish_cake:');
+			//this.driver.replyAsBot(data, '@' + data.senderName + ' やっぱなるとだよね！ :fish_cake:');
 		}
 
 		// %から始まる文字列をコマンドとして認識する
@@ -157,14 +173,14 @@ slack.on('hello', function (data){
 			// %hello
 			// 挨拶します
 			case 'hello':
-				this.driver.replyAsBot(data, 'Oh, hello @' + data.name + ' !');
+				//this.driver.replyAsBot(data, 'Oh, hello @' + data.name + ' !');
 				break;
 
 				// %say str
 				// 指定の文字列を喋ります
 			case 'say':
 				var str = data.text.split('%say ')[1];
-				this.driver.replyAsBot(data, str);
+				//this.driver.replyAsBot(data, str);
 				break;
 
 				// %mecab str
@@ -177,7 +193,7 @@ slack.on('hello', function (data){
 						for(var i=0;i<result.length-1;i++){
 							ans += result[i][0] + "/";
 						}
-						that.driver.replyAsBot(data, ans);
+						//that.driver.replyAsBot(data, ans);
 					});
 				break;
 
@@ -199,4 +215,4 @@ slack.on('hello', function (data){
 }
 
 var deborah = new Deborah();
-deborah.startWithDriver(new DeborahDriverSlack(deborah));
+deborah.start();
