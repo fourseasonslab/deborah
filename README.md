@@ -6,10 +6,22 @@ rootにsettings.jsonとして
 
 ```JSON
 {
-    "token" : "APIトークン",
-    "name" : "nikobot",
-    "icon" : ":smile:",
-    "channels" : ["#general","@nikosai","%fishcake"]
+	"interfaces": [
+		{
+			"type": "slack-connection",
+			"team": "team-name.slack.com",
+			"token": "Slack APIトークン"
+		},
+		{
+			"type": "slack-channel",
+			"team": "team-name.slack.com",
+			"channelName": "@channelname"
+		}
+	],
+	"profile": {
+		"name": "ボット名",
+		"slack-icon": "innocent"
+	}
 }
 ```
 
