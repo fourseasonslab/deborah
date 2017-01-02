@@ -4,13 +4,13 @@ var DeborahMessage = (function () {
     return DeborahMessage;
 }());
 var DeborahDriverSlack = (function () {
-    function DeborahDriverSlack(bot, setting) {
-        console.log("Driver initialized: Slack (" + setting.team + ")");
+    function DeborahDriverSlack(bot, settings) {
+        console.log("Driver initialized: Slack (" + settings.team + ")");
         this.bot = bot;
-        this.setting = setting;
+        this.connectionSettings = settings;
         var slackAPI = require('slackbotapi');
         this.connection = new slackAPI({
-            'token': this.setting.token,
+            'token': this.connectionSettings.token,
             'logging': false,
             'autoReconnect': true
         });
@@ -37,8 +37,8 @@ var DeborahDriverSlack = (function () {
             that.bot.receive(m);
         });
     };
-    DeborahDriverSlack.prototype.replyAsBot = function (received, message) {
-        this.sendAs(received.context, message, this.bot.settings.name, this.bot.settings.icon);
+    DeborahDriverSlack.prototype.reply = function (replyTo, message) {
+        this.sendAs(replyTo.context, message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
     };
     DeborahDriverSlack.prototype.sendAs = function (channel, text, name, icon) {
         var data = new Object();
@@ -59,6 +59,73 @@ var DeborahDriverSlack = (function () {
     };
     return DeborahDriverSlack;
 }());
+var DeborahDriverStdIO = (function () {
+    function DeborahDriverStdIO(bot, setting) {
+        console.log("Driver initialized: StdIO");
+        this.bot = bot;
+        // 標準入力をlisten
+        var that = this;
+        this.readline = require('readline').createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        this.readline.on('line', function (line) {
+            var m = new DeborahMessage();
+            m.text = line;
+            m.senderName = "local";
+            m.context = "StdIO";
+            m.driver = that;
+            m.rawData = line;
+            //
+            that.bot.receive(m);
+        });
+        // c-C（EOF）が入力されたら
+        this.readline.on('close', function () {
+            // 別れの挨拶
+            console.log("Terminating...");
+            //sendAsBot(settings.channels[0],"Bye!",function (){
+            process.exit(0);
+            //});
+        });
+    }
+    DeborahDriverStdIO.prototype.reply = function (replyTo, message) {
+        this.readline.write(message);
+    };
+    return DeborahDriverStdIO;
+}());
+/*
+// helloイベント（自分の起動）が発生したとき
+slack.on('hello', function (data){
+    // settings.channelsをユニークなIDに変換する
+    for (var i = 0; i<settings.channels.length; i++){
+        var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
+        switch (settings.channels[i].charAt(0)){
+            // 指定先がChannel(public)の場合
+            case "#":
+                settings.channels[i] = slack.getChannel(chname).id;
+                break;
+            
+            // 指定先がUserの場合
+            case "@":
+                settings.channels[i] = slack.getIM(chname).id;
+                break;
+
+            // 指定先がGroup(private)の場合
+            case "%":
+                settings.channels[i] = slack.getGroup(chname).id;
+                break;
+
+            // その他
+            default:
+        }
+    }
+    // ごあいさつ
+    for(var k of settings.channels){
+        sendAsBot(k,"Hi! I'm here now!");
+    }
+});
+
+*/
 var Deborah = (function () {
     function Deborah() {
         this.driverList = [];
@@ -68,27 +135,6 @@ var Deborah = (function () {
         console.log(JSON.stringify(this.settings, null, 1));
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
-        var reader = require('readline').createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-        // 標準入力を受け取ったら
-        reader.on('line', function (line) {
-            // コマンド実行
-            /*
-            for(var i of settings.channels){
-                doCommands(line,settings.name,i);
-            }
-            */
-        });
-        // c-C（EOF）が入力されたら
-        reader.on('close', function () {
-            // 別れの挨拶
-            console.log("Terminating...");
-            //sendAsBot(settings.channels[0],"Bye!",function (){
-            process.exit(0);
-            //});
-        });
     }
     Deborah.prototype.start = function () {
         var interfaces = this.settings.interfaces;
@@ -101,45 +147,17 @@ var Deborah = (function () {
             if (iset.type == "slack-connection") {
                 this.driverList.push(new DeborahDriverSlack(this, iset));
             }
+            if (iset.type == "stdio") {
+                this.driverList.push(new DeborahDriverStdIO(this, iset));
+            }
         }
     };
     Deborah.prototype.receive = function (data) {
         // メッセージが空なら帰る
-        /*
-        // helloイベント（自分の起動）が発生したとき
-        slack.on('hello', function (data){
-            // settings.channelsをユニークなIDに変換する
-            for (var i = 0; i<settings.channels.length; i++){
-                var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
-                switch (settings.channels[i].charAt(0)){
-                    // 指定先がChannel(public)の場合
-                    case "#":
-                        settings.channels[i] = slack.getChannel(chname).id;
-                        break;
-                    
-                    // 指定先がUserの場合
-                    case "@":
-                        settings.channels[i] = slack.getIM(chname).id;
-                        break;
-        
-                    // 指定先がGroup(private)の場合
-                    case "%":
-                        settings.channels[i] = slack.getGroup(chname).id;
-                        break;
-        
-                    // その他
-                    default:
-                }
-            }
-            // ごあいさつ
-            for(var k of settings.channels){
-                sendAsBot(k,"Hi! I'm here now!");
-            }
-        });
-        
-        */
+        console.log("Deborah.receive: [" + data.text + "]");
         // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
         if (data.text.match(/:fish_cake:/)) {
+            data.driver.reply(data, '@' + data.senderName + ' やっぱなるとだよね！ :fish_cake:');
         }
         // %から始まる文字列をコマンドとして認識する
         this.doCommand(data);
@@ -151,20 +169,20 @@ var Deborah = (function () {
         var command = data.text.substring(1).split(' ');
         // コマンドの種類により異なる動作を選択
         switch (command[0].toLowerCase()) {
-            // %hello
-            // 挨拶します
             case 'hello':
-                //this.driver.replyAsBot(data, 'Oh, hello @' + data.name + ' !');
+                // %hello
+                // 挨拶します
+                data.driver.reply(data, 'Oh, hello @' + data.senderName + ' !');
                 break;
-            // %say str
-            // 指定の文字列を喋ります
             case 'say':
+                // %say str
+                // 指定の文字列を喋ります
                 var str = data.text.split('%say ')[1];
-                //this.driver.replyAsBot(data, str);
+                data.driver.reply(data, str);
                 break;
-            // %mecab str
-            // mecabに指定の文字列を渡して分かち書きの結果を返します
             case 'mecab':
+                // %mecab str
+                // mecabに指定の文字列を渡して分かち書きの結果を返します
                 var str = data.text.split('%mecab ')[1];
                 var that = this;
                 this.mecab.parse(str, function (err, result) {
@@ -172,16 +190,15 @@ var Deborah = (function () {
                     for (var i = 0; i < result.length - 1; i++) {
                         ans += result[i][0] + "/";
                     }
-                    //that.driver.replyAsBot(data, ans);
+                    data.driver.reply(data, ans);
                 });
                 break;
-            // %debug
-            // デバッグ用コマンド。
             case 'debug':
+                // %debug
+                // デバッグ用コマンド。
                 switch (command[1]) {
                     case 'slackData':
                         console.log(data.rawData);
-                        //else console.log(slack.slackData[command[2]]);
                         break;
                     case 'cur':
                         console.log(data);

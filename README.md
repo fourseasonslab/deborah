@@ -8,19 +8,22 @@ rootにsettings.jsonとして
 {
 	"interfaces": [
 		{
+			"type": "stdio"
+		},
+		{
 			"type": "slack-connection",
-			"team": "team-name.slack.com",
-			"token": "Slack APIトークン"
+			"team": "????.slack.com",
+			"token": "?????"
 		},
 		{
 			"type": "slack-channel",
-			"team": "team-name.slack.com",
-			"channelName": "@channelname"
+			"team": "????.slack.com",
+			"channelName": "@hikalium"
 		}
 	],
 	"profile": {
-		"name": "ボット名",
-		"slack-icon": "innocent"
+		"name": "botname",
+		"slack-icon": ":innocent:"
 	}
 }
 ```
@@ -30,7 +33,7 @@ rootにsettings.jsonとして
 ### 設定パラメータの意味
 * token : string
  * APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
-* name : string
+* botname : string
  * BOTとして発言する際の名前
 * icon : string
  * BOTとして発言する際のアイコン（Slack上の絵文字の記法で書く）
