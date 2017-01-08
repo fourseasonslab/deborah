@@ -9,7 +9,7 @@ slack上で動き、postに反応するbotを作成します
 
 
 ## 設定
-rootにsettings.jsonとして
+リポジトリ直下に`settings.json`として
 
 ```JSON
 {
@@ -40,9 +40,9 @@ rootにsettings.jsonとして
 ### 設定パラメータの意味
 * token : string
  * APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
-* botname : string
+* name : string
  * BOTとして発言する際の名前
-* icon : string
+* slack-icon : string
  * BOTとして発言する際のアイコン（Slack上の絵文字の記法で書く）
 * channels : string[]
  * BOTの発言を許可するチャンネル
@@ -55,12 +55,12 @@ rootにsettings.jsonとして
 
 ### テスト用にforegroundで起動する場合
 
-リポジトリのルートディレクトリ内で下記コマンドを実行
+リポジトリ直下で下記コマンドを実行
 ```Shell
 node deborah.js
 ```
 
-## 継続的にデーモン化して動作させる場合
+### 継続的にデーモン化して動作させる場合
 
 まず`forever`パッケージをnpmでグローバルにインストールする。
 ```Shell
@@ -83,7 +83,8 @@ forever stop deborah.js
 ```
 
 ## 注意点
-このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
+- Slackに関する制約
+ - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
 
 ## License
 MIT License
