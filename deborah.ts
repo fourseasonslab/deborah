@@ -148,6 +148,11 @@ class Deborah
 	driverList: DeborahDriver[] = [];
 	settings: any;
 	mecab: any;
+	fixedResponseList: (string[])[] = [
+		[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
+		["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
+		["死", "まだ死ぬには早いですよ！ :iconv:"],
+	];
 	constructor(){
 		console.log("Initializing deborah...");
 		var fs = require("fs");
@@ -175,10 +180,12 @@ class Deborah
 		// メッセージが空なら帰る
 		console.log("Deborah.receive: [" + data.text + "]");
 		// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
-		if (data.text.match(/:fish_cake:/)){
-			data.driver.reply(data, '@' + data.senderName + ' やっぱなるとだよね！ :fish_cake:');
+		for(var k in this.fixedResponseList){
+			if(data.text.match(this.fixedResponseList[k][0])){
+				data.driver.reply(data, "@" + data.senderName + " " + this.fixedResponseList[k][1]);
+				break;
+			}
 		}
-
 		// %から始まる文字列をコマンドとして認識する
 		this.doCommand(data)
 	}
