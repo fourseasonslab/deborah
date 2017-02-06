@@ -1,3 +1,4 @@
+
 interface DeborahDriver
 {
 	bot: Deborah;
@@ -75,9 +76,14 @@ class DeborahDriverSlack implements DeborahDriver
 class DeborahDriverStdIO implements DeborahDriver
 {
 	bot: Deborah;
-	readline;
+	readline: any;
+	openjtalk: any;
 	constructor(bot: Deborah, setting: any){
 		console.log("Driver initialized: StdIO");
+		//
+		var OpenJTalk = require('openjtalk');
+		this.openjtalk = new OpenJTalk();
+		this.openjtalk.talk('音声合成が有効です');
 		this.bot = bot;
 		// 標準入力をlisten
 		var that = this;
@@ -106,6 +112,7 @@ class DeborahDriverStdIO implements DeborahDriver
 	}
 	reply(replyTo: DeborahMessage, message: string){
 		this.readline.write(message);
+		this.openjtalk.talk(message);
 	}
 }
 
@@ -160,6 +167,7 @@ class Deborah
 		console.log(JSON.stringify(this.settings, null, 1));
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
+		//
 	}
 	start(){
 		var interfaces = this.settings.interfaces;

@@ -62,6 +62,10 @@ var DeborahDriverSlack = (function () {
 var DeborahDriverStdIO = (function () {
     function DeborahDriverStdIO(bot, setting) {
         console.log("Driver initialized: StdIO");
+        //
+        var OpenJTalk = require('openjtalk');
+        this.openjtalk = new OpenJTalk();
+        this.openjtalk.talk('音声合成が有効です');
         this.bot = bot;
         // 標準入力をlisten
         var that = this;
@@ -90,6 +94,7 @@ var DeborahDriverStdIO = (function () {
     }
     DeborahDriverStdIO.prototype.reply = function (replyTo, message) {
         this.readline.write(message);
+        this.openjtalk.talk(message);
     };
     return DeborahDriverStdIO;
 }());
@@ -140,6 +145,7 @@ var Deborah = (function () {
         console.log(JSON.stringify(this.settings, null, 1));
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
+        //
     }
     Deborah.prototype.start = function () {
         var interfaces = this.settings.interfaces;

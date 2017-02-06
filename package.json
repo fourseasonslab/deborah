@@ -5,7 +5,8 @@
   "main": "deborah.js",
   "dependencies": {
     "mecab-lite": "^0.0.8",
-    "slackbotapi": "^1.3.9"
+    "slackbotapi": "^1.3.9",
+	"openjtalk": "^0.1.6"
   },
   "devDependencies": {},
   "scripts": {
