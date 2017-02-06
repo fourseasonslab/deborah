@@ -132,8 +132,11 @@ class DeborahDriverTwitter implements DeborahDriver
 				var id        = ('user' in data && 'screen_name' in data.user) ? data.user.screen_name : null;
 				var text      = ('text' in data) ? data.text.replace(new RegExp('^@' + that.settings.screen_name + ' '), '') : '';
 				var ifMention = ('in_reply_to_user_id' in data) ? (data.in_reply_to_user_id !== null) : false;
+				var ifMentionToMe = ifMention && (data.in_reply_to_screen_name === that.settings.screen_name);
 
-				if (ifMention || id == that.settings.screen_name) return;
+				console.log(data);
+				
+				if (!ifMentionToMe || id == that.settings.screen_name) return;
 
 				var m = new DeborahMessage();
 				m.text = text;
@@ -202,6 +205,7 @@ class Deborah
 		[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
 		["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
 		["死", "まだ死ぬには早いですよ！ :iconv:"],
+		["test","test"]
 	];
 	constructor(){
 		console.log("Initializing deborah...");
