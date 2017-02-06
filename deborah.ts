@@ -37,6 +37,7 @@ class DeborahDriverSlack implements DeborahDriver
 			// receive
 			console.log(JSON.stringify(data, null, " "));
 			if(!data || !data.text) return;
+			if("subtype" in data && data.subtype === "bot_message") return;
 			var m = new DeborahMessage();
 			m.text = data.text;
 			m.senderName = that.getUsername(data);
@@ -52,7 +53,7 @@ class DeborahDriverSlack implements DeborahDriver
 		});
 	}
 	reply(replyTo: DeborahMessage, message: string){
-		this.sendAs(replyTo.context, message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
+		this.sendAs(replyTo.context, "@"+replyTo.senderName+" "+message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
 	}
 	sendAs(channel, text, name, icon){
 		var data: any = new Object();
@@ -151,7 +152,7 @@ class DeborahDriverTwitter implements DeborahDriver
 	}
 	reply(replyTo: DeborahMessage, message: string){
 		var msg = {
-			"status": message,
+			"status": "@"+replyTo.senderName+" "+message,
 			"in_reply_to_status_id": replyTo.rawData.id_str,
 		};
 		this.client.post('statuses/update', msg, function(error, tweet, response) {
@@ -237,16 +238,16 @@ class Deborah
 	}
 	receive(data: DeborahMessage){
 		// メッセージが空なら帰る
-		console.log("Deborah.receive: [" + data.text + "]");
+		console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 		// 最初の無視期間は反応せず帰る
 		if((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod){
-			console.log("initial ignore period. igonre.");
+			console.log("initial ignore period. ignore.");
 			return 0;
 		}
 		// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
 		for(var k in this.fixedResponseList){
 			if(data.text.match(this.fixedResponseList[k][0])){
-				data.driver.reply(data, "@" + data.senderName + " " + this.fixedResponseList[k][1]);
+				data.driver.reply(data, this.fixedResponseList[k][1]);
 				break;
 			}
 		}
@@ -272,7 +273,7 @@ class Deborah
 			case 'hello':
 				// %hello
 				// 挨拶します
-				data.driver.reply(data, 'Oh, hello @' + data.senderName + ' !');
+				data.driver.reply(data, 'Oh, hello ' + data.senderName + ' !');
 				break;
 			case 'say':
 				// %say str
@@ -286,7 +287,7 @@ class Deborah
 				var str = data.text.split('%mecab ')[1];
 				var that = this;
 				this.mecab.parse(str, function(err, result) {
-						var ans = "@" + data.senderName + " ";
+						var ans = "";
 						for(var i=0;i<result.length-1;i++){
 							ans += result[i][0] + "/";
 						}
