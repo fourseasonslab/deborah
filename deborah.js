@@ -179,7 +179,7 @@ var Deborah = (function () {
             [":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
             ["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
             ["死", "まだ死ぬには早いですよ！ :iconv:"],
-            ["test", "test"],
+            ["test", "test"]
         ];
         console.log("Initializing deborah...");
         var fs = require("fs");
