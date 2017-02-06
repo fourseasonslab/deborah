@@ -26,6 +26,14 @@ slack上で動き、postに反応するbotを作成します
 			"type": "slack-channel",
 			"team": "????.slack.com",
 			"channelName": "@hikalium"
+		},
+		{
+			"type": "twitter",
+			"screen_name": "michiru4s",
+            "consumer_key": "???",
+            "consumer_secret": "???",
+            "access_token_key": "???",
+            "access_token_secret": "???"
 		}
 	],
 	"profile": {
