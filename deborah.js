@@ -129,12 +129,14 @@ slack.on('hello', function (data){
 var Deborah = (function () {
     function Deborah() {
         this.driverList = [];
+        this.initialIgnorePeriod = 5000; // ms
         this.fixedResponseList = [
             [":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
             ["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
             ["死", "まだ死ぬには早いですよ！ :iconv:"],
         ];
         console.log("Initializing deborah...");
+        this.launchDate = new Date();
         var fs = require("fs");
         this.settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
         console.log(JSON.stringify(this.settings, null, 1));
@@ -160,6 +162,11 @@ var Deborah = (function () {
     Deborah.prototype.receive = function (data) {
         // メッセージが空なら帰る
         console.log("Deborah.receive: [" + data.text + "]");
+        // 最初の無視期間は反応せず帰る
+        if ((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod) {
+            console.log("initial ignore period. igonre.");
+            return 0;
+        }
         // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
         for (var k in this.fixedResponseList) {
             if (data.text.match(this.fixedResponseList[k][0])) {
@@ -177,6 +184,16 @@ var Deborah = (function () {
         var command = data.text.substring(1).split(' ');
         // コマンドの種類により異なる動作を選択
         switch (command[0].toLowerCase()) {
+            case 'date':
+                // %hello
+                // 挨拶します
+                data.driver.reply(data, "起動時刻は" + this.launchDate + "です。");
+                break;
+            case 'uptime':
+                // %hello
+                // 挨拶します
+                data.driver.reply(data, "起動してから" + (Date.now() - this.launchDate.getTime()) + "ms経過しました。");
+                break;
             case 'hello':
                 // %hello
                 // 挨拶します

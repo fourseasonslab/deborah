@@ -148,6 +148,8 @@ class Deborah
 	driverList: DeborahDriver[] = [];
 	settings: any;
 	mecab: any;
+	launchDate: Date;
+	initialIgnorePeriod: number = 5000;	// ms
 	fixedResponseList: (string[])[] = [
 		[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
 		["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
@@ -155,6 +157,7 @@ class Deborah
 	];
 	constructor(){
 		console.log("Initializing deborah...");
+		this.launchDate = new Date();
 		var fs = require("fs");
 		this.settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
 		console.log(JSON.stringify(this.settings, null, 1));
@@ -179,6 +182,11 @@ class Deborah
 	receive(data: DeborahMessage){
 		// メッセージが空なら帰る
 		console.log("Deborah.receive: [" + data.text + "]");
+		// 最初の無視期間は反応せず帰る
+		if((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod){
+			console.log("initial ignore period. igonre.");
+			return 0;
+		}
 		// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
 		for(var k in this.fixedResponseList){
 			if(data.text.match(this.fixedResponseList[k][0])){
@@ -195,6 +203,16 @@ class Deborah
 		var command = data.text.substring(1).split(' ');
 		// コマンドの種類により異なる動作を選択
 		switch (command[0].toLowerCase()) {
+			case 'date':
+				// %hello
+				// 挨拶します
+				data.driver.reply(data, "起動時刻は" + this.launchDate + "です。");
+				break;
+			case 'uptime':
+				// %hello
+				// 挨拶します
+				data.driver.reply(data, "起動してから" + (Date.now() - this.launchDate.getTime()) + "ms経過しました。");
+				break;
 			case 'hello':
 				// %hello
 				// 挨拶します
