@@ -237,13 +237,13 @@ var Deborah = (function () {
         // コマンドの種類により異なる動作を選択
         switch (command[0].toLowerCase()) {
             case 'date':
-                // %hello
-                // 挨拶します
+                // %date
+                // 起動時刻を返します
                 data.driver.reply(data, "起動時刻は" + this.launchDate + "です。");
                 break;
             case 'uptime':
-                // %hello
-                // 挨拶します
+                // %uptime
+                // 起動からの経過時間[ms]を返します。
                 data.driver.reply(data, "起動してから" + (Date.now() - this.launchDate.getTime()) + "ms経過しました。");
                 break;
             case 'hello':
