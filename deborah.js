@@ -258,7 +258,19 @@ class Deborah {
         console.log("Initializing deborah...");
         this.launchDate = new Date();
         var fs = require("fs");
-        this.settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        let fval, fname = "settings.json";
+        try {
+            fval = fs.readFileSync('settings.json');
+        }
+        catch (e) {
+            console.log("settings.json not found.\nimporting settings from environmental variable...");
+            fval = process.env.DEBORAH_CONFIG;
+        }
+        if (!fval) {
+            console.log("Error: cannot load settings.");
+            process.exit(1);
+        }
+        this.settings = JSON.parse(fval);
         console.log(JSON.stringify(this.settings, null, 1));
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
