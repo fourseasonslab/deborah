@@ -1,16 +1,44 @@
 # deborah
-slack上で動き、postに反応するbotを作成します
 
-### 必要環境
+deborah is an open source implemention of chat bot.
+
+It supports some communication platforms shown below:
+
+- Slack
+- Twitter
+- LINE
+
+## Requirements
 * Node.js
 * npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
  * typescript
  * forever
 
+## For developing
+```bash
+# set up
+sudo npm install -g typescript forever
+npm install
+git checkout develop
+git branch some_graceful_name
 
-## 設定
-リポジトリ直下に`settings.json`として
+# minimal setting (using stdin/stdout)
+echo "{ \"interfaces\": [ { \"type\": \"stdio\" } ], \"profile\": { \"name\": \"botname\", \"slack-icon\": \":innocent:\" } }" > settings.json
 
+# ... edit some code ...
+
+# compile *.ts to *.js
+tsc
+
+# run server on localhost
+node .
+
+```
+
+## Example settings.json
+`settings.json` should be placed in the root directory of the project.
+
+Example:
 ```JSON
 {
 	"interfaces": [
@@ -26,6 +54,19 @@ slack上で動き、postに反応するbotを作成します
 			"type": "slack-channel",
 			"team": "????.slack.com",
 			"channelName": "@hikalium"
+		},
+		{
+			"type": "twitter",
+			"screen_name": "michiru4s",
+            "consumer_key": "???",
+            "consumer_secret": "???",
+            "access_token_key": "???",
+            "access_token_secret": "???"
+		},
+		{
+			"type": "line",
+			"accessToken": "xxx",
+			"channelSecret": "xxx"
 		}
 	],
 	"profile": {
@@ -34,8 +75,6 @@ slack上で動き、postに反応するbotを作成します
 	}
 }
 ```
-
-のように書く。
 
 ### 設定パラメータの意味
 * token : string

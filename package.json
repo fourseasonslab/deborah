@@ -6,11 +6,16 @@
   "dependencies": {
     "mecab-lite": "^0.0.8",
     "slackbotapi": "^1.3.9",
-	"openjtalk": "^0.1.6"
+	"openjtalk": "^0.1.6",
+    "twitter": "^1.7.0",
+    "node-line-bot-api": "^0.1.3",
+    "slackbotapi": "^1.3.9",
+	"body-parser": "^1.16.0",
+	"express": "^4.14.1"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+	  "start": "node ."
   },
   "repository": {
     "type": "git",
@@ -30,3 +35,4 @@
   },
   "homepage": "https://github.com/fourseasonslab/deborah#readme"
 }
+
