@@ -1,11 +1,14 @@
 # deborah
-debora is an open-source implemention of social bot platform.
-it is now on the developing stage, but supports some social network(see `git branch`)
+
+deborah is an open source implemention of chat bot.
+
+It supports some communication platforms shown below:
+
 - Slack
-- twitter
+- Twitter
 - LINE
 
-## Premise
+## Requirements
 * Node.js
 * npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
  * typescript
@@ -30,12 +33,11 @@ tsc
 # run server on localhost
 node .
 
-# commit your changesets
-git commit -a
 ```
 
 ## Example settings.json
-`settings.json` should be placed in the project root directory.
+`settings.json` should be placed in the root directory of the project.
+
 Example:
 ```JSON
 {
@@ -122,7 +124,6 @@ forever stop deborah.js
 ## 注意点
 - Slackに関する制約
  - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
-- forever 21
 
 ## License
 MIT License
