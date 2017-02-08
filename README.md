@@ -60,6 +60,11 @@ Example:
             "consumer_secret": "???",
             "access_token_key": "???",
             "access_token_secret": "???"
+		},
+		{
+			"type": "line",
+			"accessToken": "xxx",
+			"channelSecret": "xxx"
 		}
 	],
 	"profile": {
