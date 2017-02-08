@@ -13,6 +13,96 @@ class DeborahMessage
 	rawData: any;
 }
 
+class DeborahDriverLineApp implements DeborahDriver
+{
+	line: any;
+	express: any;
+	bodyParser: any;
+	lineClient: any;
+	lineValidator: any;
+	app: any;
+
+	stat: number = 0;
+	replyTo: DeborahMessage = null;
+	message: string = null;
+
+	bot: Deborah;
+	settings: any;
+	private tryRequire(path: string) : any {
+		try {
+			return require(path);
+		} catch(e) {
+			console.log("DeborahDriverLineApp needs '" + path + "'.\n Please run 'sudo npm install -g " + path + "'");
+		}
+		return null;
+	}
+	constructor(bot: Deborah, settings: any) {
+		this.line    = this.tryRequire('node-line-bot-api');
+		this.express = this.tryRequire('express');
+		this.bodyParser = this.tryRequire('body-parser');
+		this.lineClient = this.line.client;
+		this.lineValidator = this.line.validator;
+		this.app = this.express();
+
+		this.bot = bot;
+		this.settings = settings;
+		this.app.use(this.bodyParser.json({
+			verify: function (req, res, buf) {
+				req.rawBody = buf;
+			}
+		}));
+		this.line.init({
+			accessToken: process.env.LINE_TOKEN || this.settings.accessToken,
+			channelSecret: process.env.LINE_SECRET || this.settings.channelSecret
+		});
+		let that = this;
+		this.app.post('/webhook/', 
+		  this.line.validator.validateSignature(), 
+		  function(req, res, next){
+			const promises: Promise<any>[] = [];
+			req.body.events.map(function(event){
+				if (!event.message.text) return;
+					var m = new DeborahMessage();
+					m.text = event.message.text;
+					m.senderName = "unknown";
+					m.context = "main";
+					m.driver = that;
+					m.rawData = null;
+					that.stat = 1;
+					that.bot.receive(m);
+					if (that.stat == 2) {
+						promises.push(that.line.client.replyMessage({
+							replyToken: event.replyToken,
+							messages: [
+								{
+									type: 'text',
+									text: that.message
+								}
+							]
+						}));
+					}
+					that.stat = 0;
+			});
+			Promise.all(promises).then(function(){res.json({success: true})});
+		});
+		this.connect();
+	}
+	connect() {
+		let port = process.env.PORT || 3000;
+		this.app.listen(port, function(){
+			console.log('Example app listening on port ' + port + '!')
+		});
+	}
+	reply(replyTo: DeborahMessage, message: string){
+		if (this.stat == 1) {
+			// Send as reply
+			this.replyTo = replyTo;
+			this.message = message;
+			this.stat = 2;
+		} 
+	}
+}
+
 class DeborahDriverSlack implements DeborahDriver
 {
 	bot: Deborah;
@@ -221,18 +311,20 @@ class Deborah
 	}
 	start(){
 		var interfaces = this.settings.interfaces;
-		if(!(interfaces instanceof Array)){
+		if (!(interfaces instanceof Array)) {
 			console.log("settings.interfaces is not an Array.");
 			process.exit(0);
 		}
-		for(var i = 0; i < interfaces.length; i++){
+		for (var i = 0; i < interfaces.length; i++) {
 			var iset = interfaces[i];
-			if(iset.type == "slack-connection"){
+			if (iset.type == "slack-connection") {
 				this.driverList.push(new DeborahDriverSlack(this, iset));
-			} if(iset.type == "stdio"){
+			} else if (iset.type == "stdio") {
 				this.driverList.push(new DeborahDriverStdIO(this, iset));
 			} if(iset.type == "twitter"){
 				this.driverList.push(new DeborahDriverTwitter(this, iset));
+			} else if (iset.type == "line") {
+				this.driverList.push(new DeborahDriverLineApp(this, iset));
 			}
 		}
 	}
@@ -246,13 +338,14 @@ class Deborah
 		}
 		// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
 		for(var k in this.fixedResponseList){
+			for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
 			if(data.text.match(this.fixedResponseList[k][0])){
 				data.driver.reply(data, this.fixedResponseList[k][1]);
 				break;
 			}
 		}
 		// %から始まる文字列をコマンドとして認識する
-		this.doCommand(data)
+		this.doCommand(data);
 	}
 	doCommand(data: DeborahMessage){
 		// %から始まる文字列をコマンドとして認識する
@@ -261,13 +354,13 @@ class Deborah
 		// コマンドの種類により異なる動作を選択
 		switch (command[0].toLowerCase()) {
 			case 'date':
-				// %hello
-				// 挨拶します
+				// %date
+				// 起動時刻を返します
 				data.driver.reply(data, "起動時刻は" + this.launchDate + "です。");
 				break;
 			case 'uptime':
-				// %hello
-				// 挨拶します
+				// %uptime
+				// 起動からの経過時間[ms]を返します。
 				data.driver.reply(data, "起動してから" + (Date.now() - this.launchDate.getTime()) + "ms経過しました。");
 				break;
 			case 'hello':

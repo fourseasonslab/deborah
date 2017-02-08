@@ -1,16 +1,42 @@
 # deborah
-slack上で動き、postに反応するbotを作成します
+debora is an open-source implemention of social bot platform.
+it is now on the developing stage, but supports some social network(see `git branch`)
+- Slack
+- twitter
+- LINE
 
-### 必要環境
+## Premise
 * Node.js
 * npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
  * typescript
  * forever
 
+## For developing
+```bash
+# set up
+sudo npm install -g typescript forever
+npm install
+git checkout develop
+git branch some_graceful_name
 
-## 設定
-リポジトリ直下に`settings.json`として
+# minimal setting (using stdin/stdout)
+echo "{ \"interfaces\": [ { \"type\": \"stdio\" } ], \"profile\": { \"name\": \"botname\", \"slack-icon\": \":innocent:\" } }" > settings.json
 
+# ... edit some code ...
+
+# compile *.ts to *.js
+tsc
+
+# run server on localhost
+node .
+
+# commit your changesets
+git commit -a
+```
+
+## Example settings.json
+`settings.json` should be placed in the project root directory.
+Example:
 ```JSON
 {
 	"interfaces": [
@@ -42,8 +68,6 @@ slack上で動き、postに反応するbotを作成します
 	}
 }
 ```
-
-のように書く。
 
 ### 設定パラメータの意味
 * token : string
@@ -93,6 +117,7 @@ forever stop deborah.js
 ## 注意点
 - Slackに関する制約
  - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
+- forever 21
 
 ## License
 MIT License

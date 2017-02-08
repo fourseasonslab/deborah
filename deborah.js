@@ -1,10 +1,84 @@
-var DeborahMessage = (function () {
-    function DeborahMessage() {
+class DeborahMessage {
+}
+class DeborahDriverLineApp {
+    constructor(bot, settings) {
+        this.stat = 0;
+        this.replyTo = null;
+        this.message = null;
+        this.line = this.tryRequire('node-line-bot-api');
+        this.express = this.tryRequire('express');
+        this.bodyParser = this.tryRequire('body-parser');
+        this.lineClient = this.line.client;
+        this.lineValidator = this.line.validator;
+        this.app = this.express();
+        this.bot = bot;
+        this.settings = settings;
+        this.app.use(this.bodyParser.json({
+            verify: function (req, res, buf) {
+                req.rawBody = buf;
+            }
+        }));
+        this.line.init({
+            accessToken: process.env.LINE_TOKEN || this.settings.accessToken,
+            channelSecret: process.env.LINE_SECRET || this.settings.channelSecret
+        });
+        let that = this;
+        this.app.post('/webhook/', this.line.validator.validateSignature(), function (req, res, next) {
+            const promises = [];
+            req.body.events.map(function (event) {
+                if (!event.message.text)
+                    return;
+                var m = new DeborahMessage();
+                m.text = event.message.text;
+                m.senderName = "unknown";
+                m.context = "main";
+                m.driver = that;
+                m.rawData = null;
+                that.stat = 1;
+                that.bot.receive(m);
+                if (that.stat == 2) {
+                    promises.push(that.line.client.replyMessage({
+                        replyToken: event.replyToken,
+                        messages: [
+                            {
+                                type: 'text',
+                                text: that.message
+                            }
+                        ]
+                    }));
+                }
+                that.stat = 0;
+            });
+            Promise.all(promises).then(function () { res.json({ success: true }); });
+        });
+        this.connect();
     }
-    return DeborahMessage;
-}());
-var DeborahDriverSlack = (function () {
-    function DeborahDriverSlack(bot, settings) {
+    tryRequire(path) {
+        try {
+            return require(path);
+        }
+        catch (e) {
+            console.log("DeborahDriverLineApp needs '" + path + "'.\n Please run 'sudo npm install -g " + path + "'");
+        }
+        return null;
+    }
+    connect() {
+        let port = process.env.PORT || 3000;
+        this.app.listen(port, function () {
+            console.log('Example app listening on port ' + port + '!');
+        });
+    }
+    reply(replyTo, message) {
+        if (this.stat == 1) {
+            // Send as reply
+            this.replyTo = replyTo;
+            this.message = message;
+            this.stat = 2;
+        }
+    }
+}
+class DeborahDriverSlack {
+    constructor(bot, settings) {
         console.log("Driver initialized: Slack (" + settings.team + ")");
         this.bot = bot;
         this.connectionSettings = settings;
@@ -16,7 +90,7 @@ var DeborahDriverSlack = (function () {
         });
         this.connect();
     }
-    DeborahDriverSlack.prototype.connect = function () {
+    connect() {
         var that = this;
         this.connection.on('message', function (data) {
             // receive
@@ -38,19 +112,19 @@ var DeborahDriverSlack = (function () {
             //
             that.bot.receive(m);
         });
-    };
-    DeborahDriverSlack.prototype.reply = function (replyTo, message) {
+    }
+    reply(replyTo, message) {
         this.sendAs(replyTo.context, "@" + replyTo.senderName + " " + message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
-    };
-    DeborahDriverSlack.prototype.sendAs = function (channel, text, name, icon) {
+    }
+    sendAs(channel, text, name, icon) {
         var data = new Object();
         data.text = text;
         data.channel = channel;
         data.icon_emoji = icon;
         data.username = name;
         this.connection.reqAPI("chat.postMessage", data);
-    };
-    DeborahDriverSlack.prototype.getUsername = function (data) {
+    }
+    getUsername(data) {
         // botの場合
         if (data.user === undefined) {
             return data.username;
@@ -58,11 +132,10 @@ var DeborahDriverSlack = (function () {
         else {
             return this.connection.getUser(data.user).name;
         }
-    };
-    return DeborahDriverSlack;
-}());
-var DeborahDriverStdIO = (function () {
-    function DeborahDriverStdIO(bot, setting) {
+    }
+}
+class DeborahDriverStdIO {
+    constructor(bot, setting) {
         console.log("Driver initialized: StdIO");
         this.bot = bot;
         // 標準入力をlisten
@@ -90,13 +163,12 @@ var DeborahDriverStdIO = (function () {
             //});
         });
     }
-    DeborahDriverStdIO.prototype.reply = function (replyTo, message) {
+    reply(replyTo, message) {
         this.readline.write(message);
-    };
-    return DeborahDriverStdIO;
-}());
-var DeborahDriverTwitter = (function () {
-    function DeborahDriverTwitter(bot, settings) {
+    }
+}
+class DeborahDriverTwitter {
+    constructor(bot, settings) {
         console.log("Driver initialized: Twitter");
         this.bot = bot;
         this.settings = settings;
@@ -127,10 +199,10 @@ var DeborahDriverTwitter = (function () {
             });
         });
     }
-    DeborahDriverTwitter.prototype.reply = function (replyTo, message) {
+    reply(replyTo, message) {
         var msg = {
             "status": "@" + replyTo.senderName + " " + message,
-            "in_reply_to_status_id": replyTo.rawData.id_str
+            "in_reply_to_status_id": replyTo.rawData.id_str,
         };
         this.client.post('statuses/update', msg, function (error, tweet, response) {
             if (error)
@@ -138,9 +210,8 @@ var DeborahDriverTwitter = (function () {
             console.log(tweet); // Tweet body.
             //console.log(response);  // Raw response object.
         });
-    };
-    return DeborahDriverTwitter;
-}());
+    }
+}
 /*
 // helloイベント（自分の起動）が発生したとき
 slack.on('hello', function (data){
@@ -174,8 +245,8 @@ slack.on('hello', function (data){
 });
 
 */
-var Deborah = (function () {
-    function Deborah() {
+class Deborah {
+    constructor() {
         this.driverList = [];
         this.initialIgnorePeriod = 5000; // ms
         this.fixedResponseList = [
@@ -192,7 +263,7 @@ var Deborah = (function () {
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
     }
-    Deborah.prototype.start = function () {
+    start() {
         var interfaces = this.settings.interfaces;
         if (!(interfaces instanceof Array)) {
             console.log("settings.interfaces is not an Array.");
@@ -203,15 +274,18 @@ var Deborah = (function () {
             if (iset.type == "slack-connection") {
                 this.driverList.push(new DeborahDriverSlack(this, iset));
             }
-            if (iset.type == "stdio") {
+            else if (iset.type == "stdio") {
                 this.driverList.push(new DeborahDriverStdIO(this, iset));
             }
             if (iset.type == "twitter") {
                 this.driverList.push(new DeborahDriverTwitter(this, iset));
             }
+            else if (iset.type == "line") {
+                this.driverList.push(new DeborahDriverLineApp(this, iset));
+            }
         }
-    };
-    Deborah.prototype.receive = function (data) {
+    }
+    receive(data) {
         // メッセージが空なら帰る
         console.log("Deborah.receive: [" + data.text + "] in " + data.context);
         // 最初の無視期間は反応せず帰る
@@ -221,6 +295,8 @@ var Deborah = (function () {
         }
         // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
         for (var k in this.fixedResponseList) {
+            for (let baka in data)
+                console.log("data[" + baka + "] = " + data[baka]);
             if (data.text.match(this.fixedResponseList[k][0])) {
                 data.driver.reply(data, this.fixedResponseList[k][1]);
                 break;
@@ -228,8 +304,8 @@ var Deborah = (function () {
         }
         // %から始まる文字列をコマンドとして認識する
         this.doCommand(data);
-    };
-    Deborah.prototype.doCommand = function (data) {
+    }
+    doCommand(data) {
         // %から始まる文字列をコマンドとして認識する
         if (data.text.charAt(0) !== '%')
             return;
@@ -237,13 +313,13 @@ var Deborah = (function () {
         // コマンドの種類により異なる動作を選択
         switch (command[0].toLowerCase()) {
             case 'date':
-                // %hello
-                // 挨拶します
+                // %date
+                // 起動時刻を返します
                 data.driver.reply(data, "起動時刻は" + this.launchDate + "です。");
                 break;
             case 'uptime':
-                // %hello
-                // 挨拶します
+                // %uptime
+                // 起動からの経過時間[ms]を返します。
                 data.driver.reply(data, "起動してから" + (Date.now() - this.launchDate.getTime()) + "ms経過しました。");
                 break;
             case 'hello':
@@ -283,8 +359,7 @@ var Deborah = (function () {
                 }
                 break;
         }
-    };
-    return Deborah;
-}());
+    }
+}
 var deborah = new Deborah();
 deborah.start();
