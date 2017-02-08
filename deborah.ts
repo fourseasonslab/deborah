@@ -60,11 +60,14 @@ class DeborahDriverLineApp implements DeborahDriver
 		  this.line.validator.validateSignature(), 
 		  function(req, res, next){
 			const promises: Promise<any>[] = [];
+			let errorCount: number = 0;
 			req.body.events.map(function(event){
+				console.log(event.source.userId);
 				if (!event.message.text) return;
+				that.line.client.getProfile(event.source.userId).then((profile)=>{
 					var m = new DeborahMessage();
 					m.text = event.message.text;
-					m.senderName = "unknown";
+					m.senderName = profile.displayName;
 					m.context = "main";
 					m.driver = that;
 					m.rawData = null;
@@ -72,7 +75,8 @@ class DeborahDriverLineApp implements DeborahDriver
 					that.message = "";
 					that.bot.receive(m);
 					if (that.stat == 2) {
-						promises.push(that.line.client.replyMessage({
+						// promises.push(that.line.client.replyMessage({
+						that.line.client.replyMessage({
 							replyToken: event.replyToken,
 							messages: [
 								{
@@ -80,11 +84,14 @@ class DeborahDriverLineApp implements DeborahDriver
 									text: that.message
 								}
 							]
-						}));
+						// }));
+						}).catch(()=>{ errorCount++; });
 					}
 					that.stat = 0;
+				}, ()=>{ errorCount++; });
 			});
-			Promise.all(promises).then(function(){res.json({success: true})});
+			// Promise.all(promises).then(function(){res.json({success: true})});
+			if (!errorCount) res.json({success: true});
 		});
 		this.connect();
 	}
