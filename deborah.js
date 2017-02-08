@@ -35,6 +35,7 @@ class DeborahDriverLineApp {
                 m.driver = that;
                 m.rawData = null;
                 that.stat = 1;
+                that.message = "";
                 that.bot.receive(m);
                 if (that.stat == 2) {
                     promises.push(that.line.client.replyMessage({
@@ -72,7 +73,7 @@ class DeborahDriverLineApp {
         if (this.stat == 1) {
             // Send as reply
             this.replyTo = replyTo;
-            this.message = message;
+            this.message += (this.message ? "\n" : "") + message;
             this.stat = 2;
         }
     }
@@ -298,24 +299,29 @@ class Deborah {
         }
     }
     receive(data) {
-        // メッセージが空なら帰る
-        console.log("Deborah.receive: [" + data.text + "] in " + data.context);
-        // 最初の無視期間は反応せず帰る
-        if ((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod) {
-            console.log("initial ignore period. ignore.");
-            return 0;
-        }
-        // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
-        for (var k in this.fixedResponseList) {
-            for (let baka in data)
-                console.log("data[" + baka + "] = " + data[baka]);
-            if (data.text.match(this.fixedResponseList[k][0])) {
-                data.driver.reply(data, this.fixedResponseList[k][1]);
-                break;
+        try {
+            // メッセージが空なら帰る
+            console.log("Deborah.receive: [" + data.text + "] in " + data.context);
+            // 最初の無視期間は反応せず帰る
+            if ((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod) {
+                console.log("initial ignore period. ignore.");
+                return 0;
             }
+            // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
+            for (var k in this.fixedResponseList) {
+                for (let baka in data)
+                    console.log("data[" + baka + "] = " + data[baka]);
+                if (data.text.match(this.fixedResponseList[k][0])) {
+                    data.driver.reply(data, this.fixedResponseList[k][1]);
+                    break;
+                }
+            }
+            // %から始まる文字列をコマンドとして認識する
+            this.doCommand(data);
         }
-        // %から始まる文字列をコマンドとして認識する
-        this.doCommand(data);
+        catch (e) {
+            data.driver.reply(data, "内部エラーが発生しました。\nメッセージ: " + e);
+        }
     }
     doCommand(data) {
         // %から始まる文字列をコマンドとして認識する
@@ -352,8 +358,13 @@ class Deborah {
                 var that = this;
                 this.mecab.parse(str, function (err, result) {
                     var ans = "";
-                    for (var i = 0; i < result.length - 1; i++) {
-                        ans += result[i][0] + "/";
+                    if (result) {
+                        for (var i = 0; i < result.length - 1; i++) {
+                            ans += result[i][0] + "/";
+                        }
+                    }
+                    else {
+                        ans = "ごめんなさい、このサーバーはmecabには対応していません";
                     }
                     data.driver.reply(data, ans);
                 });
