@@ -4,7 +4,8 @@
         "noImplicitAny": false,
         "removeComments": false,
         "preserveConstEnums": false,
-        "sourceMap": false
+        "sourceMap": false,
+		"target": "es6"
     },
     "files": [
 		"node.d.ts",
