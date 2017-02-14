@@ -321,14 +321,44 @@ class Deborah {
                 return 0;
             }
             // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
-            for (var k in this.fixedResponseList) {
-                for (let baka in data)
-                    console.log("data[" + baka + "] = " + data[baka]);
-                if (data.text.match(this.fixedResponseList[k][0])) {
+            /*
+            for(var k in this.fixedResponseList){
+                for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
+                if(data.text.match(this.fixedResponseList[k][0])){
                     data.driver.reply(data, this.fixedResponseList[k][1]);
                     break;
                 }
             }
+            */
+            this.mecab.parse(data.text, function (err, result) {
+                console.log(JSON.stringify(result, null, 2));
+                var s = "";
+                for (var i = 0; i < result.length - 1; i++) {
+                    if (result[i][1] === "動詞") {
+                        s = result[i][0];
+                        if (result[i][6] !== "基本形") {
+                            for (i++; i < result.length - 1; i++) {
+                                s += result[i][0];
+                                if (result[i][6] === "基本形")
+                                    break;
+                            }
+                        }
+                    }
+                }
+                if (s.length > 0) {
+                    data.driver.reply(data, "そうか、君は" + s + "フレンズなんだね！");
+                }
+                /*
+                if (result) {
+                    for(var i=0;i<result.length-1;i++){
+                        ans += result[i][0] + "/";
+                    }
+                } else {
+                    ans = "ごめんなさい、このサーバーはmecabには対応していません";
+                }
+                data.driver.reply(data, ans);
+                */
+            });
             // %から始まる文字列をコマンドとして認識する
             this.doCommand(data);
         }
