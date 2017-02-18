@@ -1,7 +1,24 @@
-interface DeborahDriver
+
+class DeborahDriver
 {
 	bot: Deborah;
-	reply(replyTo: DeborahMessage, message: string);
+	settings: any;
+	//
+	constructor(bot: Deborah, settings: any){
+		this.bot = bot;
+		this.settings = settings;
+	}
+	reply(replyTo: DeborahMessage, message: string){
+		console.log("DeborahDriver: Default: " + message);
+	}
+	protected tryRequire(path: string) : any {
+		try {
+			return require(path);
+		} catch(e) {
+			console.log("DeborahDriver needs '" + path + "'.\n Please run 'sudo npm install -g " + path + "'");
+		}
+		return null;
+	}
 }
 
 class DeborahMessage
@@ -13,7 +30,7 @@ class DeborahMessage
 	rawData: any;
 }
 
-class DeborahDriverLineApp implements DeborahDriver
+class DeborahDriverLineApp extends DeborahDriver
 {
 	line: any;
 	express: any;
@@ -28,15 +45,8 @@ class DeborahDriverLineApp implements DeborahDriver
 
 	bot: Deborah;
 	settings: any;
-	private tryRequire(path: string) : any {
-		try {
-			return require(path);
-		} catch(e) {
-			console.log("DeborahDriverLineApp needs '" + path + "'.\n Please run 'sudo npm install -g " + path + "'");
-		}
-		return null;
-	}
 	constructor(bot: Deborah, settings: any) {
+		super(bot, settings);
 		this.line    = this.tryRequire('node-line-bot-api');
 		this.express = this.tryRequire('express');
 		this.bodyParser = this.tryRequire('body-parser');
@@ -44,8 +54,6 @@ class DeborahDriverLineApp implements DeborahDriver
 		this.lineValidator = this.line.validator;
 		this.app = this.express();
 
-		this.bot = bot;
-		this.settings = settings;
 		this.app.use(this.bodyParser.json({
 			verify: function (req, res, buf) {
 				req.rawBody = buf;
@@ -111,15 +119,15 @@ class DeborahDriverLineApp implements DeborahDriver
 	}
 }
 
-class DeborahDriverSlack implements DeborahDriver
+class DeborahDriverSlack extends DeborahDriver
 {
 	bot: Deborah;
 	token: string;
 	connection: any;
 	connectionSettings: any;
 	constructor(bot: Deborah, settings: any){
+		super(bot, settings);
 		console.log("Driver initialized: Slack (" + settings.team + ")");
-		this.bot = bot;
 		this.connectionSettings = settings;
 		var slackAPI = require('slackbotapi');
 		this.connection = new slackAPI({
@@ -171,13 +179,22 @@ class DeborahDriverSlack implements DeborahDriver
 	}
 }
 
-class DeborahDriverStdIO implements DeborahDriver
+class DeborahDriverStdIO extends DeborahDriver
 {
 	bot: Deborah;
-	readline;
-	constructor(bot: Deborah, setting: any){
+	readline: any;
+	openjtalk: any;
+	constructor(bot: Deborah, settings: any){
+		super(bot, settings);
 		console.log("Driver initialized: StdIO");
-		this.bot = bot;
+		//
+		var OpenJTalk = this.tryRequire('openjtalk');
+		if(OpenJTalk){
+			this.openjtalk = new OpenJTalk();
+			this.openjtalk.talk('音声合成が有効です');
+		} else{
+			this.openjtalk = null;
+		}
 		// 標準入力をlisten
 		var that = this;
 		this.readline = require('readline').createInterface({
@@ -205,19 +222,20 @@ class DeborahDriverStdIO implements DeborahDriver
 	}
 	reply(replyTo: DeborahMessage, message: string){
 		this.readline.write(message);
+		if(this.openjtalk){
+			this.openjtalk.talk(message);
+		}
 	}
 }
 
-class DeborahDriverTwitter implements DeborahDriver
+class DeborahDriverTwitter extends DeborahDriver
 {
 	bot: Deborah;
 	settings: any;
 	client: any;
-	
 	constructor(bot: Deborah, settings: any){
+		super(bot, settings);
 		console.log("Driver initialized: Twitter");
-		this.bot = bot;
-		this.settings = settings;
 		var Twitter = require('twitter');
 		this.client = new Twitter({
 			consumer_key: settings.consumer_key,
@@ -327,6 +345,7 @@ class Deborah
 		console.log(JSON.stringify(this.settings, null, 1));
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
+		//
 	}
 	start(){
 		var interfaces = this.settings.interfaces;
@@ -357,6 +376,7 @@ class Deborah
 				return 0;
 			}
 			// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
+			/*
 			for(var k in this.fixedResponseList){
 				for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
 				if(data.text.match(this.fixedResponseList[k][0])){
@@ -364,6 +384,37 @@ class Deborah
 					break;
 				}
 			}
+			*/
+			this.mecab.parse(data.text, function(err, result) {
+				console.log(JSON.stringify(result, null, 2));
+				var s = "";
+				for(var i = 0; i < result.length - 1; i++){
+					if(result[i][1] === "動詞"){
+						s = result[i][0];
+						if(result[i][6] !== "基本形"){
+							for(i++; i < result.length - 1; i++){
+								s += result[i][0];
+								if(result[i][6] === "基本形") break;
+							}
+						}
+						//console.log(s);
+					}
+				}
+				if(s.length > 0){
+					data.driver.reply(data, "そうか、君は" + s + "フレンズなんだね！");
+				}
+				/*
+				if (result) {
+					for(var i=0;i<result.length-1;i++){
+						ans += result[i][0] + "/";
+					}
+				} else {
+					ans = "ごめんなさい、このサーバーはmecabには対応していません";
+				}
+				data.driver.reply(data, ans);
+				*/
+			});
+			
 			// %から始まる文字列をコマンドとして認識する
 			this.doCommand(data);
 		} catch(e) {
