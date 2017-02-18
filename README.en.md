@@ -1,17 +1,20 @@
 # deborah
 
-「deborah」は、以下の3つの環境で動作する、オープンソースのチャットbotです。
+deborah is an open source implemention of chat bot.
+
+It supports some communication platforms shown below:
+
 - Slack
 - Twitter
 - LINE
 
-## 必要環境
+## Requirements
 * Node.js
 * npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
  * typescript
  * forever
 
-## 開発者向け
+## For developing
 ```bash
 # set up
 sudo npm install -g typescript forever
@@ -32,9 +35,10 @@ node .
 
 ```
 
-## settings.jsonについて
-動作させる前に、設定ファイルとして、以下のような`settings.json`ファイルを作成し、同ディレクトリ内に置いてください。 
+## Example settings.json
+`settings.json` should be placed in the root directory of the project.
 
+Example:
 ```JSON
 {
 	"interfaces": [
@@ -73,39 +77,18 @@ node .
 ```
 
 ### 設定パラメータの意味
-#### interfaces : any[]
-* この配列中に、接続先各デバイスの情報を格納します
-* type: "stdio"
-	* 標準入出力。特別に設定すべきパラメータはありません
-* type: "slack-connection"
-	* チームへのアクセスに必要な情報を格納します
-	* team : string
-		* 対象となるチーム `チーム名.slack.com`
-	* token : string
-		* APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
-* type: "slack-channel"
-	* botが動くチャンネルを制限する情報を格納します（未実装）
-	* team : string
-		* 対象となるチーム `チーム名.slack.com`
-	* channel : string
-		* 対象となるチャンネル `@hikalium` `#general`
-* type: "twitter"
-	* screen_name : string
-		* botのTwitterIDの@を取ったもの `michiru4s`
-	* consumer_key : string
-	* consumer_secret : string
-	* access\_token\_key : string
-	* access\_token\_secret : string
-		* APIトークン（いずれもhttps://apps.twitter.com/ で取得できる）
-* type: "line"
-	* accessToken : string
-	* channelSecret : string
-
-#### profile : any
+* token : string
+ * APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
 * name : string
- * 発言する際の名前
+ * BOTとして発言する際の名前
 * slack-icon : string
- * slackで発言する際のアイコン（Slack上の絵文字の記法で書く）
+ * BOTとして発言する際のアイコン（Slack上の絵文字の記法で書く）
+* channels : string[]
+ * BOTの発言を許可するチャンネル
+  * #から始まるものはChannel(public)
+  * @から始まるものはUserへのDirect Message
+  * %から始まるものはChannel(private) ← これをAPIではGroupとして扱う
+  * それ以外はChannelIDとみなされる
 
 ## 起動方法
 
