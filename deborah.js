@@ -1,7 +1,27 @@
+class DeborahDriver {
+    //
+    constructor(bot, settings) {
+        this.bot = bot;
+        this.settings = settings;
+    }
+    reply(replyTo, message) {
+        console.log("DeborahDriver: Default: " + message);
+    }
+    tryRequire(path) {
+        try {
+            return require(path);
+        }
+        catch (e) {
+            console.log("DeborahDriver needs '" + path + "'.\n Please run 'sudo npm install -g " + path + "'");
+        }
+        return null;
+    }
+}
 class DeborahMessage {
 }
-class DeborahDriverLineApp {
+class DeborahDriverLineApp extends DeborahDriver {
     constructor(bot, settings) {
+        super(bot, settings);
         this.stat = 0;
         this.replyTo = null;
         this.message = null;
@@ -11,8 +31,6 @@ class DeborahDriverLineApp {
         this.lineClient = this.line.client;
         this.lineValidator = this.line.validator;
         this.app = this.express();
-        this.bot = bot;
-        this.settings = settings;
         this.app.use(this.bodyParser.json({
             verify: function (req, res, buf) {
                 req.rawBody = buf;
@@ -61,15 +79,6 @@ class DeborahDriverLineApp {
         });
         this.connect();
     }
-    tryRequire(path) {
-        try {
-            return require(path);
-        }
-        catch (e) {
-            console.log("DeborahDriverLineApp needs '" + path + "'.\n Please run 'sudo npm install -g " + path + "'");
-        }
-        return null;
-    }
     connect() {
         let port = process.env.PORT || 3000;
         this.app.listen(port, function () {
@@ -85,10 +94,10 @@ class DeborahDriverLineApp {
         }
     }
 }
-class DeborahDriverSlack {
+class DeborahDriverSlack extends DeborahDriver {
     constructor(bot, settings) {
+        super(bot, settings);
         console.log("Driver initialized: Slack (" + settings.team + ")");
-        this.bot = bot;
         this.connectionSettings = settings;
         var slackAPI = require('slackbotapi');
         this.connection = new slackAPI({
@@ -142,14 +151,19 @@ class DeborahDriverSlack {
         }
     }
 }
-class DeborahDriverStdIO {
-    constructor(bot, setting) {
+class DeborahDriverStdIO extends DeborahDriver {
+    constructor(bot, settings) {
+        super(bot, settings);
         console.log("Driver initialized: StdIO");
         //
-        var OpenJTalk = require('openjtalk');
-        this.openjtalk = new OpenJTalk();
-        this.openjtalk.talk('音声合成が有効です');
-        this.bot = bot;
+        var OpenJTalk = this.tryRequire('openjtalk');
+        if (OpenJTalk) {
+            this.openjtalk = new OpenJTalk();
+            this.openjtalk.talk('音声合成が有効です');
+        }
+        else {
+            this.openjtalk = null;
+        }
         // 標準入力をlisten
         var that = this;
         this.readline = require('readline').createInterface({
@@ -177,14 +191,15 @@ class DeborahDriverStdIO {
     }
     reply(replyTo, message) {
         this.readline.write(message);
-        this.openjtalk.talk(message);
+        if (this.openjtalk) {
+            this.openjtalk.talk(message);
+        }
     }
 }
-class DeborahDriverTwitter {
+class DeborahDriverTwitter extends DeborahDriver {
     constructor(bot, settings) {
+        super(bot, settings);
         console.log("Driver initialized: Twitter");
-        this.bot = bot;
-        this.settings = settings;
         var Twitter = require('twitter');
         this.client = new Twitter({
             consumer_key: settings.consumer_key,
