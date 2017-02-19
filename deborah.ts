@@ -159,6 +159,12 @@ class DeborahDriverSlack extends DeborahDriver
 		});
 	}
 	reply(replyTo: DeborahMessage, message: string){
+		if(this.settings.output === false){
+			console.log("Disabled output:");
+			console.log(replyTo);
+			console.log(message);
+			return;
+		}
 		this.sendAs(replyTo.context, "@"+replyTo.senderName+" "+message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
 	}
 	sendAs(channel, text, name, icon){

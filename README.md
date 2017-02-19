@@ -83,6 +83,8 @@ node .
 		* 対象となるチーム `チーム名.slack.com`
 	* token : string
 		* APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
+	* output : boolean
+		* このドライバを出力に使用するか否か（falseの場合、返答は送信されず標準出力に表示される。）
 * type: "slack-channel"
 	* botが動くチャンネルを制限する情報を格納します（未実装）
 	* team : string
