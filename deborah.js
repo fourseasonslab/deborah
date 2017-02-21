@@ -1,3 +1,25 @@
+class Cabocha {
+    constructor(opt) {
+        var childprocess = require("child_process");
+        this.p = childprocess.spawn('cabocha', ["-" + (opt == undefined ? "f1" : opt)], {});
+        var that = this;
+        this.p.stdout.on('data', function (data) {
+            //console.log('stdout: ' + data);
+            that.f(data);
+        });
+        this.p.on('exit', function (code) {
+            console.log('child process exited.');
+        });
+        this.p.on('error', function (err) {
+            console.error(err);
+            process.exit(1);
+        });
+    }
+    parse(s, f) {
+        this.f = f;
+        this.p.stdin.write(s + "\n");
+    }
+}
 class DeborahDriver {
     //
     constructor(bot, settings) {
@@ -308,6 +330,8 @@ class Deborah {
         console.log(JSON.stringify(this.settings, null, 1));
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
+        this.cabochaf1 = new Cabocha();
+        this.cabochaf0 = new Cabocha("f0");
         //
     }
     start() {
@@ -351,6 +375,12 @@ class Deborah {
                 }
             }
             */
+            this.cabochaf0.parse(data.text, function (result) {
+                console.log("deborah" + result);
+            });
+            this.cabochaf1.parse(data.text, function (result) {
+                console.log("deborah" + result);
+            });
             this.mecab.parse(data.text, function (err, result) {
                 console.log(JSON.stringify(result, null, 2));
                 var s = "";
