@@ -291,19 +291,30 @@ class DeborahDriverWebAPI extends DeborahDriver
 	settings: any;
 	httpServer: any;
 	io: any;
+	openjtalk: any;
+	dataurl: any;
+	fs: any;
 	constructor(bot: Deborah, settings: any){
 		super(bot, settings);
 		console.log("Driver initialized: WebAPI");
 		//
+		this.fs = require('fs');
+		this.dataurl = require('dataurl');
 		var port = 3000;
 		var Sock = require('socket.io');
-		var fs = require('fs');
 		var http = require('http');
 		var that = this;
+		var OpenJTalk = this.tryRequire('openjtalk');
+		if(OpenJTalk){
+			this.openjtalk = new OpenJTalk();
+			//this.openjtalk.talk('音声合成が有効です');
+		} else{
+			this.openjtalk = null;
+		}
 		//
 		this.httpServer = http.createServer();
 		this.httpServer.on('request', function(req, res){
-			var stream = fs.createReadStream('index.html');
+			var stream = that.fs.createReadStream('index.html');
 			res.writeHead(200, {'Content-Type': 'text/html'});
 			stream.pipe(res);
 		});
@@ -329,11 +340,31 @@ class DeborahDriverWebAPI extends DeborahDriver
 		this.httpServer.listen(port);
 	}
 	reply(replyTo: DeborahMessage, message: string){
-		console.log("webapi: reply: " + message);
-		var m = {
-			text: message
-		};
-		replyTo.rawData.emit("reply", m);
+		this.createVoiceURL(message, function(url: string){
+			console.log("webapi: reply: " + message);
+			var m = {
+				text: message,
+				voiceURL: url,
+			};
+			replyTo.rawData.emit("reply", m);
+		});
+	}
+	createVoiceURL(text: string, f: (url: string) => void){
+		var that = this;
+		this.openjtalk._makeWav(text, this.openjtalk.pitch, function(err, res){
+			console.log(res);
+			that.fs.readFile(res.wav, function(err, data){
+				var url = that.dataurl.convert({
+					data: data,
+					mimetype: 'audio/wav'
+				});
+				//console.log(url);
+				f(url);
+				that.fs.unlink(res.wav, function (err) {
+					if (err) console.log('unlink failed');
+				});
+			});
+		});
 	}
 }
 

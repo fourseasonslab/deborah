@@ -21,6 +21,8 @@ onload = function(){
 	});
 	socket.on('reply', function(data){
 		rpBox.innerText = data.text;
+		var au = new Audio(data.voiceURL);
+		au.play();
 	});
 	socket.on('disconnect', function(){
 		console.log("sock: disconnected");

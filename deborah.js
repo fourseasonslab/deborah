@@ -251,15 +251,23 @@ class DeborahDriverWebAPI extends DeborahDriver {
         super(bot, settings);
         console.log("Driver initialized: WebAPI");
         //
+        this.fs = require('fs');
+        this.dataurl = require('dataurl');
         var port = 3000;
         var Sock = require('socket.io');
-        var fs = require('fs');
         var http = require('http');
         var that = this;
+        var OpenJTalk = this.tryRequire('openjtalk');
+        if (OpenJTalk) {
+            this.openjtalk = new OpenJTalk();
+        }
+        else {
+            this.openjtalk = null;
+        }
         //
         this.httpServer = http.createServer();
         this.httpServer.on('request', function (req, res) {
-            var stream = fs.createReadStream('index.html');
+            var stream = that.fs.createReadStream('index.html');
             res.writeHead(200, { 'Content-Type': 'text/html' });
             stream.pipe(res);
         });
@@ -285,11 +293,32 @@ class DeborahDriverWebAPI extends DeborahDriver {
         this.httpServer.listen(port);
     }
     reply(replyTo, message) {
-        console.log("webapi: reply: " + message);
-        var m = {
-            text: message
-        };
-        replyTo.rawData.emit("reply", m);
+        this.createVoiceURL(message, function (url) {
+            console.log("webapi: reply: " + message);
+            var m = {
+                text: message,
+                voiceURL: url,
+            };
+            replyTo.rawData.emit("reply", m);
+        });
+    }
+    createVoiceURL(text, f) {
+        var that = this;
+        this.openjtalk._makeWav(text, this.openjtalk.pitch, function (err, res) {
+            console.log(res);
+            that.fs.readFile(res.wav, function (err, data) {
+                var url = that.dataurl.convert({
+                    data: data,
+                    mimetype: 'audio/wav'
+                });
+                //console.log(url);
+                f(url);
+                that.fs.unlink(res.wav, function (err) {
+                    if (err)
+                        console.log('unlink failed');
+                });
+            });
+        });
     }
 }
 /*
