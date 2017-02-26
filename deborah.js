@@ -246,6 +246,52 @@ class DeborahDriverTwitter extends DeborahDriver {
         });
     }
 }
+class DeborahDriverWebAPI extends DeborahDriver {
+    constructor(bot, settings) {
+        super(bot, settings);
+        console.log("Driver initialized: WebAPI");
+        //
+        var port = 3000;
+        var Sock = require('socket.io');
+        var fs = require('fs');
+        var http = require('http');
+        var that = this;
+        //
+        this.httpServer = http.createServer();
+        this.httpServer.on('request', function (req, res) {
+            var stream = fs.createReadStream('index.html');
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            stream.pipe(res);
+        });
+        this.io = Sock.listen(this.httpServer);
+        this.io.on('connection', function (socket) {
+            console.log("connection established");
+            //console.log(client);
+            socket.on('input', function (data) {
+                console.log("recv input:");
+                console.log(data);
+                //
+                var m = new DeborahMessage();
+                m.text = data.text;
+                m.senderName = "unknown";
+                m.context = socket;
+                m.driver = that;
+                m.rawData = socket;
+                //
+                that.bot.receive(m);
+            });
+        });
+        console.log("Listen on port " + port);
+        this.httpServer.listen(port);
+    }
+    reply(replyTo, message) {
+        console.log("webapi: reply: " + message);
+        var m = {
+            text: message
+        };
+        replyTo.rawData.emit("reply", m);
+    }
+}
 /*
 // helloイベント（自分の起動）が発生したとき
 slack.on('hello', function (data){
@@ -329,6 +375,9 @@ class Deborah {
             }
             else if (iset.type == "line") {
                 this.driverList.push(new DeborahDriverLineApp(this, iset));
+            }
+            else if (iset.type == "webapi") {
+                this.driverList.push(new DeborahDriverWebAPI(this, iset));
             }
         }
     }
