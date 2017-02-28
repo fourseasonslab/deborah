@@ -399,40 +399,26 @@ class Deborah {
                     resArray[j] = [0, ""];
                     resArray[j][0] = res[i][2].substring(0, res[i][2].length - 1);
                     while (res[i + 1][0] !== "*") {
-                        resArray[j][1] += res[++i][0];
-                        if (i >= res.length - 1)
+                        if (res[++i][0] === "EOS")
                             break;
+                        resArray[j][1] += res[i][0];
                     }
                     j++;
                 }
-                var s = "";
-                var num = -1;
-                for (var i = 0; i < res.length - 1; i++) {
-                    //console.log("res[" + i + "][0] = " + res[i][0]);
-                    if (res[i][0] === "*")
-                        num++;
-                    if (res[i][1] === "動詞") {
-                        s = res[i][0];
-                        if (res[i][6] !== "基本形") {
-                            for (i++; i < res.length - 1; i++) {
-                                //console.log("res[" + i + "][0] = " + res[i][0]);
-                                if (res[i][0] !== "*")
-                                    s += res[i][0];
-                                if (res[i][6] === "基本形")
-                                    break;
-                            }
-                        }
+                var num;
+                //for(var i = 0; i < resArray.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
+                for (var i = 0; i < resArray.length; i++) {
+                    if (resArray[i][0] == -1) {
+                        num = i;
+                        //console.log("num = " + num);
+                        break;
                     }
                 }
-                //console.log("num = " + num);
-                for (var i = 0; i < resArray.length; i++)
-                    console.log("resArray[" + i + "][1] = " + resArray[i][1]);
                 for (var i = 0; i < num; i++) {
                     //console.log("resArray[" + i + "][1] = " + resArray[i][1]);
                     if (resArray[i][0] == num) {
-                        //console.log(s);
-                        if (s.length > 0)
-                            data.driver.reply(data, "Cabocha  " + "そうか、君は" + resArray[i][1] + s + "フレンズなんだね！");
+                        //console.log("s = " + s);
+                        data.driver.reply(data, "Cabocha  " + "そうか、君は" + resArray[i][1] + resArray[num][1] + "フレンズなんだね！");
                     }
                 }
             });
