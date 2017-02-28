@@ -376,13 +376,68 @@ class Deborah {
             }
             */
             this.cabochaf0.parse(data.text, function (result) {
-                console.log("deborah" + result);
+                console.log("" + result);
             });
+            var that = this;
             this.cabochaf1.parse(data.text, function (result) {
-                console.log("deborah" + result);
+                //console.log("" + result);  
+                var parseCabochaResult = function (inp) {
+                    inp = inp.replace(/ /g, ",");
+                    inp = inp.replace(/\r/g, "");
+                    inp = inp.replace(/\s+$/, "");
+                    var lines = inp.split("\n");
+                    var res = lines.map(function (line) {
+                        return line.replace('\t', ',').split(',');
+                    });
+                    return res;
+                };
+                var res = parseCabochaResult("" + result);
+                //console.log(res);
+                var resArray = [];
+                var j = 0;
+                for (var i = 0; i < res.length - 1; i++) {
+                    resArray[j] = [0, ""];
+                    resArray[j][0] = res[i][2].substring(0, res[i][2].length - 1);
+                    while (res[i + 1][0] !== "*") {
+                        resArray[j][1] += res[++i][0];
+                        if (i >= res.length - 1)
+                            break;
+                    }
+                    j++;
+                }
+                var s = "";
+                var num = -1;
+                for (var i = 0; i < res.length - 1; i++) {
+                    //console.log("res[" + i + "][0] = " + res[i][0]);
+                    if (res[i][0] === "*")
+                        num++;
+                    if (res[i][1] === "動詞") {
+                        s = res[i][0];
+                        if (res[i][6] !== "基本形") {
+                            for (i++; i < res.length - 1; i++) {
+                                //console.log("res[" + i + "][0] = " + res[i][0]);
+                                if (res[i][0] !== "*")
+                                    s += res[i][0];
+                                if (res[i][6] === "基本形")
+                                    break;
+                            }
+                        }
+                    }
+                }
+                //console.log("num = " + num);
+                for (var i = 0; i < resArray.length; i++)
+                    console.log("resArray[" + i + "][1] = " + resArray[i][1]);
+                for (var i = 0; i < num; i++) {
+                    //console.log("resArray[" + i + "][1] = " + resArray[i][1]);
+                    if (resArray[i][0] == num) {
+                        //console.log(s);
+                        if (s.length > 0)
+                            data.driver.reply(data, "Cabocha  " + "そうか、君は" + resArray[i][1] + s + "フレンズなんだね！");
+                    }
+                }
             });
             this.mecab.parse(data.text, function (err, result) {
-                console.log(JSON.stringify(result, null, 2));
+                //console.log(JSON.stringify(result, null, 2));
                 var s = "";
                 for (var i = 0; i < result.length - 1; i++) {
                     if (result[i][1] === "動詞") {
@@ -397,7 +452,6 @@ class Deborah {
                     }
                 }
                 if (s.length > 0) {
-                    data.driver.reply(data, "そうか、君は" + s + "フレンズなんだね！");
                 }
                 /*
                 if (result) {
