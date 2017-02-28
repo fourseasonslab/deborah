@@ -4,7 +4,7 @@ class Cabocha
   f: Function;
   constructor(opt?: string){
     var childprocess = require("child_process");
-    this.p = childprocess.spawn('cabocha', ["-" + (opt==undefined ? "f1" : opt)], {});
+    this.p = childprocess.spawn('cabocha', ["-" + (opt==undefined ? "f1" : opt), "-d", "/usr/local/lib/mecab/dic/mecab-ipadic-neologd"], {});
     var that = this;
     this.p.stdout.on('data', function(data){
       //console.log('stdout: ' + data);
@@ -429,7 +429,6 @@ class Deborah
       this.cabochaf0.parse(data.text, function(result) {
         console.log("" + result);  
       });
-      var that = this;
       this.cabochaf1.parse(data.text, function(result) {
         //console.log("" + result);  
         var parseCabochaResult = function (inp) {
