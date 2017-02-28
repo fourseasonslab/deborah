@@ -393,32 +393,32 @@ class Deborah {
                 };
                 var res = parseCabochaResult("" + result);
                 //console.log(res);
-                var resArray = [];
+                var depres = []; //dependency relationsのresultって書きたかった
                 var j = 0;
                 for (var i = 0; i < res.length - 1; i++) {
-                    resArray[j] = [0, ""];
-                    resArray[j][0] = res[i][2].substring(0, res[i][2].length - 1);
+                    depres[j] = [0, ""];
+                    depres[j][0] = parseInt(res[i][2].substring(0, res[i][2].length - 1));
                     while (res[i + 1][0] !== "*") {
                         if (res[++i][0] === "EOS")
                             break;
-                        resArray[j][1] += res[i][0];
+                        depres[j][1] += res[i][0];
                     }
                     j++;
                 }
                 var num;
-                //for(var i = 0; i < resArray.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
-                for (var i = 0; i < resArray.length; i++) {
-                    if (resArray[i][0] == -1) {
+                //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
+                for (var i = 0; i < depres.length; i++) {
+                    if (depres[i][0] === -1) {
                         num = i;
                         //console.log("num = " + num);
                         break;
                     }
                 }
                 for (var i = 0; i < num; i++) {
-                    //console.log("resArray[" + i + "][1] = " + resArray[i][1]);
-                    if (resArray[i][0] == num) {
+                    //console.log("depres[" + i + "][1] = " + resArray[i][1]);
+                    if (depres[i][0] === num) {
                         //console.log("s = " + s);
-                        data.driver.reply(data, "Cabocha  " + "そうか、君は" + resArray[i][1] + resArray[num][1] + "フレンズなんだね！");
+                        data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
                     }
                 }
             });
