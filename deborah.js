@@ -272,6 +272,81 @@ class DeborahDriverTwitter extends DeborahDriver {
         });
     }
 }
+class DeborahDriverWebAPI extends DeborahDriver {
+    constructor(bot, settings) {
+        super(bot, settings);
+        console.log("Driver initialized: WebAPI");
+        //
+        this.fs = require('fs');
+        this.dataurl = require('dataurl');
+        var port = 3000;
+        var Sock = require('socket.io');
+        var http = require('http');
+        var that = this;
+        var OpenJTalk = this.tryRequire('openjtalk');
+        if (OpenJTalk) {
+            this.openjtalk = new OpenJTalk();
+        }
+        else {
+            this.openjtalk = null;
+        }
+        //
+        this.httpServer = http.createServer();
+        this.httpServer.on('request', function (req, res) {
+            var stream = that.fs.createReadStream('index.html');
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            stream.pipe(res);
+        });
+        this.io = Sock.listen(this.httpServer);
+        this.io.on('connection', function (socket) {
+            console.log("connection established");
+            //console.log(client);
+            socket.on('input', function (data) {
+                console.log("recv input:");
+                console.log(data);
+                //
+                var m = new DeborahMessage();
+                m.text = data.text;
+                m.senderName = "unknown";
+                m.context = socket;
+                m.driver = that;
+                m.rawData = socket;
+                //
+                that.bot.receive(m);
+            });
+        });
+        console.log("Listen on port " + port);
+        this.httpServer.listen(port);
+    }
+    reply(replyTo, message) {
+        this.createVoiceURL(message, function (url) {
+            console.log("webapi: reply: " + message);
+            var m = {
+                text: message,
+                voiceURL: url,
+            };
+            replyTo.rawData.emit("reply", m);
+        });
+    }
+    createVoiceURL(text, f) {
+        var that = this;
+        this.openjtalk._makeWav(text, this.openjtalk.pitch, function (err, res) {
+            console.log(res);
+            that.fs.readFile(res.wav, function (err, data) {
+                var url = that.dataurl.convert({
+                    data: data,
+                    mimetype: 'audio/wav'
+                });
+                //console.log(url);
+                f(url);
+                that.fs.unlink(res.wav, function (err) {
+                    if (err)
+                        console.log('unlink failed');
+                });
+            });
+        });
+    }
+}
 /*
 // helloイベント（自分の起動）が発生したとき
 slack.on('hello', function (data){
@@ -357,6 +432,9 @@ class Deborah {
             }
             else if (iset.type == "line") {
                 this.driverList.push(new DeborahDriverLineApp(this, iset));
+            }
+            else if (iset.type == "webapi") {
+                this.driverList.push(new DeborahDriverWebAPI(this, iset));
             }
         }
     }

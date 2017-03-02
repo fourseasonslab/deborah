@@ -9,4 +9,5 @@ deborah.js : deborah.ts
 
 clean :
 	-rm deborah.js
+	-rm *.wav
 

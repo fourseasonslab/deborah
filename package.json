@@ -4,18 +4,18 @@
   "description": "A friendly chatbot.",
   "main": "deborah.js",
   "dependencies": {
+    "body-parser": "^1.16.0",
+    "express": "^4.14.1",
     "mecab-lite": "^0.0.8",
-    "slackbotapi": "^1.3.9",
-	"openjtalk": "^0.1.6",
-    "twitter": "^1.7.0",
     "node-line-bot-api": "^0.1.3",
+    "openjtalk": "^0.1.6",
     "slackbotapi": "^1.3.9",
-	"body-parser": "^1.16.0",
-	"express": "^4.14.1"
+    "socket.io": "^1.7.3",
+    "twitter": "^1.7.0"
   },
   "devDependencies": {},
   "scripts": {
-	  "start": "node ."
+    "start": "node ."
   },
   "repository": {
     "type": "git",
@@ -35,4 +35,3 @@
   },
   "homepage": "https://github.com/fourseasonslab/deborah#readme"
 }
-
