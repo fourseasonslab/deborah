@@ -351,35 +351,35 @@ class DeborahDriverWebAPI extends DeborahDriver {
 // helloイベント（自分の起動）が発生したとき
 slack.on('hello', function (data){
     // settings.channelsをユニークなIDに変換する
-    for (var i = 0; i<settings.channels.length; i++){
-        var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
-        switch (settings.channels[i].charAt(0)){
-            // 指定先がChannel(public)の場合
-            case "#":
-                settings.channels[i] = slack.getChannel(chname).id;
-                break;
-            
-            // 指定先がUserの場合
-            case "@":
-                settings.channels[i] = slack.getIM(chname).id;
-                break;
+for (var i = 0; i<settings.channels.length; i++){
+var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
+switch (settings.channels[i].charAt(0)){
+    // 指定先がChannel(public)の場合
+case "#":
+settings.channels[i] = slack.getChannel(chname).id;
+break;
 
-            // 指定先がGroup(private)の場合
-            case "%":
-                settings.channels[i] = slack.getGroup(chname).id;
-                break;
+// 指定先がUserの場合
+case "@":
+settings.channels[i] = slack.getIM(chname).id;
+break;
 
-            // その他
-            default:
-        }
-    }
-    // ごあいさつ
-    for(var k of settings.channels){
-        sendAsBot(k,"Hi! I'm here now!");
-    }
+// 指定先がGroup(private)の場合
+case "%":
+settings.channels[i] = slack.getGroup(chname).id;
+break;
+
+// その他
+default:
+}
+}
+// ごあいさつ
+for(var k of settings.channels){
+sendAsBot(k,"Hi! I'm here now!");
+}
 });
 
-*/
+ */
 class Deborah {
     constructor() {
         this.driverList = [];
@@ -449,14 +449,14 @@ class Deborah {
             }
             // 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
             /*
-            for(var k in this.fixedResponseList){
-                for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
-                if(data.text.match(this.fixedResponseList[k][0])){
-                    data.driver.reply(data, this.fixedResponseList[k][1]);
-                    break;
-                }
-            }
-            */
+                              for(var k in this.fixedResponseList){
+                              for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
+                              if(data.text.match(this.fixedResponseList[k][0])){
+                              data.driver.reply(data, this.fixedResponseList[k][1]);
+                              break;
+                              }
+                              }
+             */
             this.cabochaf0.parse(data.text, function (result) {
                 console.log("" + result);
             });
@@ -537,15 +537,15 @@ class Deborah {
                 if (s.length > 0) {
                 }
                 /*
-                if (result) {
-                    for(var i=0;i<result.length-1;i++){
-                        ans += result[i][0] + "/";
-                    }
-                } else {
-                    ans = "ごめんなさい、このサーバーはmecabには対応していません";
-                }
-                data.driver.reply(data, ans);
-                */
+                                      if (result) {
+                                      for(var i=0;i<result.length-1;i++){
+                                      ans += result[i][0] + "/";
+                                      }
+                                      } else {
+                                      ans = "ごめんなさい、このサーバーはmecabには対応していません";
+                                      }
+                                      data.driver.reply(data, ans);
+                 */
             });
             // %から始まる文字列をコマンドとして認識する
             this.doCommand(data);

@@ -1,32 +1,32 @@
 class Cabocha
 {
-  p: any;  
-  f: Function;
-  constructor(opt?: string){
-    var childprocess = require("child_process");
-    this.p = childprocess.spawn('cabocha', ["-" + (opt == undefined ? "f1" : opt), "-d", "/usr/local/lib/mecab/dic/mecab-ipadic-neologd"], {});
-    var that = this;
-    this.p.stdout.on('data', function(data){
-		//console.log('stdout: ' + data);
-		//console.log(that);
-		if(that.f instanceof Function){
-			that.f(data);
-		}
-    });
-    this.p.on('exit', function (code) {
-          console.log('child process exited.');
-    });
-    this.p.on('error', function (err) {
-          console.error(err);
-              process.exit(1);
-    });
-  }
+	p: any;  
+	f: Function;
+	constructor(opt?: string){
+		var childprocess = require("child_process");
+		this.p = childprocess.spawn('cabocha', ["-" + (opt == undefined ? "f1" : opt), "-d", "/usr/local/lib/mecab/dic/mecab-ipadic-neologd"], {});
+		var that = this;
+		this.p.stdout.on('data', function(data){
+			//console.log('stdout: ' + data);
+			//console.log(that);
+			if(that.f instanceof Function){
+				that.f(data);
+			}
+		});
+		this.p.on('exit', function (code) {
+			console.log('child process exited.');
+		});
+		this.p.on('error', function (err) {
+			console.error(err);
+			process.exit(1);
+		});
+	}
 
-  parse(s: string, f: Function){
-    this.f = f;
-	console.log(f);
-    this.p.stdin.write(s + "\n");
-  }
+	parse(s: string, f: Function){
+		this.f = f;
+		console.log(f);
+		this.p.stdin.write(s + "\n");
+	}
 
 }
 
@@ -99,42 +99,42 @@ class DeborahDriverLineApp extends DeborahDriver
 		});
 		let that = this;
 		this.app.post('/webhook/', 
-		  this.line.validator.validateSignature(), 
-		  function(req, res, next){
-			const promises: Promise<any>[] = [];
-			let errorCount: number = 0;
-			req.body.events.map(function(event){
-				console.log(event.source.userId);
-				if (!event.message.text) return;
-				that.line.client.getProfile(event.source.userId).then((profile)=>{
-					var m = new DeborahMessage();
-					m.text = event.message.text;
-					m.senderName = profile.displayName;
-					m.context = "main";
-					m.driver = that;
-					m.rawData = null;
-					that.stat = 1;
-					that.message = "";
-					that.bot.receive(m);
-					if (that.stat == 2) {
-						// promises.push(that.line.client.replyMessage({
-						that.line.client.replyMessage({
-							replyToken: event.replyToken,
-							messages: [
-								{
-									type: 'text',
-									text: that.message
-								}
-							]
-						// }));
-						}).catch(()=>{ errorCount++; });
-					}
-					that.stat = 0;
-				}, ()=>{ errorCount++; });
+			this.line.validator.validateSignature(), 
+			function(req, res, next){
+				const promises: Promise<any>[] = [];
+				let errorCount: number = 0;
+				req.body.events.map(function(event){
+					console.log(event.source.userId);
+					if (!event.message.text) return;
+					that.line.client.getProfile(event.source.userId).then((profile)=>{
+						var m = new DeborahMessage();
+						m.text = event.message.text;
+						m.senderName = profile.displayName;
+						m.context = "main";
+						m.driver = that;
+						m.rawData = null;
+						that.stat = 1;
+						that.message = "";
+						that.bot.receive(m);
+						if (that.stat == 2) {
+							// promises.push(that.line.client.replyMessage({
+							that.line.client.replyMessage({
+								replyToken: event.replyToken,
+								messages: [
+									{
+										type: 'text',
+										text: that.message
+									}
+								]
+								// }));
+							}).catch(()=>{ errorCount++; });
+						}
+						that.stat = 0;
+					}, ()=>{ errorCount++; });
+				});
+				// Promise.all(promises).then(function(){res.json({success: true})});
+				if (!errorCount) res.json({success: true});
 			});
-			// Promise.all(promises).then(function(){res.json({success: true})});
-			if (!errorCount) res.json({success: true});
-		});
 		this.connect();
 	}
 	connect() {
@@ -187,7 +187,7 @@ class DeborahDriverSlack extends DeborahDriver
 			//
 			if(m.senderName == that.bot.settings.profile.name) return;
 			//
-			
+
 			//
 			that.bot.receive(m);
 		});
@@ -256,7 +256,7 @@ class DeborahDriverStdIO extends DeborahDriver
 			// 別れの挨拶
 			console.log("Terminating...");
 			//sendAsBot(settings.channels[0],"Bye!",function (){
-				process.exit(0);
+			process.exit(0);
 			//});
 		});
 	}
@@ -292,7 +292,7 @@ class DeborahDriverTwitter extends DeborahDriver
 				var ifMentionToMe = ifMention && (data.in_reply_to_screen_name === that.settings.screen_name);
 
 				console.log(data);
-				
+
 				if (!ifMentionToMe || id == that.settings.screen_name) return;
 
 				var m = new DeborahMessage();
@@ -405,36 +405,36 @@ class DeborahDriverWebAPI extends DeborahDriver
 /*
 // helloイベント（自分の起動）が発生したとき
 slack.on('hello', function (data){
-    // settings.channelsをユニークなIDに変換する
-    for (var i = 0; i<settings.channels.length; i++){
-        var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
-        switch (settings.channels[i].charAt(0)){
-            // 指定先がChannel(public)の場合
-            case "#":
-                settings.channels[i] = slack.getChannel(chname).id;
-                break;
-            
-            // 指定先がUserの場合
-            case "@":
-                settings.channels[i] = slack.getIM(chname).id;
-                break;
+	// settings.channelsをユニークなIDに変換する
+for (var i = 0; i<settings.channels.length; i++){
+var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
+switch (settings.channels[i].charAt(0)){
+	// 指定先がChannel(public)の場合
+case "#":
+settings.channels[i] = slack.getChannel(chname).id;
+break;
 
-            // 指定先がGroup(private)の場合
-            case "%":
-                settings.channels[i] = slack.getGroup(chname).id;
-                break;
+// 指定先がUserの場合
+case "@":
+settings.channels[i] = slack.getIM(chname).id;
+break;
 
-            // その他
-            default:
-        }
-    }
-    // ごあいさつ
-    for(var k of settings.channels){
-        sendAsBot(k,"Hi! I'm here now!");
-    }
+// 指定先がGroup(private)の場合
+case "%":
+settings.channels[i] = slack.getGroup(chname).id;
+break;
+
+// その他
+default:
+}
+}
+// ごあいさつ
+for(var k of settings.channels){
+sendAsBot(k,"Hi! I'm here now!");
+}
 });
 
-*/
+ */
 
 class Deborah
 {
@@ -472,7 +472,7 @@ class Deborah
 		this.mecab = new MeCab();
 		this.cabochaf1 = new Cabocha();
 		this.cabochaf0 = new Cabocha("f0");
-    
+
 		//
 	}
 	start(){
@@ -507,76 +507,76 @@ class Deborah
 			}
 			// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
 			/*
-			for(var k in this.fixedResponseList){
-				for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
-				if(data.text.match(this.fixedResponseList[k][0])){
-					data.driver.reply(data, this.fixedResponseList[k][1]);
-					break;
+							  for(var k in this.fixedResponseList){
+							  for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
+							  if(data.text.match(this.fixedResponseList[k][0])){
+							  data.driver.reply(data, this.fixedResponseList[k][1]);
+							  break;
+							  }
+							  }
+			 */
+			this.cabochaf0.parse(data.text, function(result) {
+				console.log("" + result);  
+			});
+			this.cabochaf1.parse(data.text, function(result) {
+				//console.log("" + result);  
+				var parseCabochaResult = function (inp) {
+					inp = inp.replace(/ /g, ",");
+					inp = inp.replace(/\r/g, "");
+					inp = inp.replace(/\s+$/, "");
+					var lines = inp.split("\n");
+					var res = lines.map(function(line) {
+						return line.replace('\t', ',').split(',');
+					});
+					return res;
+				};
+				var res = parseCabochaResult("" + result);
+				//console.log(res);
+
+				var depres = [];    //dependency relationsのresultって書きたかった
+				var item = [0, "", []];	// [relID, "chunk", [[mecab results]]]o
+				var mecabList = [];
+				var mecabs = [];
+				for(var i = 0; i < res.length; i++){
+					var row = res[i];
+					if(i != 0 && (row[0] === "EOS" || row[0] === "*")){
+						item[2] = mecabList;
+						depres.push(item);
+						item = [0, "", []];
+						mecabList = [];
+					}
+					if(row[0] === "EOS") break;
+					if(row[0] === "*"){
+						item[0] = parseInt(
+							row[2].substring(0, row[2].length - 1));
+					} else{
+						item[1] += row[0];
+						mecabs.push(row);
+						mecabList.push(mecabs.length - 1);
+					}
 				}
-			}
-			*/
-      this.cabochaf0.parse(data.text, function(result) {
-        console.log("" + result);  
-      });
-      this.cabochaf1.parse(data.text, function(result) {
-        //console.log("" + result);  
-        var parseCabochaResult = function (inp) {
-          inp = inp.replace(/ /g, ",");
-          inp = inp.replace(/\r/g, "");
-          inp = inp.replace(/\s+$/, "");
-          var lines = inp.split("\n");
-          var res = lines.map(function(line) {
-            return line.replace('\t', ',').split(',');
-          });
-          return res;
-        };
-        var res = parseCabochaResult("" + result);
-        //console.log(res);
-        
-        var depres = [];    //dependency relationsのresultって書きたかった
-		var item = [0, "", []];	// [relID, "chunk", [[mecab results]]]o
-		var mecabList = [];
-		var mecabs = [];
-        for(var i = 0; i < res.length; i++){
-			var row = res[i];
-			if(i != 0 && (row[0] === "EOS" || row[0] === "*")){
-				item[2] = mecabList;
-				depres.push(item);
-				item = [0, "", []];
-				mecabList = [];
-			}
-			if(row[0] === "EOS") break;
-			if(row[0] === "*"){
-          		item[0] = parseInt(
-					row[2].substring(0, row[2].length - 1));
-			} else{
-				item[1] += row[0];
-				mecabs.push(row);
-				mecabList.push(mecabs.length - 1);
-			}
-        }
-		var ret = {
-			depRels: depres,
-			words: mecabs 
-		};
-        var num;
-        //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
-        for(var i = 0; i < depres.length; i++){
-          if(depres[i][0] === -1){
-            num = i;
-            //console.log("num = " + num);
-            break;
-          }
-        }
-		console.log(JSON.stringify(ret, null, " "));
-        for(var i = 0; i < num; i++){
-          //console.log("depres[" + i + "][1] = " + resArray[i][1]);
-          if(depres[i][0] === num){
-            //console.log("s = " + s);
-            data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-          }
-        }
-      });
+				var ret = {
+					depRels: depres,
+					words: mecabs 
+				};
+				var num;
+				//for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
+				for(var i = 0; i < depres.length; i++){
+					if(depres[i][0] === -1){
+						num = i;
+						//console.log("num = " + num);
+						break;
+					}
+				}
+				console.log(JSON.stringify(ret, null, " "));
+				for(var i = 0; i < num; i++){
+					//console.log("depres[" + i + "][1] = " + resArray[i][1]);
+					if(depres[i][0] === num){
+						//console.log("s = " + s);
+						data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+					}
+				}
+			});
 			this.mecab.parse(data.text, function(err, result) {
 				//console.log(JSON.stringify(result, null, 2));
 				var s = "";
@@ -596,17 +596,17 @@ class Deborah
 					//data.driver.reply(data, "そうか、君は" + s + "フレンズなんだね！");
 				}
 				/*
-				if (result) {
-					for(var i=0;i<result.length-1;i++){
-						ans += result[i][0] + "/";
-					}
-				} else {
-					ans = "ごめんなさい、このサーバーはmecabには対応していません";
-				}
-				data.driver.reply(data, ans);
-				*/
+									  if (result) {
+									  for(var i=0;i<result.length-1;i++){
+									  ans += result[i][0] + "/";
+									  }
+									  } else {
+									  ans = "ごめんなさい、このサーバーはmecabには対応していません";
+									  }
+									  data.driver.reply(data, ans);
+				 */
 			});
-			
+
 			// %から始まる文字列をコマンドとして認識する
 			this.doCommand(data);
 		} catch(e) {
@@ -646,16 +646,16 @@ class Deborah
 				var str = data.text.split('%mecab ')[1];
 				var that = this;
 				this.mecab.parse(str, function(err, result) {
-						var ans = "";
-						if (result) {
-							for(var i=0;i<result.length-1;i++){
-								ans += result[i][0] + "/";
-							}
-						} else {
-							ans = "ごめんなさい、このサーバーはmecabには対応していません";
+					var ans = "";
+					if (result) {
+						for(var i=0;i<result.length-1;i++){
+							ans += result[i][0] + "/";
 						}
-						data.driver.reply(data, ans);
-					});
+					} else {
+						ans = "ごめんなさい、このサーバーはmecabには対応していません";
+					}
+					data.driver.reply(data, ans);
+				});
 				break;
 			case 'debug':
 				// %debug
