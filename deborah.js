@@ -5,7 +5,10 @@ class Cabocha {
         var that = this;
         this.p.stdout.on('data', function (data) {
             //console.log('stdout: ' + data);
-            that.f(data);
+            //console.log(that);
+            if (that.f instanceof Function) {
+                that.f(data);
+            }
         });
         this.p.on('exit', function (code) {
             console.log('child process exited.');
@@ -17,6 +20,7 @@ class Cabocha {
     }
     parse(s, f) {
         this.f = f;
+        console.log(f);
         this.p.stdin.write(s + "\n");
     }
 }
@@ -393,17 +397,32 @@ class Deborah {
                 var res = parseCabochaResult("" + result);
                 //console.log(res);
                 var depres = []; //dependency relationsのresultって書きたかった
-                var j = 0;
-                for (var i = 0; i < res.length - 1; i++) {
-                    depres[j] = [0, ""];
-                    depres[j][0] = parseInt(res[i][2].substring(0, res[i][2].length - 1));
-                    while (res[i + 1][0] !== "*") {
-                        if (res[++i][0] === "EOS")
-                            break;
-                        depres[j][1] += res[i][0];
+                var item = [0, "", []]; // [relID, "chunk", [[mecab results]]]o
+                var mecabList = [];
+                var mecabs = [];
+                for (var i = 0; i < res.length; i++) {
+                    var row = res[i];
+                    if (i != 0 && (row[0] === "EOS" || row[0] === "*")) {
+                        item[2] = mecabList;
+                        depres.push(item);
+                        item = [0, "", []];
+                        mecabList = [];
                     }
-                    j++;
+                    if (row[0] === "EOS")
+                        break;
+                    if (row[0] === "*") {
+                        item[0] = parseInt(row[2].substring(0, row[2].length - 1));
+                    }
+                    else {
+                        item[1] += row[0];
+                        mecabs.push(row);
+                        mecabList.push(mecabs.length - 1);
+                    }
                 }
+                var ret = {
+                    depRels: depres,
+                    words: mecabs
+                };
                 var num;
                 //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
                 for (var i = 0; i < depres.length; i++) {
@@ -413,6 +432,7 @@ class Deborah {
                         break;
                     }
                 }
+                console.log(JSON.stringify(ret, null, " "));
                 for (var i = 0; i < num; i++) {
                     //console.log("depres[" + i + "][1] = " + resArray[i][1]);
                     if (depres[i][0] === num) {
