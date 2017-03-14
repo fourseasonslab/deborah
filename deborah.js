@@ -7,7 +7,46 @@ class Cabocha {
             //console.log('stdout: ' + data);
             //console.log(that);
             if (that.f instanceof Function) {
-                that.f(data);
+                var parseCabochaResult = function (inp) {
+                    inp = inp.replace(/ /g, ",");
+                    inp = inp.replace(/\r/g, "");
+                    inp = inp.replace(/\s+$/, "");
+                    var lines = inp.split("\n");
+                    var res = lines.map(function (line) {
+                        return line.replace('\t', ',').split(',');
+                    });
+                    return res;
+                };
+                var res = parseCabochaResult("" + data);
+                //console.log(res);
+                var depres = []; //dependency relationsのresultって書きたかった
+                var item = [0, "", []]; // [relID, "chunk", [[mecab results]]]o
+                var mecabList = [];
+                var mecabs = [];
+                for (var i = 0; i < res.length; i++) {
+                    var row = res[i];
+                    if (i != 0 && (row[0] === "EOS" || row[0] === "*")) {
+                        item[2] = mecabList;
+                        depres.push(item);
+                        item = [0, "", []];
+                        mecabList = [];
+                    }
+                    if (row[0] === "EOS")
+                        break;
+                    if (row[0] === "*") {
+                        item[0] = parseInt(row[2].substring(0, row[2].length - 1));
+                    }
+                    else {
+                        item[1] += row[0];
+                        mecabs.push(row);
+                        mecabList.push(mecabs.length - 1);
+                    }
+                }
+                var ret = {
+                    depRels: depres,
+                    words: mecabs
+                };
+                that.f(ret);
             }
         });
         this.p.on('exit', function (code) {
@@ -20,7 +59,6 @@ class Cabocha {
     }
     parse(s, f) {
         this.f = f;
-        console.log(f);
         this.p.stdin.write(s + "\n");
     }
 }
@@ -410,7 +448,7 @@ class Deborah {
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
         this.cabochaf1 = new Cabocha();
-        this.cabochaf0 = new Cabocha("f0");
+        //this.cabochaf0 = new Cabocha("f0");
         //
     }
     start() {
@@ -457,50 +495,14 @@ class Deborah {
                               }
                               }
              */
-            this.cabochaf0.parse(data.text, function (result) {
+            /*
+            this.cabochaf0.parse(data.text, function(result) {
                 console.log("" + result);
             });
+            */
             this.cabochaf1.parse(data.text, function (result) {
-                //console.log("" + result);  
-                var parseCabochaResult = function (inp) {
-                    inp = inp.replace(/ /g, ",");
-                    inp = inp.replace(/\r/g, "");
-                    inp = inp.replace(/\s+$/, "");
-                    var lines = inp.split("\n");
-                    var res = lines.map(function (line) {
-                        return line.replace('\t', ',').split(',');
-                    });
-                    return res;
-                };
-                var res = parseCabochaResult("" + result);
-                //console.log(res);
-                var depres = []; //dependency relationsのresultって書きたかった
-                var item = [0, "", []]; // [relID, "chunk", [[mecab results]]]o
-                var mecabList = [];
-                var mecabs = [];
-                for (var i = 0; i < res.length; i++) {
-                    var row = res[i];
-                    if (i != 0 && (row[0] === "EOS" || row[0] === "*")) {
-                        item[2] = mecabList;
-                        depres.push(item);
-                        item = [0, "", []];
-                        mecabList = [];
-                    }
-                    if (row[0] === "EOS")
-                        break;
-                    if (row[0] === "*") {
-                        item[0] = parseInt(row[2].substring(0, row[2].length - 1));
-                    }
-                    else {
-                        item[1] += row[0];
-                        mecabs.push(row);
-                        mecabList.push(mecabs.length - 1);
-                    }
-                }
-                var ret = {
-                    depRels: depres,
-                    words: mecabs
-                };
+                console.log("がおお" + result);
+                var depres = result.depRels;
                 var num;
                 //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
                 for (var i = 0; i < depres.length; i++) {
@@ -510,7 +512,7 @@ class Deborah {
                         break;
                     }
                 }
-                console.log(JSON.stringify(ret, null, " "));
+                //console.log(JSON.stringify(ret, null, " "));
                 for (var i = 0; i < num; i++) {
                     //console.log("depres[" + i + "][1] = " + resArray[i][1]);
                     if (depres[i][0] === num) {
