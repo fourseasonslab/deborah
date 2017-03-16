@@ -29,6 +29,7 @@ class Cabocha
 				var mecabs = [];
 				var scores = [];
 				var score;
+				//var types = [];
 				for(var i = 0; i < res.length; i++){
 					var row = res[i];
 					if(i != 0 && (row[0] === "EOS" || row[0] === "*")){
@@ -47,9 +48,7 @@ class Cabocha
 						mecabs.push(row);
 						mecabList.push(mecabs.length - 1);
 						var scr = Number(score);
-						if(row[1] === "動詞" || row[1] === "形容詞" || row[1] === "形容動詞" || row[1] === "名詞"){
-							scr *= 2;
-						}
+
 						//scores.push(row[0]);
 						scores.push(scr);
 					}
@@ -60,10 +59,16 @@ class Cabocha
 				for(var i=0; i < scores.length; i++){
 					normScores[i] = (scores[i] - scrmin) / (scrmax - scrmin);
 				}
+				for(var i = 0; i< mecabs.length; i++){
+					if(mecabs[i][0] === "動詞" || mecabs[i] === "形容詞" || mecabs[i] === "形容動詞" || mecabs[i] === "名詞"){
+						normScores[i] *= 2;
+					}
+				}
 				var ret = {
 					depRels: depres,
 					words: mecabs,
-					scores: normScores
+					scores: normScores,
+					//types: types
 				};
 				that.f(ret);
 			}

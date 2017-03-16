@@ -71,6 +71,7 @@ class Deborah
 		this.cabochaf1 = new Cabocha();
 		//this.cabochaf0 = new Cabocha("f0");
 
+		//var W2V = require('word2vec');
 		//
 	}
 	start(){
@@ -148,8 +149,44 @@ class Deborah
 					}
 				}
 				console.log("最大値: " + Math.max.apply(null, result.scores));
-				var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
-				console.log("へえ，" + result.words[maxScore][0] + "ね");
+				if(result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1){
+					var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+					console.log("へえ，" + result.words[maxScore][0] + "ね");
+				}
+
+				var types = [];
+				for(var i = 0; i < result.words.length; i++){
+					//this.w2v = new W2V();
+					if(result.words[i][0] === "昨日"){
+						types.push("time");
+					}else if(result.words[i][0] === "宇宙"){
+						types.push("place");
+					}else if(result.words[i][0] === "うどん"){
+						types.push("food");
+					}else if(result.words[i][0] === "佳乃"){
+						types.push("person");
+					}else{
+						types.push(null);
+					}
+				}
+				var w2v = require('word2vec');
+				//w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
+				//大きすぎてMacbookが音を上げた
+				w2v.loadModel('data/vectors.bin', function( err, model ){
+					//console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
+					console.log("がおがお");
+					//console.log(JSON.stringify(model.getVector("ひまわり")));
+					//console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
+					console.log(model.getNearestWords( model.getVector( 'コンピュータ' ), 3 ));
+				});
+
+				result.types = types;
+
+				for(var i = 0; i< result.types.length; i++){
+					if(result.types[i] === "food"){
+						data.driver.reply(data, "type: " + result.words[i][0] + "美味しかったですか？");
+					}
+				}
 			});
 			this.mecab.parse(data.text, function(err, result) {
 				//console.log(JSON.stringify(result, null, 2));
