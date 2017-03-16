@@ -1,14 +1,15 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "ES6",
         "noImplicitAny": false,
         "removeComments": false,
         "preserveConstEnums": false,
         "sourceMap": false,
-		"target": "es6"
+		"target": "ES6",
+		"outDir": "."
     },
     "files": [
-		"node.d.ts",
-        "deborah.ts"
+		"lib/node.d.ts",
+        "src/deborah.ts"
     ]
 }
