@@ -27,6 +27,8 @@ class Cabocha
 				var item = [0, "", []];	// [relID, "chunk", [[mecab results]]]o
 				var mecabList = [];
 				var mecabs = [];
+				var scores = [];
+				var score;
 				for(var i = 0; i < res.length; i++){
 					var row = res[i];
 					if(i != 0 && (row[0] === "EOS" || row[0] === "*")){
@@ -39,15 +41,29 @@ class Cabocha
 					if(row[0] === "*"){
 						item[0] = parseInt(
 							row[2].substring(0, row[2].length - 1));
+						score = row[4];
 					} else{
 						item[1] += row[0];
 						mecabs.push(row);
 						mecabList.push(mecabs.length - 1);
+						var scr = Number(score);
+						if(row[1] === "動詞" || row[1] === "形容詞" || row[1] === "形容動詞" || row[1] === "名詞"){
+							scr *= 2;
+						}
+						//scores.push(row[0]);
+						scores.push(scr);
 					}
+				}
+				var normScores = [];
+				var scrmin = Math.min.apply(null, scores);
+				var scrmax = Math.max.apply(null, scores);
+				for(var i=0; i < scores.length; i++){
+					normScores[i] = (scores[i] - scrmin) / (scrmax - scrmin);
 				}
 				var ret = {
 					depRels: depres,
-					words: mecabs 
+					words: mecabs,
+					scores: normScores
 				};
 				that.f(ret);
 			}
@@ -559,7 +575,7 @@ class Deborah
 			});
 			*/
 			this.cabochaf1.parse(data.text, function(result) {
-				console.log("がおお" + result);  
+				//console.log("がおお" + result);  
 				var depres = result.depRels;
 				var num;
 				//for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
@@ -570,15 +586,26 @@ class Deborah
 						break;
 					}
 				}
-				//console.log(JSON.stringify(ret, null, " "));
+				console.log(JSON.stringify(result, null, " "));
 				for(var i = 0; i < num; i++){
 					//console.log("depres[" + i + "][1] = " + resArray[i][1]);
 					if(depres[i][0] === num){
 						//console.log("s = " + s);
 						data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-						//console.log("Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+						console.log(depres[num][2].length);
+						for(var j = 0; j < depres[num][2].length; j++){
+							var w = depres[num][2][j];
+							console.log(w);
+							console.log(result.words[w]);
+							if(result.words[w][1] === "動詞"){
+								console.log(result.words[w][0] + "の終止形は" + result.words[w][7] + "だよ");
+							}
+						}
 					}
 				}
+				console.log("最大値: " + Math.max.apply(null, result.scores));
+				var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+				console.log("へえ，" + result.words[maxScore][0] + "ね");
 			});
 			this.mecab.parse(data.text, function(err, result) {
 				//console.log(JSON.stringify(result, null, 2));
