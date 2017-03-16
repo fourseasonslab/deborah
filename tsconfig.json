@@ -1,14 +1,17 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "system",
         "noImplicitAny": false,
         "removeComments": false,
         "preserveConstEnums": false,
         "sourceMap": false,
-		"target": "es6"
+		"target": "ES6",
+		"outFile": "deborah.js"
     },
     "files": [
-		"node.d.ts",
-        "deborah.ts"
+		"lib/node.d.ts",
+        "src/cabocha.ts",
+        "src/driver.ts",
+        "src/deborah.ts"
     ]
 }
