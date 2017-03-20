@@ -6,10 +6,19 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
+function log(s)
+{
+	var logBox = document.getElementById('logBox');
+
+	logBox.innerText = s + "\n" + logBox.innerText;
+}
+
 onload = function(){
 	var spBox = document.getElementById('speechResultBox');
 	var rpBox = document.getElementById('responseBox');
 	var stBox = document.getElementById('statusBox');
+	var logBox = document.getElementById('logBox');
+
 	// Socket.io
 	var socket = io(location.protocol + '//' + location.host);
 	socket.on('connect', function(){
@@ -21,6 +30,7 @@ onload = function(){
 	});
 	socket.on('reply', function(data){
 		rpBox.innerText = data.text;
+		log("response: " + data.text);
 		var au = new Audio(data.voiceURL);
 		au.play();
 	});
@@ -31,9 +41,11 @@ onload = function(){
 	// Speech Recognition
 	if (!('webkitSpeechRecognition' in window)){
 		console.log("webkitSpeechRecognition not found");
+		log("webkitSpeechRecognition not found");
 		return;
 	}
 	console.log("webkitSpeechRecognition found");
+	log("webkitSpeechRecognition found");
 
 	var recognition = new webkitSpeechRecognition();
 	recognition.continuous = true;
@@ -45,13 +57,20 @@ onload = function(){
 		recognition.start();
 	};
 
+	var stopButtonDOM = document.getElementById("stopButton");
+	stopButtonDOM.onclick = function(){
+		recognition.stop();
+	};
+
 	recognition.onstart = function(){
 		console.log("Recog begin.");
+		log("Recog Begin");
 		stBox.innerText = "話してください";
 	};
 
 	recognition.onend = function(){
 		console.log("Recog end.");
+		log("Recog End");
 		stBox.innerText = "startボタンを押してください";
 	};
 
@@ -79,15 +98,17 @@ onload = function(){
 		for(var i = e.resultIndex; i<results.length; i++){
 			if(results[i].isFinal){
 				var confidence = results[i][0].confidence;
-				console.log("" + confidence + ">> " + results[i][0].transcript);
+				var text = results[i][0].transcript;
+				console.log("" + confidence + ">> " + text);
+				log("result: " + text);
 				var postData = {
 					type: 'speech',
 					confidence: confidence,
-					text: results[i][0].transcript
+					text: text
 				};
 				console.log(socket);
 				socket.emit("input", postData);
-				spBox.innerText = results[i][0].transcript;
+				spBox.innerText = text;
 				spBox.style.color = "#00ff00";
 			} else{
 				console.log(results[i][0].transcript);
@@ -97,16 +118,24 @@ onload = function(){
 		}
 	};
 	stBox.innerText = "startボタンを押してください";
+	
+	// Manual input
+	var manualInput = document.getElementById("manualInput");
+	var manualSendButton = document.getElementById("manualSend");
+	manualSendButton.onclick = function(){
+		log("manual input : " + manualInput.value);
+		var postData = {
+			type: 'manual',
+			confidence: 1,
+			text: manualInput.value
+		};
+		socket.emit("input", postData);
+		manualInput.value = "";
+	}
 }
 
 </script>
 <style>
-#statusBox {
-	height: 32px;
-	width: 100%;
-	font-size: 16px;
-	border: solid 2px #ccffcc;
-}
 
 #speechResultBox {
 	height: 64px;
@@ -124,11 +153,24 @@ onload = function(){
 </style>
 </head>
 <body>
-
+<h2>Deborah web interface</h2>
+<h3>voice input</h3>
 <div id="statusBox"></div>
 <div id="speechResultBox"></div>
 <div id="responseBox"></div>
+<div id="controlBox">
+	<button id="speakButton">start</button>
+	<button id="stopButton">stop/send</button>
+</div>
+<h3>manual input</h3>
+<div id="manualBox">
+	<input id="manualInput" type="text" style="width: 80%"></input>
+	<button id="manualSend">send</button>
+</div>
+<h3>log</h3>
+<div id="logBox">
 
-<button id="speakButton">start</button>
+</div>
+
 </body>
 </html>
