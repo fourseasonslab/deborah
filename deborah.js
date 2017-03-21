@@ -23,6 +23,9 @@ class Cabocha {
                 var item = [0, "", []]; // [relID, "chunk", [[mecab results]]]o
                 var mecabList = [];
                 var mecabs = [];
+                var scores = [];
+                var score;
+                //var types = [];
                 for (var i = 0; i < res.length; i++) {
                     var row = res[i];
                     if (i != 0 && (row[0] === "EOS" || row[0] === "*")) {
@@ -35,16 +38,32 @@ class Cabocha {
                         break;
                     if (row[0] === "*") {
                         item[0] = parseInt(row[2].substring(0, row[2].length - 1));
+                        score = row[4];
                     }
                     else {
                         item[1] += row[0];
                         mecabs.push(row);
                         mecabList.push(mecabs.length - 1);
+                        var scr = Number(score);
+                        //scores.push(row[0]);
+                        scores.push(scr);
+                    }
+                }
+                var normScores = [];
+                var scrmin = Math.min.apply(null, scores);
+                var scrmax = Math.max.apply(null, scores);
+                for (var i = 0; i < scores.length; i++) {
+                    normScores[i] = (scores[i] - scrmin) / (scrmax - scrmin);
+                }
+                for (var i = 0; i < mecabs.length; i++) {
+                    if (mecabs[i][0] === "動詞" || mecabs[i] === "形容詞" || mecabs[i] === "形容動詞" || mecabs[i] === "名詞") {
+                        normScores[i] *= 2;
                     }
                 }
                 var ret = {
                     depRels: depres,
-                    words: mecabs
+                    words: mecabs,
+                    scores: normScores,
                 };
                 that.f(ret);
             }
@@ -449,6 +468,7 @@ class Deborah {
         this.mecab = new MeCab();
         this.cabochaf1 = new Cabocha();
         //this.cabochaf0 = new Cabocha("f0");
+        //var W2V = require('word2vec');
         //
     }
     start() {
@@ -501,7 +521,7 @@ class Deborah {
             });
             */
             this.cabochaf1.parse(data.text, function (result) {
-                console.log("がおお" + result);
+                //console.log("がおお" + result);  
                 var depres = result.depRels;
                 var num;
                 //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
@@ -512,12 +532,61 @@ class Deborah {
                         break;
                     }
                 }
-                //console.log(JSON.stringify(ret, null, " "));
+                console.log(JSON.stringify(result, null, " "));
                 for (var i = 0; i < num; i++) {
                     //console.log("depres[" + i + "][1] = " + resArray[i][1]);
                     if (depres[i][0] === num) {
                         //console.log("s = " + s);
                         data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+                        console.log(depres[num][2].length);
+                        for (var j = 0; j < depres[num][2].length; j++) {
+                            var w = depres[num][2][j];
+                            console.log(w);
+                            console.log(result.words[w]);
+                            if (result.words[w][1] === "動詞") {
+                                console.log(result.words[w][0] + "の終止形は" + result.words[w][7] + "だよ");
+                            }
+                        }
+                    }
+                }
+                console.log("最大値: " + Math.max.apply(null, result.scores));
+                if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
+                    var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+                    console.log("へえ，" + result.words[maxScore][0] + "ね");
+                }
+                var types = [];
+                for (var i = 0; i < result.words.length; i++) {
+                    //this.w2v = new W2V();
+                    if (result.words[i][0] === "昨日") {
+                        types.push("time");
+                    }
+                    else if (result.words[i][0] === "宇宙") {
+                        types.push("place");
+                    }
+                    else if (result.words[i][0] === "うどん") {
+                        types.push("food");
+                    }
+                    else if (result.words[i][0] === "佳乃") {
+                        types.push("person");
+                    }
+                    else {
+                        types.push(null);
+                    }
+                }
+                var w2v = require('word2vec');
+                //w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
+                //大きすぎてMacbookが音を上げた
+                w2v.loadModel('data/vectors.bin', function (err, model) {
+                    //console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
+                    console.log("がおがお");
+                    //console.log(JSON.stringify(model.getVector("ひまわり")));
+                    //console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
+                    console.log(model.getNearestWords(model.getVector('コンピュータ'), 3));
+                });
+                result.types = types;
+                for (var i = 0; i < result.types.length; i++) {
+                    if (result.types[i] === "food") {
+                        data.driver.reply(data, "type: " + result.words[i][0] + "美味しかったですか？");
                     }
                 }
             });
