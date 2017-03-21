@@ -53,21 +53,10 @@ class Cabocha
 						scores.push(scr);
 					}
 				}
-				var normScores = [];
-				var scrmin = Math.min.apply(null, scores);
-				var scrmax = Math.max.apply(null, scores);
-				for(var i=0; i < scores.length; i++){
-					normScores[i] = (scores[i] - scrmin) / (scrmax - scrmin);
-				}
-				for(var i = 0; i< mecabs.length; i++){
-					if(mecabs[i][0] === "動詞" || mecabs[i] === "形容詞" || mecabs[i] === "形容動詞" || mecabs[i] === "名詞"){
-						normScores[i] *= 2;
-					}
-				}
 				var ret = {
 					depRels: depres,
 					words: mecabs,
-					scores: normScores,
+					scores: scores,
 					//types: types
 				};
 				that.f(ret);

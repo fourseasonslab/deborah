@@ -49,21 +49,10 @@ class Cabocha {
                         scores.push(scr);
                     }
                 }
-                var normScores = [];
-                var scrmin = Math.min.apply(null, scores);
-                var scrmax = Math.max.apply(null, scores);
-                for (var i = 0; i < scores.length; i++) {
-                    normScores[i] = (scores[i] - scrmin) / (scrmax - scrmin);
-                }
-                for (var i = 0; i < mecabs.length; i++) {
-                    if (mecabs[i][0] === "動詞" || mecabs[i] === "形容詞" || mecabs[i] === "形容動詞" || mecabs[i] === "名詞") {
-                        normScores[i] *= 2;
-                    }
-                }
                 var ret = {
                     depRels: depres,
                     words: mecabs,
-                    scores: normScores,
+                    scores: scores,
                 };
                 that.f(ret);
             }
@@ -573,16 +562,18 @@ class Deborah {
                         types.push(null);
                     }
                 }
+                /*
                 var w2v = require('word2vec');
                 //w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
                 //大きすぎてMacbookが音を上げた
-                w2v.loadModel('data/vectors.bin', function (err, model) {
+                w2v.loadModel('data/vectors.bin', function( err, model ){
                     //console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
                     console.log("がおがお");
                     //console.log(JSON.stringify(model.getVector("ひまわり")));
                     //console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
-                    console.log(model.getNearestWords(model.getVector('コンピュータ'), 3));
+                    console.log(model.getNearestWords( model.getVector( 'コンピュータ' ), 3 ));
                 });
+                */
                 result.types = types;
                 for (var i = 0; i < result.types.length; i++) {
                     if (result.types[i] === "food") {

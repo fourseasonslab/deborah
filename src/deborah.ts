@@ -169,6 +169,7 @@ class Deborah
 						types.push(null);
 					}
 				}
+				/*
 				var w2v = require('word2vec');
 				//w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
 				//大きすぎてMacbookが音を上げた
@@ -179,6 +180,7 @@ class Deborah
 					//console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
 					console.log(model.getNearestWords( model.getVector( 'コンピュータ' ), 3 ));
 				});
+				*/
 
 				result.types = types;
 
