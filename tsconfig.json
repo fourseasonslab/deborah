@@ -9,8 +9,6 @@
 		"outFile": "deborah.js"
     },
     "files": [
-		"lib/node.d.ts",
-        "src/cabocha.ts",
         "src/driver.ts",
         "src/deborah.ts"
     ]

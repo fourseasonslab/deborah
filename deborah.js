@@ -1,75 +1,3 @@
-class Cabocha {
-    constructor(opt) {
-        var childprocess = require("child_process");
-        this.p = childprocess.spawn('cabocha', ["-" + (opt == undefined ? "f1" : opt), "-d", "/usr/local/lib/mecab/dic/mecab-ipadic-neologd"], {});
-        var that = this;
-        this.p.stdout.on('data', function (data) {
-            //console.log('stdout: ' + data);
-            //console.log(that);
-            if (that.f instanceof Function) {
-                var parseCabochaResult = function (inp) {
-                    inp = inp.replace(/ /g, ",");
-                    inp = inp.replace(/\r/g, "");
-                    inp = inp.replace(/\s+$/, "");
-                    var lines = inp.split("\n");
-                    var res = lines.map(function (line) {
-                        return line.replace('\t', ',').split(',');
-                    });
-                    return res;
-                };
-                var res = parseCabochaResult("" + data);
-                //console.log(res);
-                var depres = []; //dependency relationsのresultって書きたかった
-                var item = [0, "", []]; // [relID, "chunk", [[mecab results]]]o
-                var mecabList = [];
-                var mecabs = [];
-                var scores = [];
-                var score;
-                //var types = [];
-                for (var i = 0; i < res.length; i++) {
-                    var row = res[i];
-                    if (i != 0 && (row[0] === "EOS" || row[0] === "*")) {
-                        item[2] = mecabList;
-                        depres.push(item);
-                        item = [0, "", []];
-                        mecabList = [];
-                    }
-                    if (row[0] === "EOS")
-                        break;
-                    if (row[0] === "*") {
-                        item[0] = parseInt(row[2].substring(0, row[2].length - 1));
-                        score = row[4];
-                    }
-                    else {
-                        item[1] += row[0];
-                        mecabs.push(row);
-                        mecabList.push(mecabs.length - 1);
-                        var scr = Number(score);
-                        //scores.push(row[0]);
-                        scores.push(scr);
-                    }
-                }
-                var ret = {
-                    depRels: depres,
-                    words: mecabs,
-                    scores: scores,
-                };
-                that.f(ret);
-            }
-        });
-        this.p.on('exit', function (code) {
-            console.log('child process exited.');
-        });
-        this.p.on('error', function (err) {
-            console.error(err);
-            process.exit(1);
-        });
-    }
-    parse(s, f) {
-        this.f = f;
-        this.p.stdin.write(s + "\n");
-    }
-}
 class DeborahDriver {
     //
     constructor(bot, settings) {
@@ -455,6 +383,7 @@ class Deborah {
         console.log(JSON.stringify(this.settings, null, 1));
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
+        var Cabocha = require('node-cabocha');
         this.cabochaf1 = new Cabocha();
         //this.cabochaf0 = new Cabocha("f0");
         //var W2V = require('word2vec');

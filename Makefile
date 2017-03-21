@@ -1,7 +1,6 @@
 SRCS = deborah.ts
-LIBS = node.d.ts
 
-ALLSRC = $(addprefix src/, $(SRCS)) $(addprefix lib/, $(LIBS))
+ALLSRC = $(addprefix src/, $(SRCS))
 
 default :
 	make deborah.js

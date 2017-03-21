@@ -68,6 +68,7 @@ class Deborah
 		console.log(JSON.stringify(this.settings, null, 1));
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
+		var Cabocha = require('node-cabocha');
 		this.cabochaf1 = new Cabocha();
 		//this.cabochaf0 = new Cabocha("f0");
 
