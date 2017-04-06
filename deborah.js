@@ -465,6 +465,65 @@ class Deborah {
                         }
                     }
                 }
+                var max = result.scores[0], min = result.scores[0];
+                for (var i = 1; i < result.scores.length; i++) {
+                    if (result.scores[i] > max) {
+                        max = result.scores[i];
+                    }
+                    else if (result.scores[i] < min) {
+                        min = result.scores[i];
+                    }
+                }
+                var normScores = [];
+                for (var i = 0; i < result.scores.length; i++) {
+                    normScores[i] = (result.scores[i] - min) / (max - min);
+                }
+                result.normScores = normScores;
+                //console.log(JSON.stringify(result.normScores));
+                var count = [];
+                for (var i = 0; i < result.depRels.length; i++) {
+                    count[i] = 0;
+                }
+                for (var i = 0; i < result.depRels.length; i++) {
+                    if (result.depRels[i][0] !== -1) {
+                        count[result.depRels[i][0]]++;
+                    }
+                }
+                result.counts = count;
+                //console.log(JSON.stringify(result.counts));
+                var rankWords = [];
+                var unsortedCounts = [];
+                //unsortedCounts = result.counts;
+                for (var i = 0; i < result.counts.length; i++) {
+                    unsortedCounts[i] = result.counts[i];
+                }
+                result.counts.sort(function (a, b) {
+                    if (a < b)
+                        return 1;
+                    if (a > b)
+                        return -1;
+                    return 0;
+                });
+                var counted = [];
+                for (var i = 0; i < result.depRels.length; i++) {
+                    counted[i] = -1;
+                }
+                console.log("sorted " + result.counts);
+                console.log("unsorted " + unsortedCounts);
+                for (var i = 0; i < result.counts.length; i++) {
+                    for (var j = 0; j < result.counts.length; j++) {
+                        if (result.counts[i] === unsortedCounts[j]) {
+                            if (counted[j] === -1) {
+                                //console.log(i + "番目は" + j + "番");
+                                rankWords[i] = result.depRels[j][1];
+                                counted[j] = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+                result.rankWords = rankWords;
+                console.log(JSON.stringify(result.rankWords));
                 //console.log("最大値: " + Math.max.apply(null, result.scores));
                 if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                     var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
@@ -490,18 +549,18 @@ class Deborah {
                         types.push(null);
                     }
                 }
-                ///*
+                /*
                 var w2v = require('word2vec');
                 //w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
                 //大きすぎてMacbookが音を上げた
-                w2v.loadModel('data/vectors.bin', function (err, model) {
+                w2v.loadModel('data/vectors.bin', function( err, model ){
                     //console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
                     console.log("がおがお");
                     //console.log(JSON.stringify(model.getVector("ひまわり")));
                     console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
                     //console.log(model.getNearestWords( model.getVector( 'ひまわり' ), 3 ));
                 });
-                //*/
+                */
                 result.types = types;
                 for (var i = 0; i < result.types.length; i++) {
                     if (result.types[i] === "food") {
