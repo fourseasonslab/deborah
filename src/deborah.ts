@@ -1,39 +1,3 @@
-
-
-/*
-// helloイベント（自分の起動）が発生したとき
-slack.on('hello', function (data){
-	// settings.channelsをユニークなIDに変換する
-for (var i = 0; i<settings.channels.length; i++){
-var chname = settings.channels[i].substr(1, settings.channels[i].length-1).toLowerCase();
-switch (settings.channels[i].charAt(0)){
-	// 指定先がChannel(public)の場合
-case "#":
-settings.channels[i] = slack.getChannel(chname).id;
-break;
-
-// 指定先がUserの場合
-case "@":
-settings.channels[i] = slack.getIM(chname).id;
-break;
-
-// 指定先がGroup(private)の場合
-case "%":
-settings.channels[i] = slack.getGroup(chname).id;
-break;
-
-// その他
-default:
-}
-}
-// ごあいさつ
-for(var k of settings.channels){
-sendAsBot(k,"Hi! I'm here now!");
-}
-});
-
- */
-
 class Deborah
 {
 	driverList: DeborahDriver[] = [];
@@ -49,6 +13,7 @@ class Deborah
 		["死", "まだ死ぬには早いですよ！ :iconv:"],
 		["test","test"]
 	];
+	responderList: DeborahResponder[] = [];
 	constructor(){
 		console.log("Initializing deborah...");
 		this.launchDate = new Date();
@@ -70,10 +35,9 @@ class Deborah
 		this.mecab = new MeCab();
 		var Cabocha = require('node-cabocha');
 		this.cabochaf1 = new Cabocha();
-		//this.cabochaf0 = new Cabocha("f0");
-
-		//var W2V = require('word2vec');
-		//
+		this.responderList.push(new DeborahResponder(this));
+		this.responderList.push(new DeborahResponderCabocha(this));
+		this.responderList.push(new DeborahResponderMeCab(this));
 	}
 	start(){
 		var interfaces = this.settings.interfaces;
@@ -100,126 +64,17 @@ class Deborah
 		try {
 			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
+
 			// 最初の無視期間は反応せず帰る
 			if((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod){
 				console.log("initial ignore period. ignore.");
 				return 0;
 			}
-			// 特定の文字列〔例：:fish_cake:（なるとの絵文字）〕を含むメッセージに反応する
-			/*
-							  for(var k in this.fixedResponseList){
-							  for (let baka in data) console.log("data[" + baka + "] = " + data[baka]);
-							  if(data.text.match(this.fixedResponseList[k][0])){
-							  data.driver.reply(data, this.fixedResponseList[k][1]);
-							  break;
-							  }
-							  }
-			 */
-			/*
-			this.cabochaf0.parse(data.text, function(result) {
-				console.log("" + result);  
-			});
-			*/
-			this.cabochaf1.parse(data.text, function(result) {
-				//console.log("がおお" + result);  
-				var depres = result.depRels;
-				var num;
-				//for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
-				for(var i = 0; i < depres.length; i++){
-					if(depres[i][0] === -1){
-						num = i;
-						//console.log("num = " + num);
-						break;
-					}
-				}
-				console.log(JSON.stringify(result, null, " "));
-				for(var i = 0; i < num; i++){
-					//console.log("depres[" + i + "][1] = " + resArray[i][1]);
-					if(depres[i][0] === num){
-						//console.log("s = " + s);
-						data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-						console.log(depres[num][2].length);
-						for(var j = 0; j < depres[num][2].length; j++){
-							var w = depres[num][2][j];
-							console.log(w);
-							console.log(result.words[w]);
-							if(result.words[w][1] === "動詞"){
-								console.log(result.words[w][0] + "の終止形は" + result.words[w][7] + "だよ");
-							}
-						}
-					}
-				}
-				console.log("最大値: " + Math.max.apply(null, result.scores));
-				if(result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1){
-					var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
-					console.log("へえ，" + result.words[maxScore][0] + "ね");
-				}
 
-				var types = [];
-				for(var i = 0; i < result.words.length; i++){
-					//this.w2v = new W2V();
-					if(result.words[i][0] === "昨日"){
-						types.push("time");
-					}else if(result.words[i][0] === "宇宙"){
-						types.push("place");
-					}else if(result.words[i][0] === "うどん"){
-						types.push("food");
-					}else if(result.words[i][0] === "佳乃"){
-						types.push("person");
-					}else{
-						types.push(null);
-					}
-				}
-				/*
-				var w2v = require('word2vec');
-				//w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
-				//大きすぎてMacbookが音を上げた
-				w2v.loadModel('data/vectors.bin', function( err, model ){
-					//console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
-					console.log("がおがお");
-					//console.log(JSON.stringify(model.getVector("ひまわり")));
-					//console.log("がおがお" + model.analogy("ひまわり", ["犬", "動物"], 5));
-					console.log(model.getNearestWords( model.getVector( 'コンピュータ' ), 3 ));
-				});
-				*/
-
-				result.types = types;
-
-				for(var i = 0; i< result.types.length; i++){
-					if(result.types[i] === "food"){
-						data.driver.reply(data, "type: " + result.words[i][0] + "美味しかったですか？");
-					}
-				}
-			});
-			this.mecab.parse(data.text, function(err, result) {
-				//console.log(JSON.stringify(result, null, 2));
-				var s = "";
-				for(var i = 0; i < result.length - 1; i++){
-					if(result[i][1] === "動詞"){
-						s = result[i][0];
-						if(result[i][6] !== "基本形"){
-							for(i++; i < result.length - 1; i++){
-								s += result[i][0];
-								if(result[i][6] === "基本形") break;
-							}
-						}
-						//console.log(s);
-					}
-				}
-				if(s.length > 0){
-					//data.driver.reply(data, "そうか、君は" + s + "フレンズなんだね！");
-				}
-				/*
-									  if (result) {
-									  for(var i=0;i<result.length-1;i++){
-									  ans += result[i][0] + "/";
-									  }
-									  } else {
-									  ans = "ごめんなさい、このサーバーはmecabには対応していません";
-									  }
-									  data.driver.reply(data, ans);
-				 */
-			});
+			// ランダムにresponderを選択して、それに処理を引き渡す。
+			var idx = Math.floor(Math.random() * this.responderList.length);
+			console.log("Responder: " + this.responderList[idx].name);
+			this.responderList[idx].generateResponse(data); 
 
 			// %から始まる文字列をコマンドとして認識する
 			this.doCommand(data);

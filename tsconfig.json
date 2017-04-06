@@ -10,6 +10,9 @@
     },
     "files": [
         "src/driver.ts",
+        "src/responder.ts",
+        "src/responders/cabocha.ts",
+        "src/responders/mecab.ts",
         "src/deborah.ts"
     ]
 }
