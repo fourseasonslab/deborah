@@ -5,6 +5,7 @@ class DeborahResponderCabocha extends DeborahResponder
 		this.name ="Cabocha";
 	}
 	generateResponse(req: DeborahMessage){
+		var that = this;
 		this.bot.cabochaf1.parse(req.text, function(result) {
 			console.log(JSON.stringify(result, null, " "));
 			var depres = result.depRels;
@@ -21,7 +22,7 @@ class DeborahResponderCabocha extends DeborahResponder
 			//console.log(JSON.stringify(result, null, " "));
 			for(var i = 0; i < num; i++){
 				if(depres[i][0] === num){
-					req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+					// req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
 					importantWords.push(result.depRels[i][2][0]);
 					//console.log(depres[num][2].length);
 					for(var j = 0; j < depres[num][2].length; j++){
@@ -74,7 +75,7 @@ class DeborahResponderCabocha extends DeborahResponder
 
 			for(var i = 0; i< result.types.length; i++){
 				if(result.types[i] === "food"){
-					req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
+					// req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
 				}
 			}
 
@@ -111,11 +112,11 @@ class DeborahResponderCabocha extends DeborahResponder
 			var rnd = Math.floor(Math.random() * result.importantWords.length);
 			console.log(result.importantWords);
 			if(result.words[result.importantWords[rnd]][1] === "名詞"){
-				console.log("それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
+				that.reply(req, "それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
 			}else if(result.words[result.importantWords[rnd]][1] === "動詞"){
-				console.log("どうして" + result.words[result.importantWords[rnd]][7] + "の？");
+				that.reply(req, "どうして" + result.words[result.importantWords[rnd]][7] + "の？");
 			}else{
-				console.log(result.words[result.importantWords[rnd]][0] + "よね〜");
+				that.reply(req, result.words[result.importantWords[rnd]][0] + "よね〜");
 			}
 
 

@@ -68,6 +68,7 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
+                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -260,6 +261,7 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
+            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -330,6 +332,9 @@ class DeborahResponder {
         // echo
         req.driver.reply(req, req.text);
     }
+    reply(req, text) {
+        req.driver.reply(req, text);
+    }
 }
 class DeborahResponderCabocha extends DeborahResponder {
     constructor(bot) {
@@ -337,6 +342,7 @@ class DeborahResponderCabocha extends DeborahResponder {
         this.name = "Cabocha";
     }
     generateResponse(req) {
+        var that = this;
         this.bot.cabochaf1.parse(req.text, function (result) {
             console.log(JSON.stringify(result, null, " "));
             var depres = result.depRels;
@@ -353,7 +359,7 @@ class DeborahResponderCabocha extends DeborahResponder {
             //console.log(JSON.stringify(result, null, " "));
             for (var i = 0; i < num; i++) {
                 if (depres[i][0] === num) {
-                    req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+                    // req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
                     importantWords.push(result.depRels[i][2][0]);
                     //console.log(depres[num][2].length);
                     for (var j = 0; j < depres[num][2].length; j++) {
@@ -361,6 +367,7 @@ class DeborahResponderCabocha extends DeborahResponder {
                         //console.log(w);
                         //console.log(result.words[w]);
                         if (result.words[w][1] === "動詞") {
+                            //console.log(result.words[w][0] + "の終止形は" + result.words[w][7] + "だよ");
                         }
                     }
                 }
@@ -407,7 +414,7 @@ class DeborahResponderCabocha extends DeborahResponder {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
-                    req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
+                    // req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -432,19 +439,20 @@ class DeborahResponderCabocha extends DeborahResponder {
             console.log(JSON.stringify(result.rankWords));
             for (var i = 0; i < 4; i++) {
                 if (i <= result.rankWords.length) {
+                    //importantWords.push(result.rankWords[i][1]);
                 }
             }
             result.importantWords = importantWords;
             var rnd = Math.floor(Math.random() * result.importantWords.length);
             console.log(result.importantWords);
             if (result.words[result.importantWords[rnd]][1] === "名詞") {
-                console.log("それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
+                that.reply(req, "それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
             }
             else if (result.words[result.importantWords[rnd]][1] === "動詞") {
-                console.log("どうやって" + result.words[result.importantWords[rnd]][7] + "の？");
+                that.reply(req, "どうして" + result.words[result.importantWords[rnd]][7] + "の？");
             }
             else {
-                console.log(result.words[result.importantWords[rnd]][0] + "だよね〜");
+                that.reply(req, result.words[result.importantWords[rnd]][0] + "よね〜");
             }
             /*
             var w2v = require('word2vec');
@@ -480,6 +488,7 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
+                    //console.log(s);
                 }
             }
             if (s.length > 0) {

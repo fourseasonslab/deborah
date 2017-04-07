@@ -10,4 +10,7 @@ class DeborahResponder
 		// echo
 		req.driver.reply(req, req.text);
 	}
+	reply(req: DeborahMessage, text: string){
+		req.driver.reply(req, text);
+	}
 }
