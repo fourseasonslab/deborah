@@ -341,10 +341,12 @@ class DeborahResponderCabocha extends DeborahResponder {
             console.log(JSON.stringify(result, null, " "));
             var depres = result.depRels;
             var num;
+            var importantWords = [];
             //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
             for (var i = 0; i < depres.length; i++) {
                 if (depres[i][0] === -1) {
                     num = i;
+                    importantWords.push(result.depRels[num][2][0]);
                     break;
                 }
             }
@@ -352,7 +354,8 @@ class DeborahResponderCabocha extends DeborahResponder {
             for (var i = 0; i < num; i++) {
                 if (depres[i][0] === num) {
                     req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-                    console.log(depres[num][2].length);
+                    importantWords.push(result.depRels[i][2][0]);
+                    //console.log(depres[num][2].length);
                     for (var j = 0; j < depres[num][2].length; j++) {
                         var w = depres[num][2][j];
                         //console.log(w);
@@ -427,6 +430,22 @@ class DeborahResponderCabocha extends DeborahResponder {
             });
             result.rankWords = rankWords;
             console.log(JSON.stringify(result.rankWords));
+            for (var i = 0; i < 4; i++) {
+                if (i <= result.rankWords.length) {
+                }
+            }
+            result.importantWords = importantWords;
+            var rnd = Math.floor(Math.random() * result.importantWords.length);
+            console.log(result.importantWords);
+            if (result.words[result.importantWords[rnd]][1] === "名詞") {
+                console.log("それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
+            }
+            else if (result.words[result.importantWords[rnd]][1] === "動詞") {
+                console.log("どうやって" + result.words[result.importantWords[rnd]][7] + "の？");
+            }
+            else {
+                console.log(result.words[result.importantWords[rnd]][0] + "だよね〜");
+            }
             /*
             var w2v = require('word2vec');
             //w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
