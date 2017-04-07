@@ -68,6 +68,7 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
+                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -260,6 +261,7 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
+            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -430,6 +432,7 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
+                    //console.log(s);
                 }
             }
             if (s.length > 0) {
