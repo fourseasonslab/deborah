@@ -346,7 +346,6 @@ class DeborahResponderCabocha extends DeborahResponder {
             var depres = result.depRels;
             var num;
             var importantWords = [];
-            //for(var i = 0; i < depres.length; i++) console.log("resArray[" + i + "][1] = " + resArray[i][1]);
             for (var i = 0; i < depres.length; i++) {
                 if (depres[i][0] === -1) {
                     num = i;
@@ -359,32 +358,15 @@ class DeborahResponderCabocha extends DeborahResponder {
                 if (depres[i][0] === num) {
                     // req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
                     importantWords.push(result.depRels[i][2][0]);
-                    //console.log(depres[num][2].length);
-                    for (var j = 0; j < depres[num][2].length; j++) {
-                        var w = depres[num][2][j];
-                        //console.log(w);
-                        //console.log(result.words[w]);
-                        if (result.words[w][1] === "動詞") {
-                        }
-                    }
                 }
             }
-            var max = result.scores[0], min = result.scores[0];
-            for (var i = 1; i < result.scores.length; i++) {
-                if (result.scores[i] > max) {
-                    max = result.scores[i];
-                }
-                else if (result.scores[i] < min) {
-                    min = result.scores[i];
-                }
-            }
+            var max = Math.max.apply(null, result.scores);
+            var min = Math.max.apply(null, result.scores);
             var normScores = [];
             for (var i = 0; i < result.scores.length; i++) {
                 normScores[i] = (result.scores[i] - min) / (max - min);
             }
             result.normScores = normScores;
-            //console.log(JSON.stringify(result.normScores));
-            //console.log("最大値: " + Math.max.apply(null, result.scores));
             if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                 var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
                 console.log("へえ，" + result.words[maxScore][0] + "ね");
@@ -411,6 +393,7 @@ class DeborahResponderCabocha extends DeborahResponder {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
+                    req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -423,7 +406,6 @@ class DeborahResponderCabocha extends DeborahResponder {
                 }
             }
             result.counts = count;
-            //console.log(JSON.stringify(result.counts));
             var rankWords = [];
             for (var i = 0; i < result.counts.length; i++) {
                 rankWords.push([result.counts[i], result.depRels[i][1], result.depRels[i][2][0]]);
