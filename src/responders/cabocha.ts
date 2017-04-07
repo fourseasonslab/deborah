@@ -93,7 +93,7 @@ class DeborahResponderCabocha extends DeborahResponder
 
 			var rankWords = [];
 			for(var i = 0; i < result.counts.length; i++){
-				rankWords.push([result.counts[i], result.depRels[i][1]]);
+				rankWords.push([result.counts[i], result.depRels[i][1], result.depRels[i][2][0]]);
 			}
 			rankWords.sort(
 					function(a, b){
@@ -103,8 +103,8 @@ class DeborahResponderCabocha extends DeborahResponder
 			result.rankWords = rankWords;
 			console.log(JSON.stringify(result.rankWords));
 			for(var i = 0; i< 4; i++){
-				if(i <= result.rankWords.length){
-					//importantWords.push(result.rankWords[i][1]);
+				if(i < result.rankWords.length){
+					importantWords.push(result.rankWords[i][2]);
 				}
 			}
 
@@ -112,11 +112,13 @@ class DeborahResponderCabocha extends DeborahResponder
 			var rnd = Math.floor(Math.random() * result.importantWords.length);
 			console.log(result.importantWords);
 			if(result.words[result.importantWords[rnd]][1] === "名詞"){
-				that.reply(req, "それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
+				that.reply(req, result.words[result.importantWords[rnd]][0] + "について聞かせてよ！");
 			}else if(result.words[result.importantWords[rnd]][1] === "動詞"){
 				that.reply(req, "どうして" + result.words[result.importantWords[rnd]][7] + "の？");
+			}else if(result.words[result.importantWords[rnd]][1] === "形容詞" || result.words[result.importantWords[rnd]][1] === "形容動詞"){
+				that.reply(req, result.words[result.importantWords[rnd]][7] + "よね〜");
 			}else{
-				that.reply(req, result.words[result.importantWords[rnd]][0] + "よね〜");
+				that.reply(req, result.words[result.importantWords[rnd]][0] + "ってこと！？");
 			}
 
 

@@ -68,7 +68,6 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
-                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -261,7 +260,6 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
-            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -367,7 +365,6 @@ class DeborahResponderCabocha extends DeborahResponder {
                         //console.log(w);
                         //console.log(result.words[w]);
                         if (result.words[w][1] === "動詞") {
-                            //console.log(result.words[w][0] + "の終止形は" + result.words[w][7] + "だよ");
                         }
                     }
                 }
@@ -414,7 +411,6 @@ class DeborahResponderCabocha extends DeborahResponder {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
-                    // req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -430,7 +426,7 @@ class DeborahResponderCabocha extends DeborahResponder {
             //console.log(JSON.stringify(result.counts));
             var rankWords = [];
             for (var i = 0; i < result.counts.length; i++) {
-                rankWords.push([result.counts[i], result.depRels[i][1]]);
+                rankWords.push([result.counts[i], result.depRels[i][1], result.depRels[i][2][0]]);
             }
             rankWords.sort(function (a, b) {
                 return b[0] - a[0];
@@ -438,21 +434,24 @@ class DeborahResponderCabocha extends DeborahResponder {
             result.rankWords = rankWords;
             console.log(JSON.stringify(result.rankWords));
             for (var i = 0; i < 4; i++) {
-                if (i <= result.rankWords.length) {
-                    //importantWords.push(result.rankWords[i][1]);
+                if (i < result.rankWords.length) {
+                    importantWords.push(result.rankWords[i][2]);
                 }
             }
             result.importantWords = importantWords;
             var rnd = Math.floor(Math.random() * result.importantWords.length);
             console.log(result.importantWords);
             if (result.words[result.importantWords[rnd]][1] === "名詞") {
-                that.reply(req, "それはどんな" + result.words[result.importantWords[rnd]][0] + "だったの？");
+                that.reply(req, result.words[result.importantWords[rnd]][0] + "について聞かせてよ！");
             }
             else if (result.words[result.importantWords[rnd]][1] === "動詞") {
                 that.reply(req, "どうして" + result.words[result.importantWords[rnd]][7] + "の？");
             }
+            else if (result.words[result.importantWords[rnd]][1] === "形容詞" || result.words[result.importantWords[rnd]][1] === "形容動詞") {
+                that.reply(req, result.words[result.importantWords[rnd]][7] + "よね〜");
+            }
             else {
-                that.reply(req, result.words[result.importantWords[rnd]][0] + "よね〜");
+                that.reply(req, result.words[result.importantWords[rnd]][0] + "ってこと！？");
             }
             /*
             var w2v = require('word2vec');
@@ -488,7 +487,6 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
-                    //console.log(s);
                 }
             }
             if (s.length > 0) {
