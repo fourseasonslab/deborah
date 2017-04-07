@@ -451,15 +451,10 @@ class Deborah {
                     }
                 }
                 for (var i = 0; i < num; i++) {
-                    //console.log("depres[" + i + "][1] = " + resArray[i][1]);
                     if (depres[i][0] === num) {
-                        //console.log("s = " + s);
                         data.driver.reply(data, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-                        //console.log(depres[num][2].length);
                         for (var j = 0; j < depres[num][2].length; j++) {
                             var w = depres[num][2][j];
-                            //console.log(w);
-                            //console.log(result.words[w]);
                             if (result.words[w][1] === "動詞") {
                             }
                         }
@@ -492,47 +487,19 @@ class Deborah {
                 result.counts = count;
                 //console.log(JSON.stringify(result.counts));
                 var rankWords = [];
-                var unsortedCounts = [];
-                //unsortedCounts = result.counts;
                 for (var i = 0; i < result.counts.length; i++) {
-                    unsortedCounts[i] = result.counts[i];
+                    rankWords.push([result.counts[i], result.depRels[i][1]]);
                 }
-                result.counts.sort(function (a, b) {
-                    if (a < b)
-                        return 1;
-                    if (a > b)
-                        return -1;
-                    return 0;
+                rankWords.sort(function (a, b) {
+                    return b[0] - a[0];
                 });
-                var counted = [];
-                for (var i = 0; i < result.depRels.length; i++) {
-                    counted[i] = -1;
-                }
-                console.log("sorted " + result.counts);
-                console.log("unsorted " + unsortedCounts);
-                for (var i = 0; i < result.counts.length; i++) {
-                    for (var j = 0; j < result.counts.length; j++) {
-                        if (result.counts[i] === unsortedCounts[j]) {
-                            if (counted[j] === -1) {
-                                //console.log(i + "番目は" + j + "番");
-                                rankWords[i] = result.depRels[j][1];
-                                counted[j] = 0;
-                                break;
-                            }
-                        }
-                    }
-                }
                 result.rankWords = rankWords;
                 console.log(JSON.stringify(result.rankWords));
-                //console.log("最大値: " + Math.max.apply(null, result.scores));
                 if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                     var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
-                    console.log("最大値: " + maxScore);
-                    console.log("へえ，" + result.words[maxScore][0] + "ね");
                 }
                 var types = [];
                 for (var i = 0; i < result.words.length; i++) {
-                    //this.w2v = new W2V();
                     if (result.words[i][0] === "昨日") {
                         types.push("time");
                     }
@@ -549,6 +516,12 @@ class Deborah {
                         types.push(null);
                     }
                 }
+                result.types = types;
+                for (var i = 0; i < result.types.length; i++) {
+                    if (result.types[i] === "food") {
+                        data.driver.reply(data, "type: " + result.words[i][0] + "美味しかったですか？");
+                    }
+                }
                 /*
                 var w2v = require('word2vec');
                 //w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
@@ -561,12 +534,6 @@ class Deborah {
                     //console.log(model.getNearestWords( model.getVector( 'ひまわり' ), 3 ));
                 });
                 */
-                result.types = types;
-                for (var i = 0; i < result.types.length; i++) {
-                    if (result.types[i] === "food") {
-                        data.driver.reply(data, "type: " + result.words[i][0] + "美味しかったですか？");
-                    }
-                }
             });
             this.mecab.parse(data.text, function (err, result) {
                 //console.log(JSON.stringify(result, null, 2));
