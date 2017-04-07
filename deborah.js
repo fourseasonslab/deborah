@@ -17,8 +17,6 @@ class DeborahDriver {
         return null;
     }
 }
-class DeborahMessage {
-}
 class DeborahDriverLineApp extends DeborahDriver {
     constructor(bot, settings) {
         super(bot, settings);
@@ -320,6 +318,8 @@ class DeborahDriverWebAPI extends DeborahDriver {
             });
         });
     }
+}
+class DeborahMessage {
 }
 class DeborahResponder {
     constructor(bot) {
