@@ -14,6 +14,7 @@ class DeborahMessage
 		DeborahMessage.cabocha = new Cabocha();
 	}
 	analyze(f : Function){
+		var that = this;
 		DeborahMessage.cabocha.parse(this.text, function(result){
 			//console.log(JSON.stringify(result, null, " "));
 			var depres = result.depRels;
@@ -105,8 +106,8 @@ class DeborahMessage
 			}
 
 			result.importantWords = importantWords;
-			this.analytics = result;
-			f(this);
+			that.analytics = result;
+			f(that);
 		});
 	}
 }
