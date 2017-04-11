@@ -20,18 +20,25 @@ class DeborahMessage
 			var num;
 			var importantWords = [];
 			for(var i = 0; i < depres.length; i++){
-			if(depres[i][0] === -1){
-			num = i;
-			importantWords.push(result.depRels[num][2][0]);
-			break;
+				if(depres[i][0] === -1){
+					num = i;
+					importantWords.push(result.depRels[num][2][0]);
+					break;
+				}
 			}
+			for(var i = 0; i < result.words.length; i++){
+				if(result.words[i][2] === "固有名詞"){
+					importantWords.push(i);
+					importantWords.push(i);
+					importantWords.push(i);
+				}
 			}
 			//console.log(JSON.stringify(result, null, " "));
 			for(var i = 0; i < num; i++){
-			if(depres[i][0] === num){
-			// req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-			importantWords.push(result.depRels[i][2][0]);
-			}
+				if(depres[i][0] === num){
+					// req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+					importantWords.push(result.depRels[i][2][0]);
+				}
 			}
 
 			var max = Math.max.apply(null, result.scores);
@@ -44,7 +51,7 @@ class DeborahMessage
 			if(result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1){
 				var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
 				//console.log("へえ，" + result.words[maxScore][0] + "ね");
-			}
+				}
 
 			var types = [];
 			for(var i = 0; i < result.words.length; i++){
@@ -66,7 +73,7 @@ class DeborahMessage
 			for(var i = 0; i< result.types.length; i++){
 				if(result.types[i] === "food"){
 					//req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
-				}
+					}
 			}
 
 			var count = [];
@@ -85,10 +92,10 @@ class DeborahMessage
 				rankWords.push([result.counts[i], result.depRels[i][1], result.depRels[i][2][0]]);
 			}
 			rankWords.sort(
-					function(a, b){
+				function(a, b){
 					return b[0] - a[0];
-					}
-					);
+				}
+			);
 			result.rankWords = rankWords;
 			//console.log(JSON.stringify(result.rankWords));
 			for(var i = 0; i< 4; i++){

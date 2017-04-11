@@ -7,13 +7,13 @@ class Deborah
 	cabochaf1: any;
 	launchDate: Date;
 	initialIgnorePeriod: number = 5000;	// ms
-	fixedResponseList: (string[])[] = [
-		[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
-		["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
-		["死", "まだ死ぬには早いですよ！ :iconv:"],
-		["test","test"]
-	];
-	responderList: DeborahResponder[] = [];
+		fixedResponseList: (string[])[] = [
+			[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
+			["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
+			["死", "まだ死ぬには早いですよ！ :iconv:"],
+			["test","test"]
+		];
+		responderList: DeborahResponder[] = [];
 	constructor(){
 		console.log("Initializing deborah...");
 		this.launchDate = new Date();
@@ -38,7 +38,7 @@ class Deborah
 		//this.responderList.push(new DeborahResponder(this));
 		this.responderList.push(new DeborahResponderCabocha(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
-	}
+		}
 	start(){
 		var interfaces = this.settings.interfaces;
 		if (!(interfaces instanceof Array)) {
@@ -63,11 +63,26 @@ class Deborah
 	receive(data: DeborahMessage){
 		data.analyze(function(analyzedData: DeborahMessage){
 			var rnd = Math.floor(Math.random() * analyzedData.analytics.importantWords.length);
-			//console.log(analyzedData.analytics.importantWords);
+			for(var i = 0; i< analyzedData.analytics.importantWords.length; i++){
+				console.log(analyzedData.analytics.words[analyzedData.analytics.importantWords[i]][0]);
+			}
 			if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "名詞"){
-				data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "について聞かせてよ！");
+				if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][2] === "固有名詞"){
+					data.driver.reply(data, "あ，" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "知ってる！");
+				}else if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][2] === "一般"){
+					data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "か，それでー？");
+				}else if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][2] === "サ変接続"){
+					data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "するの！？");
+				}else{
+					data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "ってなんだっけ…？");
+				}
 			}else if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "動詞"){
-				data.driver.reply(data, "どうして" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "の？");
+				var random = Math.floor(Math.random() * 2);
+				if(random === 0){
+					data.driver.reply(data, "どうして" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "の？");
+				}else{
+					data.driver.reply(data, "だよね，めっちゃ" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "，わかる〜");
+				}
 			}else if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容詞" || analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容動詞"){
 				data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "よね〜");
 			}else{
@@ -140,18 +155,18 @@ class Deborah
 					data.driver.reply(data, ans);
 				});
 				break;
-			case 'debug':
-				// %debug
-				// デバッグ用コマンド。
-				switch (command[1]){
-					case 'slackData':
-						console.log(data.rawData);
-						break;
-					case 'cur':
-						console.log(data);
-						break;
-				}
-				break;
+   case 'debug':
+	   // %debug
+	   // デバッグ用コマンド。
+	   switch (command[1]){
+		   case 'slackData':
+			   console.log(data.rawData);
+			   break;
+		   case 'cur':
+			   console.log(data);
+			   break;
+	   }
+	   break;
 		}
 	}
 }

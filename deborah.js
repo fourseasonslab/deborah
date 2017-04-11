@@ -338,6 +338,13 @@ class DeborahMessage {
                     break;
                 }
             }
+            for (var i = 0; i < result.words.length; i++) {
+                if (result.words[i][2] === "固有名詞") {
+                    importantWords.push(i);
+                    importantWords.push(i);
+                    importantWords.push(i);
+                }
+            }
             //console.log(JSON.stringify(result, null, " "));
             for (var i = 0; i < num; i++) {
                 if (depres[i][0] === num) {
@@ -633,12 +640,31 @@ class Deborah {
     receive(data) {
         data.analyze(function (analyzedData) {
             var rnd = Math.floor(Math.random() * analyzedData.analytics.importantWords.length);
-            //console.log(analyzedData.analytics.importantWords);
+            for (var i = 0; i < analyzedData.analytics.importantWords.length; i++) {
+                console.log(analyzedData.analytics.words[analyzedData.analytics.importantWords[i]][0]);
+            }
             if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "名詞") {
-                data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "について聞かせてよ！");
+                if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][2] === "固有名詞") {
+                    data.driver.reply(data, "あ，" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "知ってる！");
+                }
+                else if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][2] === "一般") {
+                    data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "か，それでー？");
+                }
+                else if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][2] === "サ変接続") {
+                    data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "するの！？");
+                }
+                else {
+                    data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "ってなんだっけ…？");
+                }
             }
             else if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "動詞") {
-                data.driver.reply(data, "どうして" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "の？");
+                var random = Math.floor(Math.random() * 2);
+                if (random === 0) {
+                    data.driver.reply(data, "どうして" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "の？");
+                }
+                else {
+                    data.driver.reply(data, "だよね，めっちゃ" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "，わかる〜");
+                }
             }
             else if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容詞" || analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容動詞") {
                 data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "よね〜");
