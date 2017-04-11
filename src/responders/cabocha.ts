@@ -7,6 +7,7 @@ class DeborahResponderCabocha extends DeborahResponder
 	generateResponse(req: DeborahMessage){
 		var that = this;
 		this.bot.cabochaf1.parse(req.text, function(result) {
+			/*
 			console.log(JSON.stringify(result, null, " "));
 			var depres = result.depRels;
 			var num;

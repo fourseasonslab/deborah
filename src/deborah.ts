@@ -61,6 +61,20 @@ class Deborah
 		}
 	}
 	receive(data: DeborahMessage){
+		data.analyze(function(analyzedData: DeborahMessage){
+			var rnd = Math.floor(Math.random() * analyzedData.analytics.importantWords.length);
+			//console.log(analyzedData.analytics.importantWords);
+			if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "名詞"){
+				data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "について聞かせてよ！");
+			}else if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "動詞"){
+				data.driver.reply(data, "どうして" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "の？");
+			}else if(analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容詞" || analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容動詞"){
+				data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "よね〜");
+			}else{
+				data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "ってこと！？");
+			}
+
+		});
 		try {
 			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);

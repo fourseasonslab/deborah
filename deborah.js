@@ -320,29 +320,14 @@ class DeborahDriverWebAPI extends DeborahDriver {
     }
 }
 class DeborahMessage {
-}
-class DeborahResponder {
-    constructor(bot) {
-        this.bot = bot;
-        this.name = "Echo";
-    }
-    generateResponse(req) {
-        // echo
-        req.driver.reply(req, req.text);
-    }
-    reply(req, text) {
-        req.driver.reply(req, text);
-    }
-}
-class DeborahResponderCabocha extends DeborahResponder {
-    constructor(bot) {
-        super(bot);
-        this.name = "Cabocha";
-    }
-    generateResponse(req) {
+    constructor() {
+        var Cabocha = require('node-cabocha');
         var that = this;
-        this.bot.cabochaf1.parse(req.text, function (result) {
-            console.log(JSON.stringify(result, null, " "));
+        DeborahMessage.cabocha = new Cabocha();
+    }
+    analyze(f) {
+        DeborahMessage.cabocha.parse(this.text, function (result) {
+            //console.log(JSON.stringify(result, null, " "));
             var depres = result.depRels;
             var num;
             var importantWords = [];
@@ -369,7 +354,6 @@ class DeborahResponderCabocha extends DeborahResponder {
             result.normScores = normScores;
             if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                 var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
-                console.log("へえ，" + result.words[maxScore][0] + "ね");
             }
             var types = [];
             for (var i = 0; i < result.words.length; i++) {
@@ -393,7 +377,6 @@ class DeborahResponderCabocha extends DeborahResponder {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
-                    req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -414,27 +397,136 @@ class DeborahResponderCabocha extends DeborahResponder {
                 return b[0] - a[0];
             });
             result.rankWords = rankWords;
-            console.log(JSON.stringify(result.rankWords));
+            //console.log(JSON.stringify(result.rankWords));
             for (var i = 0; i < 4; i++) {
                 if (i < result.rankWords.length) {
                     importantWords.push(result.rankWords[i][2]);
                 }
             }
             result.importantWords = importantWords;
+            this.analytics = result;
+            f(this);
+        });
+    }
+}
+class DeborahResponder {
+    constructor(bot) {
+        this.bot = bot;
+        this.name = "Echo";
+    }
+    generateResponse(req) {
+        // echo
+        req.driver.reply(req, req.text);
+    }
+    reply(req, text) {
+        req.driver.reply(req, text);
+    }
+}
+class DeborahResponderCabocha extends DeborahResponder {
+    constructor(bot) {
+        super(bot);
+        this.name = "Cabocha";
+    }
+    generateResponse(req) {
+        var that = this;
+        this.bot.cabochaf1.parse(req.text, function (result) {
+            /*
+            console.log(JSON.stringify(result, null, " "));
+            var depres = result.depRels;
+            var num;
+            var importantWords = [];
+            for(var i = 0; i < depres.length; i++){
+                if(depres[i][0] === -1){
+                    num = i;
+                    importantWords.push(result.depRels[num][2][0]);
+                    break;
+                }
+            }
+            //console.log(JSON.stringify(result, null, " "));
+            for(var i = 0; i < num; i++){
+                if(depres[i][0] === num){
+                    // req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
+                    importantWords.push(result.depRels[i][2][0]);
+                }
+            }
+
+            var max = Math.max.apply(null, result.scores);
+            var min = Math.max.apply(null, result.scores);
+            var normScores = [];
+            for(var i = 0; i < result.scores.length; i++){
+                normScores[i] = (result.scores[i] - min) / (max - min);
+            }
+            result.normScores = normScores;
+            if(result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1){
+                var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+                console.log("へえ，" + result.words[maxScore][0] + "ね");
+            }
+
+            var types = [];
+            for(var i = 0; i < result.words.length; i++){
+                //this.w2v = new W2V();
+                if(result.words[i][0] === "昨日"){
+                    types.push("time");
+                }else if(result.words[i][0] === "宇宙"){
+                    types.push("place");
+                }else if(result.words[i][0] === "うどん"){
+                    types.push("food");
+                }else if(result.words[i][0] === "佳乃"){
+                    types.push("person");
+                }else{
+                    types.push(null);
+                }
+            }
+            result.types = types;
+
+            for(var i = 0; i< result.types.length; i++){
+                if(result.types[i] === "food"){
+                    req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
+                }
+            }
+
+            var count = [];
+            for(var i = 0; i < result.depRels.length; i++){
+                count[i] = 0;
+            }
+            for(var i = 0; i < result.depRels.length; i++){
+                if(result.depRels[i][0] !== -1){
+                    count[result.depRels[i][0]]++;
+                }
+            }
+            result.counts = count;
+
+            var rankWords = [];
+            for(var i = 0; i < result.counts.length; i++){
+                rankWords.push([result.counts[i], result.depRels[i][1], result.depRels[i][2][0]]);
+            }
+            rankWords.sort(
+                    function(a, b){
+                    return b[0] - a[0];
+                    }
+            );
+            result.rankWords = rankWords;
+            console.log(JSON.stringify(result.rankWords));
+            for(var i = 0; i< 4; i++){
+                if(i < result.rankWords.length){
+                    importantWords.push(result.rankWords[i][2]);
+                }
+            }
+
+            result.importantWords = importantWords;
             var rnd = Math.floor(Math.random() * result.importantWords.length);
             console.log(result.importantWords);
-            if (result.words[result.importantWords[rnd]][1] === "名詞") {
+            if(result.words[result.importantWords[rnd]][1] === "名詞"){
                 that.reply(req, result.words[result.importantWords[rnd]][0] + "について聞かせてよ！");
-            }
-            else if (result.words[result.importantWords[rnd]][1] === "動詞") {
+            }else if(result.words[result.importantWords[rnd]][1] === "動詞"){
                 that.reply(req, "どうして" + result.words[result.importantWords[rnd]][7] + "の？");
-            }
-            else if (result.words[result.importantWords[rnd]][1] === "形容詞" || result.words[result.importantWords[rnd]][1] === "形容動詞") {
+            }else if(result.words[result.importantWords[rnd]][1] === "形容詞" || result.words[result.importantWords[rnd]][1] === "形容動詞"){
                 that.reply(req, result.words[result.importantWords[rnd]][7] + "よね〜");
-            }
-            else {
+            }else{
                 that.reply(req, result.words[result.importantWords[rnd]][0] + "ってこと！？");
             }
+
+
             /*
             var w2v = require('word2vec');
             //w2v.loadModel('data/wakati_jawiki_20170215_all.txt.vectors.bin', function( err, model ){
@@ -539,6 +631,22 @@ class Deborah {
         }
     }
     receive(data) {
+        data.analyze(function (analyzedData) {
+            var rnd = Math.floor(Math.random() * analyzedData.analytics.importantWords.length);
+            //console.log(analyzedData.analytics.importantWords);
+            if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "名詞") {
+                data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "について聞かせてよ！");
+            }
+            else if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "動詞") {
+                data.driver.reply(data, "どうして" + analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "の？");
+            }
+            else if (analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容詞" || analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][1] === "形容動詞") {
+                data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][7] + "よね〜");
+            }
+            else {
+                data.driver.reply(data, analyzedData.analytics.words[analyzedData.analytics.importantWords[rnd]][0] + "ってこと！？");
+            }
+        });
         try {
             // メッセージが空なら帰る
             console.log("Deborah.receive: [" + data.text + "] in " + data.context);
