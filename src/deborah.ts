@@ -36,7 +36,8 @@ class Deborah
 		var Cabocha = require('node-cabocha');
 		this.cabochaf1 = new Cabocha();
 		//this.responderList.push(new DeborahResponder(this));
-		this.responderList.push(new DeborahResponderCabocha(this));
+		//this.responderList.push(new DeborahResponderCabocha(this));
+		this.responderList.push(new DeborahResponderKano(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
 		}
 	start(){
@@ -61,35 +62,6 @@ class Deborah
 		}
 	}
 	receive(data: DeborahMessage){
-		data.analyze(function(data2: DeborahMessage){
-			var rnd = Math.floor(Math.random() * data.analytics.importantWords.length);
-			for(var i = 0; i< data.analytics.importantWords.length; i++){
-				console.log(data.analytics.words[data.analytics.importantWords[i]][0]);
-			}
-			if(data.analytics.words[data.analytics.importantWords[rnd]][1] === "名詞"){
-				if(data.analytics.words[data.analytics.importantWords[rnd]][2] === "固有名詞"){
-					data.driver.reply(data, "あ，" + data.analytics.words[data.analytics.importantWords[rnd]][0] + "知ってる！");
-				}else if(data.analytics.words[data.analytics.importantWords[rnd]][2] === "一般"){
-					data.driver.reply(data, data.analytics.words[data.analytics.importantWords[rnd]][0] + "か，それでー？");
-				}else if(data.analytics.words[data.analytics.importantWords[rnd]][2] === "サ変接続"){
-					data.driver.reply(data, data.analytics.words[data.analytics.importantWords[rnd]][0] + "するの！？");
-				}else{
-					data.driver.reply(data, data.analytics.words[data.analytics.importantWords[rnd]][0] + "ってなんだっけ…？");
-				}
-			}else if(data.analytics.words[data.analytics.importantWords[rnd]][1] === "動詞"){
-				var random = Math.floor(Math.random() * 2);
-				if(random === 0){
-					data.driver.reply(data, "どうして" + data.analytics.words[data.analytics.importantWords[rnd]][7] + "の？");
-				}else{
-					data.driver.reply(data, "だよね，めっちゃ" + data.analytics.words[data.analytics.importantWords[rnd]][7] + "，わかる〜");
-				}
-			}else if(data.analytics.words[data.analytics.importantWords[rnd]][1] === "形容詞" || data.analytics.words[data.analytics.importantWords[rnd]][1] === "形容動詞"){
-				data.driver.reply(data, data.analytics.words[data.analytics.importantWords[rnd]][7] + "よね〜");
-			}else{
-				data.driver.reply(data, data.analytics.words[data.analytics.importantWords[rnd]][0] + "ってこと！？");
-			}
-
-		});
 		try {
 			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
@@ -103,7 +75,12 @@ class Deborah
 			// ランダムにresponderを選択して、それに処理を引き渡す。
 			var idx = Math.floor(Math.random() * this.responderList.length);
 			console.log("Responder: " + this.responderList[idx].name);
-			this.responderList[idx].generateResponse(data); 
+			//this.responderList[idx].generateResponse(data); 
+			//この下4行はanalyzeに食べさせた結果を使うresponders用
+			var that = this;
+			data.analyze(function(data2: DeborahMessage){
+				that.responderList[idx].generateResponse(data); 
+			});
 
 			// %から始まる文字列をコマンドとして認識する
 			this.doCommand(data);
