@@ -66,6 +66,7 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
+                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -258,6 +259,7 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
+            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -362,6 +364,7 @@ class DeborahMessage {
             result.normScores = normScores;
             if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                 var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+                //console.log("へえ，" + result.words[maxScore][0] + "ね");
             }
             var types = [];
             for (var i = 0; i < result.words.length; i++) {
@@ -385,6 +388,7 @@ class DeborahMessage {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
+                    //req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -569,6 +573,7 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
+                    //console.log(s);
                 }
             }
             if (s.length > 0) {
@@ -577,6 +582,7 @@ class DeborahResponderMeCab extends DeborahResponder {
         });
     }
 }
+<<<<<<< HEAD
 class DeborahResponderKano extends DeborahResponder {
     constructor(bot) {
         super(bot);
@@ -656,6 +662,21 @@ class DeborahResponderKano extends DeborahResponder {
         else {
             req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "〜〜");
         }
+=======
+class DeborahResponderWord2Vec extends DeborahResponder {
+    constructor(bot) {
+        super(bot);
+        this.w2v = null;
+        this.name = "Word2Vec";
+        var W2V = require("node-word2vec");
+        this.w2v = new W2V(this.bot.settings.lib.word2vec.vectorPath);
+    }
+    ;
+    generateResponse(req) {
+        this.w2v.getVector(req.text, function (v1) {
+            console.log(req.text + 'のべくとるは' + JSON.stringify(v1) + 'なんだって！');
+        });
+>>>>>>> master
     }
 }
 class Deborah {
@@ -692,7 +713,11 @@ class Deborah {
         this.cabochaf1 = new Cabocha();
         //this.responderList.push(new DeborahResponder(this));
         //this.responderList.push(new DeborahResponderCabocha(this));
+<<<<<<< HEAD
         this.responderList.push(new DeborahResponderKano(this));
+=======
+        this.responderList.push(new DeborahResponderWord2Vec(this));
+>>>>>>> master
         //this.responderList.push(new DeborahResponderMeCab(this));
     }
     start() {

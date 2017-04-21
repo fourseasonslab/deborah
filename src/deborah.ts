@@ -7,13 +7,13 @@ class Deborah
 	cabochaf1: any;
 	launchDate: Date;
 	initialIgnorePeriod: number = 5000;	// ms
-		fixedResponseList: (string[])[] = [
-			[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
-			["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
-			["死", "まだ死ぬには早いですよ！ :iconv:"],
-			["test","test"]
-		];
-		responderList: DeborahResponder[] = [];
+	fixedResponseList: (string[])[] = [
+		[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
+		["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
+		["死", "まだ死ぬには早いですよ！ :iconv:"],
+		["test","test"]
+	];
+	responderList: DeborahResponder[] = [];
 	constructor(){
 		console.log("Initializing deborah...");
 		this.launchDate = new Date();
@@ -38,8 +38,9 @@ class Deborah
 		//this.responderList.push(new DeborahResponder(this));
 		//this.responderList.push(new DeborahResponderCabocha(this));
 		this.responderList.push(new DeborahResponderKano(this));
+		//this.responderList.push(new DeborahResponderWord2Vec(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
-		}
+	}
 	start(){
 		var interfaces = this.settings.interfaces;
 		if (!(interfaces instanceof Array)) {
@@ -132,18 +133,18 @@ class Deborah
 					data.driver.reply(data, ans);
 				});
 				break;
-   case 'debug':
-	   // %debug
-	   // デバッグ用コマンド。
-	   switch (command[1]){
-		   case 'slackData':
-			   console.log(data.rawData);
-			   break;
-		   case 'cur':
-			   console.log(data);
-			   break;
-	   }
-	   break;
+			case 'debug':
+				// %debug
+				// デバッグ用コマンド。
+				switch (command[1]){
+					case 'slackData':
+						console.log(data.rawData);
+						break;
+					case 'cur':
+						console.log(data);
+						break;
+				}
+				break;
 		}
 	}
 }

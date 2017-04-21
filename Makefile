@@ -1,6 +1,6 @@
 SRCS = deborah.ts
 
-ALLSRC = $(addprefix src/, $(SRCS))
+ALLSRC := $(wildcard src/*.ts src/responder/*.ts)
 
 default :
 	make deborah.js

@@ -11,10 +11,11 @@
     "files": [
         "src/driver.ts",
         "src/message.ts",
-        "src/responder.ts",
-        "src/responders/cabocha.ts",
-        "src/responders/mecab.ts",
-        "src/responders/kano-bot.ts",
+        "src/responder/responder.ts",
+        "src/responder/cabocha.ts",
+        "src/responder/kano-bot.ts",
+        "src/responder/mecab.ts",
+        "src/responder/word2vec.ts",
         "src/deborah.ts"
     ]
 }
