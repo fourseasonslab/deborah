@@ -1,22 +1,33 @@
 class DeborahResponderKano extends DeborahResponder
 {
+	w2v: any;
+	goodVector: any;
+	badVector: any;
 	constructor(bot: Deborah){
 		super(bot);
 		this.name ="Kano";
+		var Word2Vec = require("node-word2vec");
+		this.w2v = new Word2Vec(this.bot.settings.lib.word2vec.vectorPath);
+		var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい", "喜ぶ", "ポジティブ"];
+		var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌", "悲しむ", "ネガティブ"];
+		this.goodVector = [];
+		this.badVector = [];
+		var that = this;
+		for(var i = 0; i< good.length; i++){
+			this.w2v.getVector(good[i], function(v){
+				that.goodVector.push(v);
+			});
+		}
+		for(var i = 0; i< bad.length; i++){
+			this.w2v.getVector(bad[i], function(v){
+				that.badVector.push(v);
+			});
+		}
 	}
 	generateResponse(req: DeborahMessage){
-		var Word2Vec = require("node-word2vec");
-		var w2v = new Word2Vec("/Users/kano/Documents/TierIV/word2vec/jawiki-sep-1-vectors-bin1.bin");
-		/*w2v.getVector("陽子", function(v1){
-			w2v.getVector("明子", function(v2){
-				console.log(v1.cosineSimilarity(v2));
-			});
-		});*/
 		var result = req.analytics;
 		var not: boolean;
-		/*for(var i = 0; i< result.importantWords.length; i++){
-			console.log(result.words[result.importantWords[i]][0]);
-		}*/
+		/*
 		for(var i = 0; i < result.words.length; i++){
 			if(result.words[i][7] === "ない"){
 				not = true;
@@ -26,28 +37,32 @@ class DeborahResponderKano extends DeborahResponder
 		if(not){
 			req.driver.reply(req, "否定的かも？");
 		}
-		var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい"];
-		var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌"];
+		*/
 		var rnd = Math.floor(Math.random() * result.importantWords.length);
-		w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
-			var goodScore: number = 0;
-			var that = this;
-			w2v.getVector(good[1], function(v2){
-				that.goodScore = v1.cosineSimilarity(v2);
-				//console.log("GoodWordsとの関連度"+ i + ": " + goodScore);
-				console.log("GoodWordsとの関連度1: " + v1.cosineSimilarity(v2));
-			});
-			//console.log("GoodWordsとの関連度1: " + goodScore);
+		var that = this;
+		var goodScore = 0;
+		var badScore = 0;
+		this.w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
+			for(var i=0; i < that.goodVector.length; i++){
+				goodScore += v1.cosineSimilarity(that.goodVector[i]);
+			}
+			console.log("GoodWordsとの関連度: " + goodScore);
 		});
-		w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1, badScore: number){
-			//var badScore: number;
-			var that = this;
-			//for(var i=0; i< bad.length; i++){
-				w2v.getVector(bad[i], function(v2){
-					console.log("badWordとの関連度: " + v1.cosineSimilarity(v2));
-				});
-			//}
-			//console.log("BadWordsとの関連度" + badScore);
+		this.w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
+			for(var i=0; i < that.badVector.length; i++){
+				badScore += v1.cosineSimilarity(that.badVector[i]);
+			}
+			console.log("BadWordsとの関連度: " + badScore);
+			if(goodScore - badScore > 0.1){
+				console.log("(いい感じ〜)");
+				req.driver.reply(req, ":blush:");
+			}else if(goodScore - badScore < -0.1){
+				console.log("ちょっと怖い…");
+				req.driver.reply(req, ":fearful:");
+			}else{
+				console.log("普通っぽいなぁ");
+				req.driver.reply(req, ":fish_cake:");
+			}
 		});
 		if(result.words[result.importantWords[rnd]][1] === "名詞"){
 			if(result.words[result.importantWords[rnd]][2] === "固有名詞"){
@@ -56,6 +71,8 @@ class DeborahResponderKano extends DeborahResponder
 				req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "か，それでー？");
 			}else if(result.words[result.importantWords[rnd]][2] === "サ変接続"){
 				req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "するの！？");
+			}else if(result.words[result.importantWords[rnd]][2] === "形容動詞語幹"){
+				req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "なものかぁ");
 			}else{
 				req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "ってなんだっけ…？");
 			}
