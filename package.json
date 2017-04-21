@@ -10,6 +10,7 @@
     "mecab-lite": "^0.0.8",
     "node-cabocha": "0.0.1",
     "node-line-bot-api": "^0.1.3",
+    "node-word2vec": "0.0.2",
     "openjtalk": "^0.1.6",
     "slackbotapi": "^1.3.9",
     "socket.io": "^1.7.3",
