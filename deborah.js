@@ -644,8 +644,8 @@ class DeborahResponderWord2Vec extends DeborahResponder {
         //
          */
         //
-        console.log(JSON.stringify(req.analytics) + "!!!!!!!!!!!!!!");
-        //console.log(JSON.stringify(result.importantWords) + "!!!!");
+        //		console.log(JSON.stringify(req.analytics) + "!!!!!!!!!!!!!!");
+        console.log(JSON.stringify(result.importantWords) + "!!!!");
         //for(var i=0; i < result.importantWords.length; i++){
         //	if(result.words[result.importantWords[i]][1] === "名詞"){
         //				this.w2v.getVector(result.words[result.importantWords[i]][7], function(v1){
