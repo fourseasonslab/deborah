@@ -31,7 +31,6 @@ class DeborahMessage
 				if(result.words[i][2] === "固有名詞"){
 					importantWords.push(i);
 					importantWords.push(i);
-					importantWords.push(i);
 				}
 			}
 			//console.log(JSON.stringify(result, null, " "));

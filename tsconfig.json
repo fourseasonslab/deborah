@@ -13,6 +13,7 @@
         "src/message.ts",
         "src/responder/responder.ts",
         "src/responder/cabocha.ts",
+        "src/responder/kano-bot.ts",
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
         "src/deborah.ts"

@@ -37,7 +37,8 @@ class Deborah
 		this.cabochaf1 = new Cabocha();
 		//this.responderList.push(new DeborahResponder(this));
 		//this.responderList.push(new DeborahResponderCabocha(this));
-		this.responderList.push(new DeborahResponderWord2Vec(this));
+		this.responderList.push(new DeborahResponderKano(this));
+		//this.responderList.push(new DeborahResponderWord2Vec(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
 	}
 	start(){
@@ -92,7 +93,6 @@ class Deborah
 
 		});
 		*/
-			try {
 			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 
@@ -105,7 +105,12 @@ class Deborah
 			// ランダムにresponderを選択して、それに処理を引き渡す。
 			var idx = Math.floor(Math.random() * this.responderList.length);
 			console.log("Responder: " + this.responderList[idx].name);
-			this.responderList[idx].generateResponse(data); 
+			//this.responderList[idx].generateResponse(data); 
+			//この下4行はanalyzeに食べさせた結果を使うresponders用
+			var that = this;
+			data.analyze(function(data2: DeborahMessage){
+				that.responderList[idx].generateResponse(data); 
+			});
 
 			// %から始まる文字列をコマンドとして認識する
 			this.doCommand(data);

@@ -66,7 +66,6 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
-                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -259,7 +258,6 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
-            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -364,7 +362,6 @@ class DeborahMessage {
             result.normScores = normScores;
             if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                 var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
-                //console.log("へえ，" + result.words[maxScore][0] + "ね");
             }
             var types = [];
             for (var i = 0; i < result.words.length; i++) {
@@ -388,7 +385,6 @@ class DeborahMessage {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
-                    //req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -554,6 +550,104 @@ class DeborahResponderCabocha extends DeborahResponder {
         });
     }
 }
+class DeborahResponderKano extends DeborahResponder {
+    constructor(bot) {
+        super(bot);
+        this.name = "Kano";
+        var Word2Vec = require("node-word2vec");
+        this.w2v = new Word2Vec(this.bot.settings.lib.word2vec.vectorPath);
+        var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい", "喜ぶ", "ポジティブ", "最高", "最良"];
+        var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌", "悲しむ", "ネガティブ", "最低", "最悪"];
+        this.goodVector = [];
+        this.badVector = [];
+        var that = this;
+        for (var i = 0; i < good.length; i++) {
+            this.w2v.getVector(good[i], function (v) {
+                that.goodVector.push(v);
+            });
+        }
+        for (var i = 0; i < bad.length; i++) {
+            this.w2v.getVector(bad[i], function (v) {
+                that.badVector.push(v);
+            });
+        }
+    }
+    generateResponse(req) {
+        var result = req.analytics;
+        var not;
+        /*
+        for(var i = 0; i < result.words.length; i++){
+            if(result.words[i][7] === "ない"){
+                not = true;
+                break;
+            }
+        }
+        if(not){
+            req.driver.reply(req, "否定的かも？");
+        }
+        */
+        var rnd = Math.floor(Math.random() * result.importantWords.length);
+        var that = this;
+        var goodScore = 0;
+        var badScore = 0;
+        this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
+            for (var i = 0; i < that.goodVector.length; i++) {
+                goodScore += v1.cosineSimilarity(that.goodVector[i]);
+            }
+            console.log("GoodWordsとの関連度: " + goodScore);
+        });
+        this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
+            for (var i = 0; i < that.badVector.length; i++) {
+                badScore += v1.cosineSimilarity(that.badVector[i]);
+            }
+            console.log("BadWordsとの関連度: " + badScore);
+            if (goodScore - badScore > 0.1) {
+                console.log("(いい感じ〜)");
+                req.driver.reply(req, ":blush:");
+            }
+            else if (goodScore - badScore < -0.1) {
+                console.log("ちょっと怖い…");
+                req.driver.reply(req, ":fearful:");
+            }
+            else {
+                console.log("普通っぽいなぁ");
+                req.driver.reply(req, ":fish_cake:");
+            }
+        });
+        if (result.words[result.importantWords[rnd]][1] === "名詞") {
+            if (result.words[result.importantWords[rnd]][2] === "固有名詞") {
+                req.driver.reply(req, "あ，" + result.words[result.importantWords[rnd]][0] + "知ってる！");
+            }
+            else if (result.words[result.importantWords[rnd]][2] === "一般") {
+                req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "か，ふむふむ〜");
+            }
+            else if (result.words[result.importantWords[rnd]][2] === "サ変接続") {
+                req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "するの！？");
+            }
+            else if (result.words[result.importantWords[rnd]][2] === "形容動詞語幹") {
+                req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "なものかぁ");
+            }
+            else {
+                req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "ってなんだっけ…？");
+            }
+        }
+        else if (result.words[result.importantWords[rnd]][1] === "動詞") {
+            var random = Math.floor(Math.random() * 2);
+            if (random === 0) {
+                req.driver.reply(req, "どうして" + result.words[result.importantWords[rnd]][7] + "の？");
+            }
+            else {
+                req.driver.reply(req, "だよね，めっちゃ" + result.words[result.importantWords[rnd]][7] + "，わかる〜");
+            }
+        }
+        else if (result.words[result.importantWords[rnd]][1] === "形容詞" || result.words[result.importantWords[rnd]][1] === "形容動詞") {
+            req.driver.reply(req, result.words[result.importantWords[rnd]][7] + "よね〜");
+        }
+        else {
+            req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "〜〜");
+        }
+    }
+}
 class DeborahResponderMeCab extends DeborahResponder {
     constructor(bot) {
         super(bot);
@@ -573,7 +667,6 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
-                    //console.log(s);
                 }
             }
             if (s.length > 0) {
@@ -745,7 +838,8 @@ class Deborah {
         this.cabochaf1 = new Cabocha();
         //this.responderList.push(new DeborahResponder(this));
         //this.responderList.push(new DeborahResponderCabocha(this));
-        this.responderList.push(new DeborahResponderWord2Vec(this));
+        this.responderList.push(new DeborahResponderKano(this));
+        //this.responderList.push(new DeborahResponderWord2Vec(this));
         //this.responderList.push(new DeborahResponderMeCab(this));
     }
     start() {
@@ -774,6 +868,7 @@ class Deborah {
         }
     }
     receive(data) {
+<<<<<<< HEAD
         /*	data.analyze(function(data2: DeborahMessage){
                     var rnd = Math.floor(Math.random() * data.analytics.importantWords.length);
             for(var i = 0; i< data.analytics.importantWords.length; i++){
@@ -804,6 +899,8 @@ class Deborah {
 
         });
         */
+=======
+>>>>>>> cabocha-score
         try {
             // メッセージが空なら帰る
             console.log("Deborah.receive: [" + data.text + "] in " + data.context);
@@ -815,7 +912,12 @@ class Deborah {
             // ランダムにresponderを選択して、それに処理を引き渡す。
             var idx = Math.floor(Math.random() * this.responderList.length);
             console.log("Responder: " + this.responderList[idx].name);
-            this.responderList[idx].generateResponse(data);
+            //this.responderList[idx].generateResponse(data); 
+            //この下4行はanalyzeに食べさせた結果を使うresponders用
+            var that = this;
+            data.analyze(function (data2) {
+                that.responderList[idx].generateResponse(data);
+            });
             // %から始まる文字列をコマンドとして認識する
             this.doCommand(data);
         }
