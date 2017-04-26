@@ -66,6 +66,7 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
+                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -258,6 +259,7 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
+            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -343,7 +345,6 @@ class DeborahMessage {
                 if (result.words[i][2] === "固有名詞") {
                     importantWords.push(i);
                     importantWords.push(i);
-                    importantWords.push(i);
                 }
             }
             //console.log(JSON.stringify(result, null, " "));
@@ -362,6 +363,7 @@ class DeborahMessage {
             result.normScores = normScores;
             if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                 var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+                //console.log("へえ，" + result.words[maxScore][0] + "ね");
             }
             var types = [];
             for (var i = 0; i < result.words.length; i++) {
@@ -385,6 +387,7 @@ class DeborahMessage {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
+                    //req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -667,6 +670,7 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
+                    //console.log(s);
                 }
             }
             if (s.length > 0) {
@@ -868,7 +872,6 @@ class Deborah {
         }
     }
     receive(data) {
-<<<<<<< HEAD
         /*	data.analyze(function(data2: DeborahMessage){
                     var rnd = Math.floor(Math.random() * data.analytics.importantWords.length);
             for(var i = 0; i< data.analytics.importantWords.length; i++){
@@ -899,8 +902,6 @@ class Deborah {
 
         });
         */
-=======
->>>>>>> cabocha-score
         try {
             // メッセージが空なら帰る
             console.log("Deborah.receive: [" + data.text + "] in " + data.context);

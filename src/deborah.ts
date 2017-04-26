@@ -93,7 +93,8 @@ class Deborah
 
 		});
 		*/
-			// メッセージが空なら帰る
+		try{
+		// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 
 			// 最初の無視期間は反応せず帰る
