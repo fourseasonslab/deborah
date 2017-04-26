@@ -556,8 +556,8 @@ class DeborahResponderKano extends DeborahResponder {
         this.name = "Kano";
         var Word2Vec = require("node-word2vec");
         this.w2v = new Word2Vec(this.bot.settings.lib.word2vec.vectorPath);
-        var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい", "喜ぶ", "ポジティブ"];
-        var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌", "悲しむ", "ネガティブ"];
+        var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい", "喜ぶ", "ポジティブ", "最高", "最良"];
+        var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌", "悲しむ", "ネガティブ", "最低", "最悪"];
         this.goodVector = [];
         this.badVector = [];
         var that = this;
@@ -619,7 +619,7 @@ class DeborahResponderKano extends DeborahResponder {
                 req.driver.reply(req, "あ，" + result.words[result.importantWords[rnd]][0] + "知ってる！");
             }
             else if (result.words[result.importantWords[rnd]][2] === "一般") {
-                req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "か，それでー？");
+                req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "か，ふむふむ〜");
             }
             else if (result.words[result.importantWords[rnd]][2] === "サ変接続") {
                 req.driver.reply(req, result.words[result.importantWords[rnd]][0] + "するの！？");
