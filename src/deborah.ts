@@ -62,8 +62,8 @@ class Deborah
 		}
 	}
 	receive(data: DeborahMessage){
-		data.analyze(function(data2: DeborahMessage){
-			var rnd = Math.floor(Math.random() * data.analytics.importantWords.length);
+		/*	data.analyze(function(data2: DeborahMessage){
+					var rnd = Math.floor(Math.random() * data.analytics.importantWords.length);
 			for(var i = 0; i< data.analytics.importantWords.length; i++){
 				console.log(data.analytics.words[data.analytics.importantWords[i]][0]);
 			}
@@ -91,7 +91,8 @@ class Deborah
 			}
 
 		});
-		try {
+		*/
+			try {
 			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 
