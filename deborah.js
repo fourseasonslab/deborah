@@ -550,6 +550,7 @@ class DeborahResponderCabocha extends DeborahResponder {
     }
 }
 class DeborahResponderKano extends DeborahResponder {
+    //favVector: any;
     constructor(bot) {
         super(bot);
         this.name = "Kano";
@@ -557,10 +558,10 @@ class DeborahResponderKano extends DeborahResponder {
         this.w2v = new Word2Vec(this.bot.settings.lib.word2vec.vectorPath);
         var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい", "喜ぶ", "ポジティブ", "最高", "最良"];
         var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌", "悲しむ", "ネガティブ", "最低", "最悪"];
-        var fav = ["合唱", "猫", "ゲーム", "本", "読書", "寝る", "ごはん", "食べる", "歌う", "カラオケ", "牛乳"];
+        //var fav = ["合唱", "猫", "ゲーム", "本", "読書", "寝る", "ごはん", "食べる", "歌う", "カラオケ", "牛乳"];
         this.goodVector = [];
         this.badVector = [];
-        this.favVector = [];
+        //this.favVector = [];
         var that = this;
         for (var i = 0; i < good.length; i++) {
             this.w2v.getVector(good[i], function (v) {
@@ -572,11 +573,13 @@ class DeborahResponderKano extends DeborahResponder {
                 that.badVector.push(v);
             });
         }
-        for (var i = 0; i < fav.length; i++) {
-            this.w2v.getVector(fav[i], function (v) {
+        /*
+        for(var i = 0; i< fav.length; i++){
+            this.w2v.getVector(fav[i], function(v){
                 that.favVector.push(v);
             });
         }
+        */
     }
     generateResponse(req) {
         var result = req.analytics;
@@ -596,7 +599,19 @@ class DeborahResponderKano extends DeborahResponder {
         var that = this;
         var goodScore = 0;
         var badScore = 0;
-        var favScore = 0;
+        //var favScore = 0;
+        this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
+            /*this.w2v.getSimilarWordList(this.goodVector[0], 10, function(wl){
+                //console.log(this.goodVector[0] + "に近い単語は");
+                console.log(wl);
+            })*/
+            that.w2v.getSimilarWordList(v1, 10, function (wl) {
+                //console.log(result.words[result.importantWords[rnd]][7] + "に近い単語は");
+                //console.log(wl);
+                var rn = Math.floor(Math.random() * 9);
+                req.driver.reply(req, result.words[result.importantWords[rnd]][7] + "ってことは，" + wl[rn + 1][0] + "って感じ？");
+            });
+        });
         this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
             for (var i = 0; i < that.goodVector.length; i++) {
                 goodScore += v1.cosineSimilarity(that.goodVector[i]);
@@ -609,30 +624,31 @@ class DeborahResponderKano extends DeborahResponder {
             }
             console.log("BadWordsとの関連度: " + badScore);
             if (goodScore - badScore > 0.1) {
-                console.log("(いい感じ〜)");
+                //console.log("(いい感じ〜)");
                 req.driver.reply(req, ":blush:");
             }
             else if (goodScore - badScore < -0.1) {
-                console.log("ちょっと怖い…");
+                //console.log("ちょっと怖い…");
                 req.driver.reply(req, ":fearful:");
             }
             else {
-                console.log("普通っぽいなぁ");
+                //console.log("普通っぽいなぁ");
                 req.driver.reply(req, ":fish_cake:");
             }
         });
-        this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
-            for (var i = 0; i < that.favVector.length; i++) {
+        /*
+        this.w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
+            for(var i=0; i < that.favVector.length; i++){
                 favScore += v1.cosineSimilarity(that.favVector[i]);
             }
-            if (favScore >= 1.5) {
+            if(favScore >= 1.5){
                 console.log("これ好きだなぁ");
                 req.driver.reply(req, ":gift_heart:");
-            }
-            else {
+            }else{
                 console.log("そうでもないわ");
             }
         });
+        */
         if (result.words[result.importantWords[rnd]][1] === "名詞") {
             if (result.words[result.importantWords[rnd]][2] === "固有名詞") {
                 req.driver.reply(req, "あ，" + result.words[result.importantWords[rnd]][0] + "知ってる！");
