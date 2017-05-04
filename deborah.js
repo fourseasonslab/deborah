@@ -343,7 +343,6 @@ class DeborahMessage {
                 if (result.words[i][2] === "固有名詞") {
                     importantWords.push(i);
                     importantWords.push(i);
-                    importantWords.push(i);
                 }
             }
             //console.log(JSON.stringify(result, null, " "));
@@ -558,8 +557,10 @@ class DeborahResponderKano extends DeborahResponder {
         this.w2v = new Word2Vec(this.bot.settings.lib.word2vec.vectorPath);
         var good = ["良い", "好き", "快い", "肯定", "楽しい", "美しい", "嬉しい", "喜ぶ", "ポジティブ", "最高", "最良"];
         var bad = ["悪い", "嫌い", "不快", "否定", "つまらない", "醜い", "嫌", "悲しむ", "ネガティブ", "最低", "最悪"];
+        var fav = ["合唱", "猫", "ゲーム", "本", "読書", "寝る", "ごはん", "食べる", "歌う", "カラオケ", "牛乳"];
         this.goodVector = [];
         this.badVector = [];
+        this.favVector = [];
         var that = this;
         for (var i = 0; i < good.length; i++) {
             this.w2v.getVector(good[i], function (v) {
@@ -569,6 +570,11 @@ class DeborahResponderKano extends DeborahResponder {
         for (var i = 0; i < bad.length; i++) {
             this.w2v.getVector(bad[i], function (v) {
                 that.badVector.push(v);
+            });
+        }
+        for (var i = 0; i < fav.length; i++) {
+            this.w2v.getVector(fav[i], function (v) {
+                that.favVector.push(v);
             });
         }
     }
@@ -590,6 +596,7 @@ class DeborahResponderKano extends DeborahResponder {
         var that = this;
         var goodScore = 0;
         var badScore = 0;
+        var favScore = 0;
         this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
             for (var i = 0; i < that.goodVector.length; i++) {
                 goodScore += v1.cosineSimilarity(that.goodVector[i]);
@@ -612,6 +619,18 @@ class DeborahResponderKano extends DeborahResponder {
             else {
                 console.log("普通っぽいなぁ");
                 req.driver.reply(req, ":fish_cake:");
+            }
+        });
+        this.w2v.getVector(result.words[result.importantWords[rnd]][7], function (v1) {
+            for (var i = 0; i < that.favVector.length; i++) {
+                favScore += v1.cosineSimilarity(that.favVector[i]);
+            }
+            if (favScore >= 1.5) {
+                console.log("これ好きだなぁ");
+                req.driver.reply(req, ":gift_heart:");
+            }
+            else {
+                console.log("そうでもないわ");
             }
         });
         if (result.words[result.importantWords[rnd]][1] === "名詞") {
