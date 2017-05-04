@@ -68,6 +68,11 @@ node .
 	"profile": {
 		"name": "botname",
 		"slack-icon": ":innocent:"
+	},
+	"lib": {
+		"word2vec":{
+			"vectorPath": "???"
+		}
 	}
 }
 ```
@@ -108,6 +113,10 @@ node .
  * 発言する際の名前
 * slack-icon : string
  * slackで発言する際のアイコン（Slack上の絵文字の記法で書く）
+ 
+#### lib
+ * vectorpath : string
+ * word2vecで使う辞書のパスを指定する
 
 ## 起動方法
 
