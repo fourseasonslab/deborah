@@ -6,6 +6,7 @@ class DeborahMessage
 	driver: DeborahDriver;
 	rawData: any;
 	analytics: any;
+	date: Date;
 	static cabocha;
 
 	constructor(){

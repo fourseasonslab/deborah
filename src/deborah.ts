@@ -14,6 +14,7 @@ class Deborah
 		["test","test"]
 	];
 	responderList: DeborahResponder[] = [];
+	memory: DeborahMemory;
 	constructor(){
 		console.log("Initializing deborah...");
 		this.launchDate = new Date();
@@ -31,15 +32,17 @@ class Deborah
 		}
 		this.settings = JSON.parse(fval);
 		console.log(JSON.stringify(this.settings, null, 1));
+		this.memory = new DeborahMemory();
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		var Cabocha = require('node-cabocha');
 		this.cabochaf1 = new Cabocha();
 		//this.responderList.push(new DeborahResponder(this));
 		//this.responderList.push(new DeborahResponderCabocha(this));
-		this.responderList.push(new DeborahResponderKano(this));
+		//this.responderList.push(new DeborahResponderKano(this));
 		//this.responderList.push(new DeborahResponderWord2Vec(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
+		this.responderList.push(new DeborahResponderMemory(this));
 	}
 	start(){
 		var interfaces = this.settings.interfaces;
@@ -67,26 +70,26 @@ class Deborah
 			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 
-			// 最初の無視期間は反応せず帰る
-			if((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod){
-				console.log("initial ignore period. ignore.");
-				return 0;
-			}
+			// 記憶に追加
+			this.memory.appendReceiveHistory(data);
 
-			// ランダムにresponderを選択して、それに処理を引き渡す。
-			var idx = Math.floor(Math.random() * this.responderList.length);
-			console.log("Responder: " + this.responderList[idx].name);
-			//this.responderList[idx].generateResponse(data); 
 			//この下4行はanalyzeに食べさせた結果を使うresponders用
 			var that = this;
 			data.analyze(function(data2: DeborahMessage){
-				that.responderList[idx].generateResponse(data); 
+				if(that.responderList.length > 0){
+					// ランダムにresponderを選択して、それに処理を引き渡す。
+					var idx = Math.floor(Math.random() * that.responderList.length);
+					console.log("Responder: " + that.responderList[idx].name);
+					that.responderList[idx].generateResponse(data); 
+				} else{
+					console.log("No responder available.");
+				}
 			});
 
 			// %から始まる文字列をコマンドとして認識する
 			this.doCommand(data);
 		} catch(e) {
-			data.driver.reply(data, "内部エラーが発生しました。\nメッセージ: " + e);
+			console.log("内部エラーが発生しました。\nメッセージ: " + e);
 		}
 	}
 	doCommand(data: DeborahMessage){

@@ -1,4 +1,4 @@
-class DeborahDriver
+abstract class DeborahDriver
 {
 	bot: Deborah;
 	settings: any;
@@ -141,6 +141,11 @@ class DeborahDriverSlack extends DeborahDriver
 			m.context = data.channel;
 			m.driver = that;
 			m.rawData = data;
+			m.date = new Date(data.ts * 1000);
+			if(m.date < that.bot.launchDate){
+				console.log("This message was sended before booting. Ignore.");
+				return;
+			}
 			//
 			if(m.senderName == that.bot.settings.profile.name) return;
 			//

@@ -66,6 +66,7 @@ class DeborahDriverLineApp extends DeborahDriver {
                                     text: that.message
                                 }
                             ]
+                            // }));
                         }).catch(() => { errorCount++; });
                     }
                     that.stat = 0;
@@ -120,6 +121,11 @@ class DeborahDriverSlack extends DeborahDriver {
             m.context = data.channel;
             m.driver = that;
             m.rawData = data;
+            m.date = new Date(data.ts * 1000);
+            if (m.date < that.bot.launchDate) {
+                console.log("This message was sended before booting. Ignore.");
+                return;
+            }
             //
             if (m.senderName == that.bot.settings.profile.name)
                 return;
@@ -258,6 +264,7 @@ class DeborahDriverWebAPI extends DeborahDriver {
         var OpenJTalk = this.tryRequire('openjtalk');
         if (OpenJTalk) {
             this.openjtalk = new OpenJTalk();
+            //this.openjtalk.talk('音声合成が有効です');
         }
         else {
             this.openjtalk = null;
@@ -361,6 +368,7 @@ class DeborahMessage {
             result.normScores = normScores;
             if (result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1) {
                 var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
+                //console.log("へえ，" + result.words[maxScore][0] + "ね");
             }
             var types = [];
             for (var i = 0; i < result.words.length; i++) {
@@ -384,6 +392,7 @@ class DeborahMessage {
             result.types = types;
             for (var i = 0; i < result.types.length; i++) {
                 if (result.types[i] === "food") {
+                    //req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
                 }
             }
             var count = [];
@@ -686,6 +695,7 @@ class DeborahResponderMeCab extends DeborahResponder {
                                 break;
                         }
                     }
+                    //console.log(s);
                 }
             }
             if (s.length > 0) {
@@ -707,6 +717,65 @@ class DeborahResponderWord2Vec extends DeborahResponder {
         this.w2v.getVector(req.text, function (v1) {
             console.log(req.text + 'のべくとるは' + JSON.stringify(v1) + 'なんだって！');
         });
+    }
+}
+class DeborahResponderMemory extends DeborahResponder {
+    constructor(bot) {
+        super(bot);
+        this.name = "Memory";
+    }
+    generateResponse(req) {
+        req.driver.reply(req, "You said: " + req.text);
+        /*
+        this.bot.mecab.parse(req.text, function(err, result) {
+            console.log(JSON.stringify(result, null, 2));
+            var s = "";
+            for(var i = 0; i < result.length - 1; i++){
+                if(result[i][1] === "動詞"){
+                    s = result[i][0];
+                    if(result[i][6] !== "基本形"){
+                        for(i++; i < result.length - 1; i++){
+                            s += result[i][0];
+                            if(result[i][6] === "基本形") break;
+                        }
+                    }
+                    //console.log(s);
+                }
+            }
+            if(s.length > 0){
+                req.driver.reply(req, "そうか、君は" + s + "フレンズなんだね！");
+            }
+        });
+         */
+    }
+}
+class DeborahMemoryIOEntry {
+    constructor(data) {
+        this.text = data.text;
+        this.sender = data.sender;
+        this.date = new Date(data.date);
+        this.action = data.action;
+        this.context = data.context;
+        this.driver = data.driver;
+    }
+    static createFromReceivedMesssage(data) {
+        return new DeborahMemoryIOEntry({
+            action: "receive",
+            text: data.text,
+            sender: data.senderName,
+            date: new Date(),
+            context: data.context,
+            driver: data.driver.constructor.name,
+        });
+    }
+}
+class DeborahMemory {
+    constructor() {
+        this.journal = [];
+    }
+    appendReceiveHistory(data) {
+        this.journal.push(DeborahMemoryIOEntry.createFromReceivedMesssage(data));
+        console.log(JSON.stringify(this.journal, null, " "));
     }
 }
 class Deborah {
@@ -737,15 +806,17 @@ class Deborah {
         }
         this.settings = JSON.parse(fval);
         console.log(JSON.stringify(this.settings, null, 1));
+        this.memory = new DeborahMemory();
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
         var Cabocha = require('node-cabocha');
         this.cabochaf1 = new Cabocha();
         //this.responderList.push(new DeborahResponder(this));
         //this.responderList.push(new DeborahResponderCabocha(this));
-        this.responderList.push(new DeborahResponderKano(this));
+        //this.responderList.push(new DeborahResponderKano(this));
         //this.responderList.push(new DeborahResponderWord2Vec(this));
         //this.responderList.push(new DeborahResponderMeCab(this));
+        this.responderList.push(new DeborahResponderMemory(this));
     }
     start() {
         var interfaces = this.settings.interfaces;
@@ -776,25 +847,26 @@ class Deborah {
         try {
             // メッセージが空なら帰る
             console.log("Deborah.receive: [" + data.text + "] in " + data.context);
-            // 最初の無視期間は反応せず帰る
-            if ((Date.now() - this.launchDate.getTime()) < this.initialIgnorePeriod) {
-                console.log("initial ignore period. ignore.");
-                return 0;
-            }
-            // ランダムにresponderを選択して、それに処理を引き渡す。
-            var idx = Math.floor(Math.random() * this.responderList.length);
-            console.log("Responder: " + this.responderList[idx].name);
-            //this.responderList[idx].generateResponse(data); 
+            // 記憶に追加
+            this.memory.appendReceiveHistory(data);
             //この下4行はanalyzeに食べさせた結果を使うresponders用
             var that = this;
             data.analyze(function (data2) {
-                that.responderList[idx].generateResponse(data);
+                if (that.responderList.length > 0) {
+                    // ランダムにresponderを選択して、それに処理を引き渡す。
+                    var idx = Math.floor(Math.random() * that.responderList.length);
+                    console.log("Responder: " + that.responderList[idx].name);
+                    that.responderList[idx].generateResponse(data);
+                }
+                else {
+                    console.log("No responder available.");
+                }
             });
             // %から始まる文字列をコマンドとして認識する
             this.doCommand(data);
         }
         catch (e) {
-            data.driver.reply(data, "内部エラーが発生しました。\nメッセージ: " + e);
+            console.log("内部エラーが発生しました。\nメッセージ: " + e);
         }
     }
     doCommand(data) {
