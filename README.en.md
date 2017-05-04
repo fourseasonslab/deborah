@@ -72,6 +72,11 @@ Example:
 	"profile": {
 		"name": "botname",
 		"slack-icon": ":innocent:"
+	},
+	"lib": {
+		"word2vec":{
+			"vectorPath": "???"
+		}
 	}
 }
 ```
@@ -89,6 +94,7 @@ Example:
   * @から始まるものはUserへのDirect Message
   * %から始まるものはChannel(private) ← これをAPIではGroupとして扱う
   * それ以外はChannelIDとみなされる
+* lib : string
 
 ## 起動方法
 
