@@ -192,11 +192,7 @@ class DeborahDriverStdIO extends DeborahDriver {
         });
         // c-C（EOF）が入力されたら
         this.readline.on('close', function () {
-            // 別れの挨拶
-            console.log("Terminating...");
-            //sendAsBot(settings.channels[0],"Bye!",function (){
-            process.exit(0);
-            //});
+            that.bot.exitHandler();
         });
     }
     reply(replyTo, message) {
@@ -770,12 +766,30 @@ class DeborahMemoryIOEntry {
     }
 }
 class DeborahMemory {
-    constructor() {
-        this.journal = [];
+    constructor(filename) {
+        this.filename = filename;
+        try {
+            var fs = require("fs");
+            var data = JSON.parse(fs.readFileSync(filename));
+            this.journal = data.journal;
+            console.log("Memory file loaded: " + this.filename);
+        }
+        catch (e) {
+            console.log("Memory file load failed: " + e);
+        }
+        if (!this.journal)
+            this.journal = [];
     }
     appendReceiveHistory(data) {
         this.journal.push(DeborahMemoryIOEntry.createFromReceivedMesssage(data));
         console.log(JSON.stringify(this.journal, null, " "));
+    }
+    saveToFile(filename = this.filename) {
+        var fs = require("fs");
+        fs.writeFileSync(filename, JSON.stringify({
+            journal: this.journal
+        }));
+        console.log("Memory saved to:" + this.filename);
     }
 }
 class Deborah {
@@ -806,7 +820,7 @@ class Deborah {
         }
         this.settings = JSON.parse(fval);
         console.log(JSON.stringify(this.settings, null, 1));
-        this.memory = new DeborahMemory();
+        this.memory = new DeborahMemory("memory.json");
         var MeCab = require('mecab-lite');
         this.mecab = new MeCab();
         var Cabocha = require('node-cabocha');
@@ -927,7 +941,17 @@ class Deborah {
                         break;
                 }
                 break;
+            case 'history':
+                // %date
+                // 起動時刻を返します
+                data.driver.reply(data, "```\n" + JSON.stringify(this.memory.journal, null, " ") + "\n```\n");
+                break;
         }
+    }
+    exitHandler() {
+        this.memory.saveToFile();
+        console.log("EXIT!!!!!!!");
+        process.exit();
     }
 }
 var deborah = new Deborah();

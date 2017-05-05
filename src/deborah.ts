@@ -32,7 +32,7 @@ class Deborah
 		}
 		this.settings = JSON.parse(fval);
 		console.log(JSON.stringify(this.settings, null, 1));
-		this.memory = new DeborahMemory();
+		this.memory = new DeborahMemory("memory.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		var Cabocha = require('node-cabocha');
@@ -148,9 +148,20 @@ class Deborah
 						break;
 				}
 				break;
+			case 'history':
+				// %date
+				// 起動時刻を返します
+				data.driver.reply(data, "```\n" + JSON.stringify(this.memory.journal, null, " ") + "\n```\n");
+				break;
 		}
+	}
+	exitHandler(){
+		this.memory.saveToFile();
+		console.log("EXIT!!!!!!!");
+		process.exit();
 	}
 }
 
 var deborah = new Deborah();
 deborah.start();
+

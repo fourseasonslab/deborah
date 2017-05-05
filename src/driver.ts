@@ -215,11 +215,7 @@ class DeborahDriverStdIO extends DeborahDriver
 		});
 		// c-C（EOF）が入力されたら
 		this.readline.on('close', function() {
-			// 別れの挨拶
-			console.log("Terminating...");
-			//sendAsBot(settings.channels[0],"Bye!",function (){
-			process.exit(0);
-			//});
+			that.bot.exitHandler();
 		});
 	}
 	reply(replyTo: DeborahMessage, message: string){
