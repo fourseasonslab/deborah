@@ -153,5 +153,10 @@ forever stop deborah.js
 - Slackに関する制約
  - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
 
+## このプロジェクトについて
+Deborahは [Tier IV, Inc.](http://tier4.jp/) の支援を受けて開発されています。
+
+<a href="http://tier4.jp/"><img src="./docs/imgs/Tier_IV_logo_2.png" width="25%"></a>
+
 ## License
 MIT License
