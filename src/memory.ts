@@ -56,4 +56,15 @@ class DeborahMemory
 		}));
 		console.log("Memory saved to:" + this.filename);
 	}
+	getRecentConversation(count: number, sender: string)
+	{
+		var list = [];
+		for(var i = 0; i < this.journal.length; i++){
+			if(this.journal[i].sender === sender){
+				list.push(this.journal[i]);
+				if(list.length >= count) break;
+			}
+		}
+		return list;
+	}
 }

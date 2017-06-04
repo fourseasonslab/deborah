@@ -791,6 +791,17 @@ class DeborahMemory {
         }));
         console.log("Memory saved to:" + this.filename);
     }
+    getRecentConversation(count, sender) {
+        var list = [];
+        for (var i = 0; i < this.journal.length; i++) {
+            if (this.journal[i].sender === sender) {
+                list.push(this.journal[i]);
+                if (list.length >= count)
+                    break;
+            }
+        }
+        return list;
+    }
 }
 class Deborah {
     constructor() {
@@ -942,9 +953,11 @@ class Deborah {
                 }
                 break;
             case 'history':
-                // %date
-                // 起動時刻を返します
-                data.driver.reply(data, "```\n" + JSON.stringify(this.memory.journal, null, " ") + "\n```\n");
+                var args = data.text.split('%history')[1].split(" ");
+                var count = Number(args[1]);
+                var sender = args[2];
+                var list = this.memory.getRecentConversation(count, sender);
+                data.driver.reply(data, count + ":" + sender + "\n```\n" + JSON.stringify(list, null, " ") + "\n```\n");
                 break;
         }
     }

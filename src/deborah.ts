@@ -149,9 +149,11 @@ class Deborah
 				}
 				break;
 			case 'history':
-				// %date
-				// 起動時刻を返します
-				data.driver.reply(data, "```\n" + JSON.stringify(this.memory.journal, null, " ") + "\n```\n");
+				var args = data.text.split('%history')[1].split(" ");
+				var count = Number(args[1]);
+				var sender = args[2];
+				var list = this.memory.getRecentConversation(count, sender);
+				data.driver.reply(data, count + ":" + sender + "\n```\n" + JSON.stringify(list, null, " ") + "\n```\n");
 				break;
 		}
 	}
