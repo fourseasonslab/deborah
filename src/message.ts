@@ -10,9 +10,13 @@ class DeborahMessage
 	static cabocha;
 
 	constructor(){
-		var Cabocha = require('node-cabocha');
 		var that = this;
-		DeborahMessage.cabocha = new Cabocha();
+		try{
+			var Cabocha = require('node-cabocha');
+			DeborahMessage.cabocha = new Cabocha();
+		} catch(e){
+			console.error(e);
+		}
 	}
 	analyze(f : Function){
 		var that = this;

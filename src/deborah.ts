@@ -15,8 +15,17 @@ class Deborah
 	];
 	responderList: DeborahResponder[] = [];
 	memory: DeborahMemory;
+	Cabocha: any;
 	constructor(){
 		console.log("Initializing deborah...");
+		//
+		this.Cabocha = require('node-cabocha');
+		try{
+			this.cabochaf1 = new this.Cabocha();
+		} catch(e){
+			console.error(e);
+		}
+		//
 		this.launchDate = new Date();
 		var fs = require("fs");
 		let fval, fname = "settings.json";
@@ -31,12 +40,10 @@ class Deborah
 			process.exit(1);
 		}
 		this.settings = JSON.parse(fval);
-		console.log(JSON.stringify(this.settings, null, 1));
+		//console.log(JSON.stringify(this.settings, null, 1));
 		this.memory = new DeborahMemory("memory.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
-		var Cabocha = require('node-cabocha');
-		this.cabochaf1 = new Cabocha();
 		//this.responderList.push(new DeborahResponder(this));
 		//this.responderList.push(new DeborahResponderCabocha(this));
 		//this.responderList.push(new DeborahResponderKano(this));
