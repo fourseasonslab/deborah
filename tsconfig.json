@@ -11,7 +11,7 @@
     "files": [
         "src/driver.ts",
         "src/message.ts",
-        "src/responder/responder.ts",
+        "src/responder.ts",
         "src/responder/cabocha.ts",
         "src/responder/kano-bot.ts",
         "src/responder/mecab.ts",

@@ -15,10 +15,12 @@
     "slackbotapi": "^1.3.9",
     "socket.io": "^1.7.3",
     "twitter": "^1.7.0",
+    "typedoc": "^0.8.0",
     "word2vec": "^1.1.0"
   },
   "devDependencies": {},
   "scripts": {
+    "typedoc": "typedoc --out ./docs/ ./src/",
     "start": "node ."
   },
   "repository": {
