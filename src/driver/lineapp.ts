@@ -26,7 +26,7 @@ class DeborahDriverLineApp extends DeborahDriver
 
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
-	/** settings.jsonで与えられたinterfaceの内容 */
+	/** settings.jsonで与えられたinterfaceの設定 */
 	settings: any;
 
 	/**
