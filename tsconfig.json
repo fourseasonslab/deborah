@@ -10,6 +10,11 @@
     },
     "files": [
         "src/driver.ts",
+        "src/driver/lineapp.ts",
+        "src/driver/slack.ts",
+        "src/driver/stdio.ts",
+        "src/driver/twitter.ts",
+        "src/driver/webapi.ts",
         "src/message.ts",
         "src/responder.ts",
         "src/responder/cabocha.ts",
