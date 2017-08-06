@@ -86,16 +86,22 @@ class Deborah
 		// Settingsのinterfacesに対応するDriverをDriverListに追加
 		for (var i = 0; i < interfaces.length; i++) {
 			var iset = interfaces[i];
-			if (iset.type == "slack-connection") {
-				this.driverList.push(new DeborahDriverSlack(this, iset));
-			} else if (iset.type == "stdio") {
-				this.driverList.push(new DeborahDriverStdIO(this, iset));
-			} if(iset.type == "twitter"){
-				this.driverList.push(new DeborahDriverTwitter(this, iset));
-			} else if (iset.type == "line") {
-				this.driverList.push(new DeborahDriverLineApp(this, iset));
-			} else if (iset.type == "webapi") {
-				this.driverList.push(new DeborahDriverWebAPI(this, iset));
+			switch (iset.type) {
+				case 'slack-connection':
+					this.driverList.push(new DeborahDriverSlack(this, iset));
+					break;
+				case 'stdio':
+					this.driverList.push(new DeborahDriverStdIO(this, iset));
+					break;
+				case 'twitter':
+					this.driverList.push(new DeborahDriverTwitter(this, iset));
+					break;
+				case 'line':
+					this.driverList.push(new DeborahDriverLineApp(this, iset));
+					break;
+				case 'webapi':
+					this.driverList.push(new DeborahDriverWebAPI(this, iset));
+					break;
 			}
 		}
 	}
