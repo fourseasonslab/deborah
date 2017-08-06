@@ -20,7 +20,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "typedoc": "typedoc --out ./docs/ ./src/",
+    "typedoc": "typedoc --out ./docs/typedoc/ ./src/",
     "start": "node ."
   },
   "repository": {
