@@ -141,16 +141,16 @@ class Deborah
 	 * 	<li>%say:  指定の文字列を喋ります</li>
 	 * 	<li>%mecab str : mecabに文字列strを渡して分かち書きの結果を返します</li>
 	 * 	<li>%debug : デバッグ用コマンド。</li>
-	 * 	<li>%history 指定の文字列を喋ります</li>
-	 * 	<li>%say 指定の文字列を喋ります</li>
-	 * 	<li>%say 指定の文字列を喋ります</li>
+	 * 	<li>%history : 最古のものから最大count個のsenderからのメッセージを表示します</li>
 	 * </ul>
 	 * @param data 受け取ったメッセージ
 	 */
 	doCommand(data: DeborahMessage){
-		// %から始まる文字列をコマンドとして認識する
+		// %から始まる文字列でなければ帰る
 		if (data.text.charAt(0) !== '%') return;
+		/** 「%」を除いて空白文字で分割 */
 		var args = data.text.substring(1).split(' ');
+		/** コマンドの種類 */
 		var command = args[0];
 
 		// コマンドの種類により異なる動作を選択
@@ -195,21 +195,20 @@ class Deborah
 			case 'debug':
 				// %debug
 				// デバッグ用コマンド。
-				switch (command[1]){
-					// rawDataを表示
+				switch (args[1]){
+					// 受け取った生データを表示
 					case 'rawData':
 						console.log(data.rawData);
 						break;
-					// this.dataを表示
+					// 受け取ったメッセージを表示
 					case 'curData':
 						console.log(data);
 						break;
 				}
 				break;
 			case 'history':
-				// %history
-				// 
-				var args = data.text.split('%history')[1].split(" ");
+				// %history count sender
+				// 最古のものから最大count個のsenderからのメッセージを表示する
 				var count = Number(args[1]);
 				var sender = args[2];
 				var list = this.memory.getRecentConversation(count, sender);
@@ -217,6 +216,10 @@ class Deborah
 				break;
 		}
 	}
+
+	/**
+	 * 終了ハンドラ。プログラムの終了時に実行される。具体的にはmemoryをファイルに保存。
+	 */
 	exitHandler(){
 		this.memory.saveToFile();
 		console.log("EXIT!!!!!!!");
