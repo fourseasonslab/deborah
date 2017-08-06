@@ -11,7 +11,7 @@ abstract class DeborahDriver
 	/**
 	 * コンストラクタ。
 	 * @param bot 生成元であるDeborahのインスタンス
-	 * @param settings settings.jsonで与えられたinterfaceの内容
+	 * @param settings settings.jsonで与えられたinterfaceの設定
 	 */
 	constructor(bot: Deborah, settings: any){
 		this.bot = bot;

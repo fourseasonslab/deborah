@@ -1,3 +1,6 @@
+/**
+ * LINEbotを担当するドライバ
+ */
 class DeborahDriverLineApp extends DeborahDriver
 {
 	// =============== 変数宣言 ===============
@@ -29,11 +32,12 @@ class DeborahDriverLineApp extends DeborahDriver
 	/**
 	 * コンストラクタ。
 	 * @param bot 生成元であるDeborahのインスタンス
-	 * @param settings settings.jsonで与えられたinterfaceの内容
+	 * @param settings settings.jsonで与えられたinterfaceの設定
 	 */
 	constructor(bot: Deborah, settings: any) {
 		// 親クラスのコンストラクタを呼ぶ
 		super(bot, settings);
+		console.log("Driver initialized: LINE (" + settings.team + ")");
 
 		// =============== 変数初期化 ===============
 		this.line    = this.tryRequire('node-line-bot-api');
