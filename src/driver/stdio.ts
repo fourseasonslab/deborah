@@ -9,6 +9,12 @@ class DeborahDriverStdIO extends DeborahDriver
 	readline: any;
 	/** OpenJTalkのインスタンス */
 	openjtalk: any;
+
+	/**
+	 * コンストラクタ。
+	 * @param bot 生成元であるDeborahのインスタンス
+	 * @param settings settings.jsonで与えられたinterfaceの設定
+	 */
 	constructor(bot: Deborah, settings: any){
 		super(bot, settings);
 		console.log("Driver initialized: StdIO");
