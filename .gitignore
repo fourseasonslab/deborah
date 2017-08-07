@@ -5,3 +5,6 @@ settings.json
 node_modules/*
 .vscode/*
 data/*
+*.json
+deborah.js
+docs/typedoc/*

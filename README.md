@@ -1,5 +1,7 @@
 # deborah
 
+[![CircleCI](https://circleci.com/gh/fourseasonslab/deborah.svg?style=svg)](https://circleci.com/gh/fourseasonslab/deborah)
+
 「deborah」は、以下の3つの環境で動作する、オープンソースのチャットbotです。
 - Slack
 - Twitter
@@ -68,6 +70,11 @@ node .
 	"profile": {
 		"name": "botname",
 		"slack-icon": ":innocent:"
+	},
+	"lib": {
+		"word2vec":{
+			"vectorPath": "???"
+		}
 	}
 }
 ```
@@ -108,6 +115,10 @@ node .
  * 発言する際の名前
 * slack-icon : string
  * slackで発言する際のアイコン（Slack上の絵文字の記法で書く）
+ 
+#### lib
+ * vectorpath : string
+ * word2vecで使う辞書のパスを指定する
 
 ## 起動方法
 
@@ -143,6 +154,11 @@ forever stop deborah.js
 ## 注意点
 - Slackに関する制約
  - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
+
+## このプロジェクトについて
+Deborahは [Tier IV, Inc.](http://tier4.jp/) の支援を受けて開発されています。
+
+<a href="http://tier4.jp/"><img src="./docs/imgs/Tier_IV_logo_2.png" width="25%"></a>
 
 ## License
 MIT License
