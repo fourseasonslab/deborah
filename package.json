@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/node": "^7.0.8",
     "body-parser": "^1.16.0",
+    "dataurl": "^0.1.0",
     "express": "^4.14.1",
     "mecab-lite": "^0.0.8",
     "node-cabocha": "^0.0.2",
@@ -18,10 +19,13 @@
     "typedoc": "^0.8.0",
     "word2vec": "^1.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript": "^2.4.2"
+  },
   "scripts": {
     "typedoc": "typedoc --out ./docs/typedoc/ ./src/",
-    "start": "node ."
+    "start": "node .",
+    "test": "make test"
   },
   "repository": {
     "type": "git",

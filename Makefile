@@ -15,3 +15,7 @@ clean :
 	-rm deborah.js
 	-rm *.wav
 
+test:
+	npm install --only=dev
+	-rm deborah.js
+	make deborah.js
