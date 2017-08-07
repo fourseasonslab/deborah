@@ -1,5 +1,7 @@
 # deborah
 
+[![CircleCI](https://circleci.com/gh/fourseasonslab/deborah.svg?style=svg)](https://circleci.com/gh/fourseasonslab/deborah)
+
 「deborah」は、以下の3つの環境で動作する、オープンソースのチャットbotです。
 - Slack
 - Twitter
