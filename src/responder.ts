@@ -1,4 +1,4 @@
-class DeborahResponder
+abstract class DeborahResponder
 {
 	name: string;
 	bot: Deborah;

@@ -59,10 +59,9 @@ class DeborahMemory
 	getRecentConversation(count: number, sender: string)
 	{
 		var list = [];
-		for(var i = 0; i < this.journal.length; i++){
+		for(var i = 0; i < this.journal.length, list.length < count; i++){
 			if(this.journal[i].sender === sender){
 				list.push(this.journal[i]);
-				if(list.length >= count) break;
 			}
 		}
 		return list;

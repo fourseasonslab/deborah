@@ -10,14 +10,19 @@
     },
     "files": [
         "src/driver.ts",
+        "src/responder.ts",
         "src/message.ts",
-        "src/responder/responder.ts",
+        "src/memory.ts",
+        "src/driver/lineapp.ts",
+        "src/driver/slack.ts",
+        "src/driver/stdio.ts",
+        "src/driver/twitter.ts",
+        "src/driver/webapi.ts",
         "src/responder/cabocha.ts",
         "src/responder/kano-bot.ts",
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
         "src/responder/memory.ts",
-        "src/memory.ts",
         "src/deborah.ts"
     ]
 }
