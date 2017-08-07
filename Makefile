@@ -15,3 +15,6 @@ clean :
 	-rm deborah.js
 	-rm *.wav
 
+test:
+	-rm deborah.js
+	make deborah.js
