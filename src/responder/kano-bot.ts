@@ -62,20 +62,21 @@ class DeborahResponderKano extends DeborahResponder
 				//console.log(result.words[result.importantWords[rnd]][7] + "に近い単語は");
 				//console.log(wl);
 				var rn = Math.floor(Math.random() * 9);
-				req.driver.reply(req, result.words[result.importantWords[rnd]][7] + "ってことは，" + wl[rn+1][0] + "って感じ？");
+				//req.driver.reply(req, result.words[result.importantWords[rnd]][7] + "ってことは，" + wl[rn+1][0] + "って感じ？");
 			})
 		});
 		this.w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
 			for(var i=0; i < that.goodVector.length; i++){
 				goodScore += v1.cosineSimilarity(that.goodVector[i]);
 			}
-			console.log("GoodWordsとの関連度: " + goodScore);
+			//console.log("GoodWordsとの関連度: " + goodScore);
 		});
+		/*
 		this.w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
 			for(var i=0; i < that.badVector.length; i++){
 				badScore += v1.cosineSimilarity(that.badVector[i]);
 			}
-			console.log("BadWordsとの関連度: " + badScore);
+			//console.log("BadWordsとの関連度: " + badScore);
 			if(goodScore - badScore > 0.1){
 				//console.log("(いい感じ〜)");
 				req.driver.reply(req, ":blush:");
@@ -87,6 +88,7 @@ class DeborahResponderKano extends DeborahResponder
 				req.driver.reply(req, ":fish_cake:");
 			}
 		});
+		*/
 		/*
 		this.w2v.getVector(result.words[result.importantWords[rnd]][7], function(v1){
 			for(var i=0; i < that.favVector.length; i++){
