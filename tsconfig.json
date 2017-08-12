@@ -22,6 +22,7 @@
         "src/responder/kano-bot.ts",
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
+        "src/responder/weather.ts",
         "src/responder/memory.ts",
         "src/deborah.ts"
     ]

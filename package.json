@@ -4,6 +4,7 @@
   "description": "A friendly chatbot.",
   "main": "deborah.js",
   "dependencies": {
+    "@types/lodash": "^4.14.72",
     "@types/node": "^7.0.8",
     "body-parser": "^1.16.0",
     "dataurl": "^0.1.0",
@@ -17,7 +18,7 @@
     "socket.io": "^1.7.3",
     "twitter": "^1.7.0",
     "typedoc": "^0.8.0",
-    "word2vec": "^1.1.0"
+    "yql": "^1.0.2"
   },
   "devDependencies": {
     "typescript": "^2.4.2"
