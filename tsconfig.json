@@ -23,6 +23,7 @@
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
         "src/responder/memory.ts",
+        "src/responder/michiru.ts",
         "src/deborah.ts"
     ]
 }

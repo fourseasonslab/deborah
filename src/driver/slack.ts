@@ -3,13 +3,14 @@
  */
 class DeborahDriverSlack extends DeborahDriver
 {
+	static SlackBotAPI;
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
 	/** settings.jsonで与えられたinterfaceの設定 */
 	settings: any;
 	/** slackAPIのインスタンス */
 	connection: any;
-	
+	channelIDList: string[] = [];
 	/**
 	 * コンストラクタ。
 	 * @param bot 生成元であるDeborahのインスタンス
@@ -21,13 +22,14 @@ class DeborahDriverSlack extends DeborahDriver
 		console.log("Driver initialized: Slack (" + settings.team + ")");
 
 		// =============== 変数初期化 ===============
-		var slackAPI = require('slackbotapi');
-		this.connection = new slackAPI({
+		if(DeborahDriverSlack.SlackBotAPI == undefined){
+			DeborahDriverSlack.SlackBotAPI = require('slackbotapi');
+		}
+		this.connection = new DeborahDriverSlack.SlackBotAPI({
 			'token': this.settings.token,
 			'logging': false,
 			'autoReconnect': true
 		});
-
 		// connect関数に処理を引き渡す
 		this.connect();
 	}
@@ -38,37 +40,72 @@ class DeborahDriverSlack extends DeborahDriver
 	connect(){
 		var that = this;
 		this.connection.on('message', function(data){
-			// 受信した
-			console.log(JSON.stringify(data, null, " "));
-
-			// データか中身のテキストが空なら帰る
-			if(!data || !data.text) return;
-			// 他のbotからのメッセージは無視する（無限ループ防止）
-			if("subtype" in data && data.subtype === "bot_message") return;
-			
-			// 受信したメッセージの情報をDeborahMessageに渡す
-			var m = new DeborahMessage();
-			m.text = data.text;
-			m.senderName = that.getUsername(data);
-			m.context = data.channel;
-			m.driver = that;
-			m.rawData = data;
-			m.date = new Date(data.ts * 1000);
-
-			// 起動前に届いたメッセージは無視する
-			if(m.date < that.bot.launchDate){
-				console.log("This message was sended before booting. Ignore.");
-				return;
-			}
-
-			// 自分のメッセージは無視する
-			if(m.senderName == that.bot.settings.profile.name) return;
-
-			// DeborahにMessageを渡す
-			that.bot.receive(m);
+			that.receive(data);
+		});
+		this.connection.on('open', function(){
+			that.connected();
 		});
 	}
+	connected(){
+		if(this.settings && this.settings.channels instanceof Array){
+			console.log("Listening channels:");
+			for(var k of this.settings.channels){
+				var c = this.connection.getChannel(k);
+				if(c){
+					console.log(k + " (" + c.id + ")");
+					this.channelIDList.push(c.id);
+				} else{
+					console.log(k + " (Not found)");
+				}
+			}
+		}
+		console.log("connection opened!!!");
+	}
+	receive(data){
+		// 受信した
+		console.log(JSON.stringify(data, null, " "));
+		// data.channel: string			channel ID
 
+		// データか中身のテキストが空なら帰る
+		if(!data || !data.text) return;
+
+		// 他のbotからのメッセージは無視する（無限ループ防止）
+		if("subtype" in data && data.subtype === "bot_message") return;
+
+		// チャンネル情報を取得
+		var channnelInfo;
+		if(data.channel) {
+			channnelInfo = this.connection.getChannel(data.channel)
+		}
+		// 指定されたチャンネル以外のメッセージは破棄する
+		if(this.channelIDList.indexOf(channnelInfo.id) < 0){
+			console.log("This message was sent to channel not in the list. Ignore.");
+			return;
+		}
+
+		// 受信したメッセージの情報をもとにDeborahMessageを作成
+		var m = new DeborahMessage();
+		m.text = data.text;
+		m.senderName = this.getUsername(data);
+		m.context = data.channel;
+		m.driver = this;
+		m.rawData = data;
+		m.date = new Date(data.ts * 1000);
+
+		// 起動前に届いたメッセージは無視する
+		if(m.date < this.bot.launchDate){
+			console.log("This message was sended before booting. Ignore.");
+			return;
+		}
+
+		// 自分のメッセージは無視する
+		if(m.senderName == this.bot.settings.profile.name) return;
+
+		console.log(this.connection.getChannel(data.channel));
+
+		// DeborahにMessageを渡す
+		this.bot.receive(m);	
+	}
 	/**
 	 * 送られてきたメッセージに返信する
 	 * @param replyTo 返信先となる（送られてきた）メッセージ

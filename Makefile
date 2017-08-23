@@ -5,10 +5,10 @@ ALLSRC := $(wildcard src/*.ts src/responder/*.ts src/driver/*.ts)
 default :
 	make deborah.js
 
-run :
+run : deborah.js
 	node .
 
-deborah.js : $(ALLSRC) Makefile
+deborah.js : $(ALLSRC) tsconfig.json Makefile
 	tsc
 
 clean :

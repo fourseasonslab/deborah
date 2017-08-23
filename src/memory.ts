@@ -46,7 +46,9 @@ class DeborahMemory
 	}
 	appendReceiveHistory(data: DeborahMessage){
 		this.journal.push(DeborahMemoryIOEntry.createFromReceivedMesssage(data));
-		console.log(JSON.stringify(this.journal, null, " "));
+		// DEBUG
+		console.log("Latest 3 journal entries:");
+		console.log(JSON.stringify(this.journal.splice(-3), null, " "));
 	}
 	saveToFile(filename: string = this.filename)
 	{

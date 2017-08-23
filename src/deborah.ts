@@ -69,7 +69,8 @@ class Deborah
 		//this.responderList.push(new DeborahResponderKano(this));
 		//this.responderList.push(new DeborahResponderWord2Vec(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
-		this.responderList.push(new DeborahResponderMemory(this));
+		//this.responderList.push(new DeborahResponderMemory(this));
+		this.responderList.push(new DeborahResponderMichiru(this));
 	}
 
 	/**
