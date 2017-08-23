@@ -18,6 +18,26 @@ class DeborahMessage
 			console.error(e);
 		}
 	}
+	wordMatch(pattern: string[]): boolean | string[][]{
+		var matcher = function(pattern, target){
+			if(!pattern.length || !target.length){
+				if(pattern.length == 0 && target.length == 0) return [];
+				return false;
+			}
+			if(pattern[0] === '.' || pattern[0] === target[0][0]){
+				var follow = matcher(pattern.slice(1), target.slice(1));
+				if(follow) return [[target[0][0]]].concat(follow);
+			} else if(pattern[0] === '*'){
+				for(var i = 0; i < target.length; i++){
+					var follow = matcher(pattern.slice(1), target.slice(i));
+					if(follow) return [target.slice(0, i)].concat(follow);
+				}
+			}
+			return false;
+		}
+		var match: string[][] = [];
+		return matcher(pattern, this.analytics.words);
+	}
 	analyze(f : Function){
 		var that = this;
 		DeborahMessage.cabocha.parse(this.text, function(result){

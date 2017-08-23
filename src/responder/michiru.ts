@@ -13,6 +13,12 @@ class DeborahResponderMichiru extends DeborahResponder
 	}
 	async generateResponse(req: DeborahMessage){
 		var result = await promiseCabocha(this.bot, req.text);
-		req.driver.reply(req, JSON.stringify(result));
+		console.log(JSON.stringify(result, null, " "));
+		var match = req.wordMatch(["C", "言語", "*", "書き", "たい"]);
+		if(match){
+			req.driver.reply(req, "```\nそうだね〜〜〜\n```");
+		} else{
+			req.driver.reply(req, JSON.stringify(result));
+		}
 	}
 }
