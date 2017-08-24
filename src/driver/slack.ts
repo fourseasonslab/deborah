@@ -7,27 +7,26 @@ interface JSONData
 	[name: string]: JSONData|number|string|boolean| JSONData[];
 }
 
-interface Slack
-{
-	channels: SlackChannels;
-	rtm: SlackRtm;
-	files: SlackFiles;
-}
-
-interface SlackRtm
-{
-	client(): SlackClient;
-	connect(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
-	start(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
-}
-
 interface SlackToken
 {
 }
 
-interface SlackParams extends SlackToken, JSONData
+interface Slack
 {
+	channels: SlackChannels;
+	files: SlackFiles;
+	rtm: SlackRtm;
+	team: SlackTeam;
+}
 
+interface SlackChannels
+{
+	list(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
+}
+
+interface SlackFiles
+{
+	upload(params: SlackFilesUploadParams, callback: (err: JSONData, data: JSONData) => any);
 }
 
 interface SlackFilesUploadParams
@@ -40,9 +39,11 @@ interface SlackFilesUploadParams
 	title?: string;
 }
 
-interface SlackChannels
+interface SlackRtm
 {
-	list(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
+	client(): SlackClient;
+	connect(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
+	start(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
 }
 
 interface SlackClient
@@ -52,9 +53,55 @@ interface SlackClient
 	hello(callback: (data: JSONData) => any);
 }
 
-interface SlackFiles
+interface SlackTeam
 {
-	upload(params: SlackFilesUploadParams, callback: (err: JSONData, data: JSONData) => any);
+	info(params: SlackFilesUploadParams, callback: (err: JSONData, data: SlackTeamInfoResponse) => any);
+}
+
+interface SlackTeamInfoResponse
+{
+	ok: boolean;
+	team: SlackTeamInfo;
+}
+
+interface SlackTeamInfo
+{
+	id: string;
+	name: string;
+	domain: string;
+	email_domain: string;
+	icon: JSONData;
+}
+
+interface SlackMessageData
+{
+	type: string;
+	channel: string;
+	user: string;
+	text: string;
+	ts: string;
+	subtype?: string;
+}
+
+//
+//
+//
+
+class DeborahMessageSlack extends DeborahMessage
+{
+	constructor(data: SlackMessageData, driver: DeborahDriverSlack){
+		super();
+		this.text = data.text;
+		this.senderName = driver.getUsername(data);
+		this.context = data.channel + "@" + driver.teamInfo.id;
+		this.driver = driver;
+		this.rawData = data;
+		this.date = new Date(parseFloat(data.ts) * 1000);
+	}
+	getChannelID(): string
+	{
+		return this.context.split("@")[0];
+	}
 }
 
 class DeborahDriverSlack extends DeborahDriver
@@ -69,6 +116,7 @@ class DeborahDriverSlack extends DeborahDriver
 	connection: any;
 	client: SlackClient;
 	channelIDList: string[] = [];
+	teamInfo: SlackTeamInfo; 
 	/**
 	 * コンストラクタ。
 	 * @param bot 生成元であるDeborahのインスタンス
@@ -93,6 +141,14 @@ class DeborahDriverSlack extends DeborahDriver
 		});
 		// connect関数に処理を引き渡す
 		this.connect();
+		DeborahDriverSlack.Slack.team.info({token: this.settings.token}, 
+			(err, data) => {
+				if(data && data.ok === true){
+					console.log(data.team);
+					this.teamInfo = data.team;
+				}
+			}
+		);
 	}
 
 	/**
@@ -111,18 +167,26 @@ class DeborahDriverSlack extends DeborahDriver
 		if(this.settings && this.settings.channels instanceof Array){
 			console.log("Listening channels:");
 			for(var k of this.settings.channels){
-				var c = this.connection.getChannel(k);
-				if(c){
-					console.log(k + " (" + c.id + ")");
-					this.channelIDList.push(c.id);
+				if(k[0] == "#"){
+					// channel name
+					k = k.substr(1);
+					var c = this.connection.getChannel(k);
+					if(c){
+						console.log(k + " (" + c.id + ")");
+						this.channelIDList.push(c.id);
+					} else{
+						console.log(k + " (Not found)");
+					}
 				} else{
-					console.log(k + " (Not found)");
+					// channel id
+					console.log(k + " (" + k + ")");
+					this.channelIDList.push(k);
 				}
 			}
 		}
 		console.log("connection opened!!!");
 	}
-	receive(data){
+	receive(data: SlackMessageData){
 		// 受信した
 		console.log(JSON.stringify(data, null, " "));
 		// data.channel: string			channel ID
@@ -133,25 +197,14 @@ class DeborahDriverSlack extends DeborahDriver
 		// 他のbotからのメッセージは無視する（無限ループ防止）
 		if("subtype" in data && data.subtype === "bot_message") return;
 
-		// チャンネル情報を取得
-		var channnelInfo;
-		if(data.channel) {
-			channnelInfo = this.connection.getChannel(data.channel)
-		}
 		// 指定されたチャンネル以外のメッセージは破棄する
-		if(this.channelIDList.indexOf(channnelInfo.id) < 0){
+		if(this.channelIDList.indexOf(data.channel) < 0){
 			console.log("This message was sent to channel not in the list. Ignore.");
 			return;
 		}
 
 		// 受信したメッセージの情報をもとにDeborahMessageを作成
-		var m = new DeborahMessage();
-		m.text = data.text;
-		m.senderName = this.getUsername(data);
-		m.context = data.channel;
-		m.driver = this;
-		m.rawData = data;
-		m.date = new Date(data.ts * 1000);
+		var m = new DeborahMessageSlack(data, this);
 
 		// 起動前に届いたメッセージは無視する
 		if(m.date < this.bot.launchDate){
@@ -181,7 +234,8 @@ class DeborahDriverSlack extends DeborahDriver
 			return;
 		}
 		// sendAs関数に処理を引き渡す
-		this.sendAs(replyTo.context, "@"+replyTo.senderName+" "+message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
+		var m: DeborahMessageSlack = <DeborahMessageSlack> replyTo;
+		this.sendAs(m.getChannelID(), "@"+replyTo.senderName+" "+message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
 	}
 
 	/**
