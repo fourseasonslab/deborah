@@ -90,7 +90,7 @@ class DeborahDriverWebAPI extends DeborahDriver
 		});
 		
 		// 指定のポートをlistenする
-		console.log("Listen on port " + port);
+		console.log("WebAPI: Listen on port " + port);
 		this.httpServer.listen(port);
 	}
 

@@ -8,3 +8,4 @@ data/*
 *.json
 deborah.js
 docs/typedoc/*
+*.txt

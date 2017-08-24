@@ -148,8 +148,10 @@ class DeborahDriverSlack extends DeborahDriver
 		DeborahDriverSlack.Slack.team.info({token: this.settings.token}, 
 			(err, data) => {
 				if(data && data.ok === true){
-					console.log(data.team);
 					this.teamInfo = data.team;
+					console.log("Slack.team.info: " + this.teamInfo.domain);
+				} else{
+					console.error("FAILED: Slack.team.info");
 				}
 			}
 		);
@@ -176,23 +178,28 @@ class DeborahDriverSlack extends DeborahDriver
 					k = k.substr(1);
 					var c = this.connection.getChannel(k);
 					if(c){
-						console.log(k + " (" + c.id + ")");
+						console.log("\t" + k + " (" + c.id + ")");
 						this.channelIDList.push(c.id);
 					} else{
-						console.log(k + " (Not found)");
+						console.log("\t" + k + " (Not found)");
 					}
 				} else{
 					// channel id
-					console.log(k + " (" + k + ")");
+					console.log("\t" + k + " (" + k + ")");
 					this.channelIDList.push(k);
 				}
 			}
 		}
-		console.log("connection opened!!!");
 	}
 	receive(data: SlackMessageData){
 		// 受信した
-		console.log(JSON.stringify(data, null, " "));
+		//console.log(JSON.stringify(data, null, " "));
+		{
+			var fs = require('fs');
+			fs.appendFile("slack_message_log.txt", 
+				JSON.stringify(data, null, " "), 
+				(err) => { if(err) console.log("fs failed."); });
+		}
 		// data.channel: string			channel ID
 
 		// データか中身のテキストが空なら帰る
@@ -218,8 +225,6 @@ class DeborahDriverSlack extends DeborahDriver
 
 		// 自分のメッセージは無視する
 		if(m.senderName == this.bot.settings.profile.name) return;
-
-		console.log(this.connection.getChannel(data.channel));
 
 		// DeborahにMessageを渡す
 		this.bot.receive(m);	
@@ -283,8 +288,10 @@ class DeborahDriverSlack extends DeborahDriver
 			title: name,
 			filetype: type,
 		}, function(err, data){
-			console.log(err);
+			if(err) console.error(err);
+			/*
 			console.log(data);
+			 */
 		});
 	}
 }

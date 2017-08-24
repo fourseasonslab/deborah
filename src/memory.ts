@@ -43,7 +43,7 @@ class DeborahMemory
 			var data = JSON.parse(fs.readFileSync(filename));
 			this.journal = data.journal;
 			console.log("Memory file loaded: " + this.filename);
-			this.logLatestEntries();
+			//this.logLatestEntries();
 		} catch(e){
 			console.log("Memory file load failed: " + e);
 		}
@@ -51,8 +51,7 @@ class DeborahMemory
 	}
 	appendReceiveHistory(data: DeborahMessage){
 		this.journal.push(DeborahMemoryIOEntry.createFromReceivedMesssage(data));
-		this.logLatestEntries();
-		this.saveToFile();
+		//this.logLatestEntries();
 	}
 	saveToFile(filename: string = this.filename)
 	{
@@ -61,7 +60,7 @@ class DeborahMemory
 			journal: this.journal
 		}));
 		console.log("Memory saved to:" + this.filename);
-		this.logLatestEntries();
+		//this.logLatestEntries();
 	}
 	getRecentConversation(count: number, sender: string)
 	{
