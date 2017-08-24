@@ -1,15 +1,72 @@
 /**
  * slackBOTを担当するドライバ
  */
+
+interface JSONData
+{
+	[name: string]: JSONData|number|string|boolean| JSONData[];
+}
+
+interface Slack
+{
+	channels: SlackChannels;
+	rtm: SlackRtm;
+	files: SlackFiles;
+}
+
+interface SlackRtm
+{
+	client(): SlackClient;
+	connect(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
+	start(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
+}
+
+interface SlackToken
+{
+}
+
+interface SlackParams extends SlackToken, JSONData
+{
+
+}
+
+interface SlackFilesUploadParams
+{
+	token: string;
+	channels: string;
+	content: string;
+	filename: string;
+	filetype: string;
+}
+
+interface SlackChannels
+{
+	list(token: SlackToken, callback: (err: JSONData, data: JSONData) => any);
+}
+
+interface SlackClient
+{
+	listen(token: SlackToken);
+	message(callback: (data: JSONData) => any);
+	hello(callback: (data: JSONData) => any);
+}
+
+interface SlackFiles
+{
+	upload(params: SlackFilesUploadParams, callback: (err: JSONData, data: JSONData) => any);
+}
+
 class DeborahDriverSlack extends DeborahDriver
 {
-	static SlackBotAPI;
+	static SlackBotAPI;		// slackbotapi: for Streaming API
+	static Slack: Slack;	// slack: for REST API
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
 	/** settings.jsonで与えられたinterfaceの設定 */
 	settings: any;
 	/** slackAPIのインスタンス */
 	connection: any;
+	client: SlackClient;
 	channelIDList: string[] = [];
 	/**
 	 * コンストラクタ。
@@ -24,6 +81,9 @@ class DeborahDriverSlack extends DeborahDriver
 		// =============== 変数初期化 ===============
 		if(DeborahDriverSlack.SlackBotAPI == undefined){
 			DeborahDriverSlack.SlackBotAPI = require('slackbotapi');
+		}
+		if(DeborahDriverSlack.Slack == undefined){
+			DeborahDriverSlack.Slack = require('slack');
 		}
 		this.connection = new DeborahDriverSlack.SlackBotAPI({
 			'token': this.settings.token,
@@ -154,5 +214,17 @@ class DeborahDriverSlack extends DeborahDriver
 			// bot以外の場合
 			return this.connection.getUser(data.user).name;
 		}
+	}
+	uploadSnippet(name: string, channelID: string, content: string, type: string){
+		DeborahDriverSlack.Slack.files.upload({
+			token: this.settings.token,
+			channels: channelID,	// comma-separated
+			content: content,
+			filename: name,
+			filetype: type,
+		}, function(err, data){
+			console.log(err);
+			console.log(data);
+		});
 	}
 }

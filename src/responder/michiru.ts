@@ -16,6 +16,10 @@ class DeborahResponderMichiru extends DeborahResponder
 		console.log(JSON.stringify(result, null, " "));
 		var match = req.wordMatch(["C", "言語", "*", "書き", "たい"]);
 		if(match){
+			if(req.driver instanceof DeborahDriverSlack){
+				var sd: DeborahDriverSlack = req.driver;
+				sd.uploadSnippet("test.c", req.context, "// Hello, world", "c");
+			}
 			req.driver.reply(req, "```\nそうだね〜〜〜\n```");
 		} else{
 			req.driver.reply(req, JSON.stringify(result));
