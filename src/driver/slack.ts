@@ -33,10 +33,11 @@ interface SlackParams extends SlackToken, JSONData
 interface SlackFilesUploadParams
 {
 	token: string;
-	channels: string;
-	content: string;
-	filename: string;
-	filetype: string;
+	channels?: string;	// comma-separated
+	content?: string;
+	filename?: string;
+	filetype?: string;
+	title?: string;
 }
 
 interface SlackChannels
@@ -221,6 +222,7 @@ class DeborahDriverSlack extends DeborahDriver
 			channels: channelID,	// comma-separated
 			content: content,
 			filename: name,
+			title: name,
 			filetype: type,
 		}, function(err, data){
 			console.log(err);

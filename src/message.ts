@@ -20,7 +20,10 @@ class DeborahMessage
 	}
 	wordMatch(pattern: string[]): boolean | string[][]{
 		var matcher = function(pattern, target){
-			if(!pattern.length || !target.length){
+			console.log("try match:");
+			console.log(JSON.stringify(pattern, null, " "));
+			console.log(JSON.stringify(target, null, " "));
+			if(!pattern.length){
 				if(pattern.length == 0 && target.length == 0) return [];
 				return false;
 			}
@@ -28,7 +31,8 @@ class DeborahMessage
 				var follow = matcher(pattern.slice(1), target.slice(1));
 				if(follow) return [[target[0][0]]].concat(follow);
 			} else if(pattern[0] === '*'){
-				for(var i = 0; i < target.length; i++){
+				for(var i = 0; i <= target.length; i++){
+					console.log("i = " + i);
 					var follow = matcher(pattern.slice(1), target.slice(i));
 					if(follow) return [target.slice(0, i)].concat(follow);
 				}

@@ -14,7 +14,7 @@ class DeborahResponderMichiru extends DeborahResponder
 	async generateResponse(req: DeborahMessage){
 		var result = await promiseCabocha(this.bot, req.text);
 		console.log(JSON.stringify(result, null, " "));
-		var match = req.wordMatch(["C", "言語", "*", "書き", "たい"]);
+		var match = req.wordMatch(["C", "言語", "*", "書き", "たい", "*"]);
 		if(match){
 			if(req.driver instanceof DeborahDriverSlack){
 				var sd: DeborahDriverSlack = req.driver;
