@@ -27,14 +27,16 @@ class DeborahMessage
 				if(pattern.length == 0 && target.length == 0) return [];
 				return false;
 			}
-			if(pattern[0] === '.' || pattern[0] === target[0][0]){
-				var follow = matcher(pattern.slice(1), target.slice(1));
-				if(follow) return [[target[0][0]]].concat(follow);
-			} else if(pattern[0] === '*'){
+			if(pattern[0] === '*'){
 				for(var i = 0; i <= target.length; i++){
 					console.log("i = " + i);
 					var follow = matcher(pattern.slice(1), target.slice(i));
 					if(follow) return [target.slice(0, i)].concat(follow);
+				}
+			} else if(target.length > 0){
+				if(pattern[0] === '.' || pattern[0] === target[0][0]){
+					var follow = matcher(pattern.slice(1), target.slice(1));
+					if(follow) return [[target[0][0]]].concat(follow);
 				}
 			}
 			return false;

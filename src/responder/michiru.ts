@@ -23,15 +23,19 @@ class DeborahResponderMichiru extends DeborahResponder
 		super(bot);
 	}
 	generateResponse(req: DeborahMessage){
+		var recentMessageList = 
+			this.bot.memory.getRecentConversationInContext(req.context);
 		var match = req.wordMatch(["C", "言語", "*", "書き", "たい", "*"]);
 		if(match){
 			if(req.driver instanceof DeborahDriverSlack){
 				var sd: DeborahDriverSlack = req.driver;
-				sd.uploadSnippet("test.c", req.context, MichiruCodingTemplate.C, "c");
+				sd.uploadSnippet(req.context, "test.c", MichiruCodingTemplate.C, "c");
 			}
 			req.driver.reply(req, "ここからどうすればいい？");
 		} else{
 			req.driver.reply(req, "んー難しい…");
+			req.driver.reply(req,
+				"```" + JSON.stringify(recentMessageList, null, " ") +"```");
 		}
 	}
 }

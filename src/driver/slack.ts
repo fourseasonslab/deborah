@@ -100,7 +100,11 @@ class DeborahMessageSlack extends DeborahMessage
 	}
 	getChannelID(): string
 	{
-		return this.context.split("@")[0];
+		return DeborahMessageSlack.contextToChannelID(this.context);
+	}
+	static contextToChannelID(context: string) : string
+	{
+		return context.split("@")[0];
 	}
 }
 
@@ -270,10 +274,10 @@ class DeborahDriverSlack extends DeborahDriver
 			return this.connection.getUser(data.user).name;
 		}
 	}
-	uploadSnippet(name: string, channelID: string, content: string, type: string){
+	uploadSnippet(context: string, name: string, content: string, type: string){
 		DeborahDriverSlack.Slack.files.upload({
 			token: this.settings.token,
-			channels: channelID,	// comma-separated
+			channels: DeborahMessageSlack.contextToChannelID(context),
 			content: content,
 			filename: name,
 			title: name,
