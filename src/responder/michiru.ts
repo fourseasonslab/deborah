@@ -217,10 +217,16 @@ class MichiruCoding
 			return list;
 		}
 		var inArg = function(){
-			var list = ['('];
+			var list: any = ['('];
 			var part = "";
 			var c;
 			while((c = line.pop()) !== undefined){
+				if(c === '"'){
+					if(part.length) list.push(part);
+					list.push(inStrLiteral())
+					part = "";
+					continue;
+				}
 				if(c === ')' || c === ','){
 					list.push(part);
 					list.push(c);
