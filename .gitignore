@@ -9,3 +9,4 @@ data/*
 deborah.js
 docs/typedoc/*
 *.txt
+tmp

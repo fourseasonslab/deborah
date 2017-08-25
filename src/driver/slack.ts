@@ -210,7 +210,7 @@ class DeborahDriverSlack extends DeborahDriver
 
 		// 指定されたチャンネル以外のメッセージは破棄する
 		if(this.channelIDList.indexOf(data.channel) < 0){
-			console.log("This message was sent to channel not in the list. Ignore.");
+			console.log("Channel not in the list (" + data.channel + "). Ignore.");
 			return;
 		}
 
