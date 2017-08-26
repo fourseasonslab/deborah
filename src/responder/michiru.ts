@@ -130,6 +130,7 @@ class MichiruCoding
 				req.driver.reply(req, "よくわからない…。");
 			}
 		} else if(match_replace_args){
+			console.log(JSON.stringify(this.currentCode, null, " "));
 			var target = match_replace_args[0].slice(-1)[0][0];
 			var info = {
 				target: target,
