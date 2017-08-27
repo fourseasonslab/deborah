@@ -1,7 +1,20 @@
 /**
  * chatbotの本体となるクラス。
  */
-class Deborah
+
+import {DeborahDriver} from "./driver";
+import {DeborahDriverLineApp} from "./driver/lineapp";
+import {DeborahDriverSlack} from "./driver/slack";
+import {DeborahDriverStdIO} from "./driver/stdio";
+import {DeborahDriverTwitter} from "./driver/twitter";
+import {DeborahDriverWebAPI} from "./driver/webapi";
+import {DeborahMessage} from "./message";
+import {DeborahMemory} from "./memory";
+import {DeborahResponder} from "./responder";
+import {DeborahResponderWord2Vec} from "./responder/word2vec";
+import {DeborahResponderMichiru} from "./responder/michiru";
+
+export class Deborah
 {
 	// =============== 変数宣言 ===============
 	/** 利用可能なDriver */

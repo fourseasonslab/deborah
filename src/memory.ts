@@ -1,3 +1,5 @@
+import {DeborahMessage} from "./message";
+
 class DeborahMemoryIOEntry
 {
 	id: string;
@@ -27,15 +29,15 @@ class DeborahMemoryIOEntry
 			sender: data.senderName,
 			date: new Date(),
 			context: data.context,
-			driver: data.driver.constructor.name,
+			driver: (<any>data.driver.constructor).name,
 		});
 	}
 }
 
-class DeborahMemory
+export class DeborahMemory
 {
 	filename: string;
-	journal: DeborahMemoryIOEntry[];
+	private journal: DeborahMemoryIOEntry[];
 	constructor(filename: string){
 		this.filename = filename;
 		try{

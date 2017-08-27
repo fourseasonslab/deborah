@@ -1,4 +1,7 @@
-abstract class DeborahResponder
+import {Deborah} from "./deborah";
+import {DeborahMessage} from "./message";
+
+export class DeborahResponder
 {
 	name: string;
 	bot: Deborah;

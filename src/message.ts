@@ -1,4 +1,6 @@
-class DeborahMessage
+import {DeborahDriver} from "./driver";
+
+export class DeborahMessage
 {
 	text: string;
 	senderName: string;

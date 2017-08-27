@@ -1,7 +1,12 @@
 /**
  * 標準入出力（stdio）を担当するドライバ
  */
-class DeborahDriverStdIO extends DeborahDriver
+
+import {DeborahDriver} from "../driver";
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
+
+export class DeborahDriverStdIO extends DeborahDriver
 {
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
@@ -9,6 +14,7 @@ class DeborahDriverStdIO extends DeborahDriver
 	readline: any;
 	/** OpenJTalkのインスタンス */
 	openjtalk: any;
+	settings: any;
 
 	/**
 	 * コンストラクタ。
@@ -20,7 +26,7 @@ class DeborahDriverStdIO extends DeborahDriver
 		console.log("Driver initialized: StdIO");
 
 		// OpenJTalkのインスタンスを生成しようと試みる
-		var OpenJTalk = this.tryRequire('openjtalk');
+		var OpenJTalk = require('openjtalk');
 		if(OpenJTalk){
 			this.openjtalk = new OpenJTalk();
 			this.openjtalk.talk('音声合成が有効です');

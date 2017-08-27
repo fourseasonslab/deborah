@@ -2,6 +2,10 @@
  * slackBOTを担当するドライバ
  */
 
+import {DeborahDriver} from "../driver";
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
+
 interface JSONData
 {
 	[name: string]: JSONData|number|string|boolean| JSONData[];
@@ -108,7 +112,7 @@ class DeborahMessageSlack extends DeborahMessage
 	}
 }
 
-class DeborahDriverSlack extends DeborahDriver
+export class DeborahDriverSlack extends DeborahDriver
 {
 	static SlackBotAPI;		// slackbotapi: for Streaming API
 	static Slack: Slack;	// slack: for REST API

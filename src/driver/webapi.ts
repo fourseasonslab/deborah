@@ -1,7 +1,11 @@
 /**
  * WebAPIを担当するドライバ
  */
-class DeborahDriverWebAPI extends DeborahDriver
+import {DeborahDriver} from "../driver";
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
+
+export class DeborahDriverWebAPI extends DeborahDriver
 {
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
@@ -37,7 +41,7 @@ class DeborahDriverWebAPI extends DeborahDriver
 		this.io = Sock.listen(this.httpServer);
 		
 		// OpenJTalkのインスタンスを生成しようと試みる
-		var OpenJTalk = this.tryRequire('openjtalk');
+		var OpenJTalk = require('openjtalk');
 		if(OpenJTalk){
 			this.openjtalk = new OpenJTalk();
 			//this.openjtalk.talk('音声合成が有効です');

@@ -1,3 +1,10 @@
+
+import {Deborah} from "../deborah";
+import {DeborahDriver} from "../driver";
+import {DeborahMessage} from "../message";
+import {DeborahResponder} from "../responder";
+import {DeborahDriverSlack} from "../driver/slack";
+
 function promiseCabocha(bot: Deborah, text: string) : Promise<{ result: any }>
 {
 	return new Promise((resolve) => {
@@ -36,8 +43,10 @@ class MichiruCodingOperation
 	}
 }
 
-interface String {
-	isKanjiAt(index: number): boolean;
+declare global {
+	interface String {
+		isKanjiAt(index: number): boolean;
+	}
 }
 
 //http://d.hatena.ne.jp/favril/20090514/1242280476
@@ -65,6 +74,15 @@ class MichiruCoding
 	}
 	process(req: DeborahMessage)
 	{
+		/*
+			sample conversation:
+			C言語書きたいなあ
+			とりあえずputsを挿入して
+			コンパイルして
+			コンパイルして
+			インデントくらい揃えてよ
+			putsの第一引数を `"Hello, world"` にして
+		 */
 		//console.log(JSON.stringify(req.analytics.words, null, " "));
 		var match_init = req.wordMatch(["*", "C", "言語", "*", "書き", "たい", "*"])
 		var match_indent = req.wordMatch(["*", "インデント", "*", "揃え", "*"]);
@@ -114,7 +132,6 @@ class MichiruCoding
 				if(error){
 					return;
 				}
-				this.setCurrentCode(stdout);
 				req.driver.reply(req, "こんな感じ\n```\n" + stderr + "\n```");
 			});
 		} else if(match_insert){
@@ -279,15 +296,43 @@ class MichiruCoding
 	}
 }
 
-class DeborahResponderMichiru extends DeborahResponder
+export class DeborahResponderMichiru extends DeborahResponder
 {
 	name = "michiru";
 	codingManager: MichiruCoding;
+	yomiDict = [
+		"リンゴ",
+		"ゴリラ",
+		"ラッパ",
+		"パイナップル",
+		"ルーマニア",
+		"アフリカ",
+		"カナダ",
+		"ダルマ",
+		"ラクダ",
+		"サクラ"
+	];
 	constructor(bot: Deborah){
 		super(bot);
 		this.codingManager = new MichiruCoding();
 	}
 	generateResponse(req: DeborahMessage){
 		this.codingManager.process(req);
+		/*
+		if(req.analytics.words.length !== 1){
+			req.driver.reply(req, "それは単語じゃないよー");
+			return 0;
+		}
+		var yomi = req.analytics.words[0][8];
+		var first = yomi[yomi.length - 1];
+		req.driver.reply(req,"次は" + this.getNextYomiWord(first));
+		 */
+	}
+	getNextYomiWord(first: string)
+	{
+		for(var i = 0; i < this.yomiDict.length; i++){
+			if(this.yomiDict[i][0] === first) return this.yomiDict[i];
+		}
+		return null;
 	}
 }
