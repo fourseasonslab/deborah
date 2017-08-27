@@ -37,9 +37,11 @@ class Deborah
 		this.cabochaf1 = new Cabocha();
 		//this.responderList.push(new DeborahResponder(this));
 		//this.responderList.push(new DeborahResponderCabocha(this));
-		this.responderList.push(new DeborahResponderKano(this));
+		//this.responderList.push(new DeborahResponderKano(this));
 		//this.responderList.push(new DeborahResponderWord2Vec(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
+		this.responderList.push(new DeborahResponderProton(this));
+	
 	}
 	start(){
 		var interfaces = this.settings.interfaces;

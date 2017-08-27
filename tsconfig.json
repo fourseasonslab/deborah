@@ -16,6 +16,7 @@
         "src/responder/kano-bot.ts",
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
-        "src/deborah.ts"
+		"src/responder/proton.ts",
+		"src/deborah.ts"
     ]
 }

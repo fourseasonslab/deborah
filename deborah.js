@@ -808,6 +808,18 @@ class DeborahResponderWord2Vec extends DeborahResponder {
         //		console.log("generateRspまできたよ！");
     }
 }
+class DeborahResponderProton extends DeborahResponder {
+    constructor(bot) {
+        super(bot);
+        this.name = "Word2Vec";
+        console.log("計算できたよ！");
+    }
+    ;
+    generateResponse(req) {
+        var result = req.analytics;
+        //	var that = this;
+    }
+}
 class Deborah {
     constructor() {
         this.driverList = [];
@@ -842,9 +854,10 @@ class Deborah {
         this.cabochaf1 = new Cabocha();
         //this.responderList.push(new DeborahResponder(this));
         //this.responderList.push(new DeborahResponderCabocha(this));
-        this.responderList.push(new DeborahResponderKano(this));
+        //this.responderList.push(new DeborahResponderKano(this));
         //this.responderList.push(new DeborahResponderWord2Vec(this));
         //this.responderList.push(new DeborahResponderMeCab(this));
+        this.responderList.push(new DeborahResponderProton(this));
     }
     start() {
         var interfaces = this.settings.interfaces;
