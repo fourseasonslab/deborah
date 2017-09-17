@@ -1,7 +1,20 @@
 /**
  * chatbotの本体となるクラス。
  */
-class Deborah
+
+import {DeborahDriver} from "./driver";
+import {DeborahDriverLineApp} from "./driver/lineapp";
+import {DeborahDriverSlack} from "./driver/slack";
+import {DeborahDriverStdIO} from "./driver/stdio";
+import {DeborahDriverTwitter} from "./driver/twitter";
+import {DeborahDriverWebAPI} from "./driver/webapi";
+import {DeborahMessage} from "./message";
+import {DeborahMemory} from "./memory";
+import {DeborahResponder} from "./responder";
+import {DeborahResponderWord2Vec} from "./responder/word2vec";
+import {DeborahResponderMichiru} from "./responder/michiru";
+
+export class Deborah
 {
 	// =============== 変数宣言 ===============
 	/** 利用可能なDriver */
@@ -65,12 +78,13 @@ class Deborah
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		this.responderList.push(new DeborahResponderEcho(this));
-		// this.responderList.push(new DeborahResponder(this));
-		// this.responderList.push(new DeborahResponderCabocha(this));
-		// this.responderList.push(new DeborahResponderKano(this));
-		// this.responderList.push(new DeborahResponderWord2Vec(this));
-		// this.responderList.push(new DeborahResponderMeCab(this));
-		// this.responderList.push(new DeborahResponderMemory(this));
+		//this.responderList.push(new DeborahResponder(this));
+		//this.responderList.push(new DeborahResponderCabocha(this));
+		//this.responderList.push(new DeborahResponderKano(this));
+		//this.responderList.push(new DeborahResponderWord2Vec(this));
+		//this.responderList.push(new DeborahResponderMeCab(this));
+		//this.responderList.push(new DeborahResponderMemory(this));
+		this.responderList.push(new DeborahResponderMichiru(this));
 	}
 
 	/**
@@ -86,23 +100,27 @@ class Deborah
 
 		// Settingsのinterfacesに対応するDriverをDriverListに追加
 		for (var i = 0; i < interfaces.length; i++) {
-			var iset = interfaces[i];
-			switch (iset.type) {
-				case 'slack-connection':
-					this.driverList.push(new DeborahDriverSlack(this, iset));
-					break;
-				case 'stdio':
-					this.driverList.push(new DeborahDriverStdIO(this, iset));
-					break;
-				case 'twitter':
-					this.driverList.push(new DeborahDriverTwitter(this, iset));
-					break;
-				case 'line':
-					this.driverList.push(new DeborahDriverLineApp(this, iset));
-					break;
-				case 'webapi':
-					this.driverList.push(new DeborahDriverWebAPI(this, iset));
-					break;
+			try{
+				var iset = interfaces[i];
+				switch (iset.type) {
+					case 'slack-connection':
+						this.driverList.push(new DeborahDriverSlack(this, iset));
+						break;
+					case 'stdio':
+						this.driverList.push(new DeborahDriverStdIO(this, iset));
+						break;
+					case 'twitter':
+						this.driverList.push(new DeborahDriverTwitter(this, iset));
+						break;
+					case 'line':
+						this.driverList.push(new DeborahDriverLineApp(this, iset));
+						break;
+					case 'webapi':
+						this.driverList.push(new DeborahDriverWebAPI(this, iset));
+						break;
+				}
+			} catch(e){
+				console.log("Failed to load Driver: " + iset.type);
 			}
 		}
 	}
@@ -239,6 +257,6 @@ class Deborah
 	}
 }
 
-// ここでDeborahのインスタンスを作り（暗黙にコンストラクタが呼ばれる）、さらにstart関数を呼ぶ。
+// ここでDeborahのインスタンスを作り、start関数を呼んで動作を開始させる。
 var deborah = new Deborah();
 deborah.start();

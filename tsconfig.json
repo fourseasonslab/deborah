@@ -1,30 +1,16 @@
 {
     "compilerOptions": {
-        "module": "system",
+        "module": "commonjs",
         "noImplicitAny": false,
         "removeComments": false,
         "preserveConstEnums": false,
         "sourceMap": false,
-		"target": "ES6",
-		"outFile": "deborah.js"
+		"outDir": "js",
+		"target": "ES6"
     },
-    "files": [
-        "src/driver.ts",
-        "src/responder.ts",
-        "src/message.ts",
-        "src/memory.ts",
-        "src/command.ts",
-        "src/driver/lineapp.ts",
-        "src/driver/slack.ts",
-        "src/driver/stdio.ts",
-        "src/driver/twitter.ts",
-        "src/driver/webapi.ts",
-        "src/responder/cabocha.ts",
-        "src/responder/kano-bot.ts",
-        "src/responder/mecab.ts",
-        "src/responder/word2vec.ts",
-        "src/responder/memory.ts",
-        "src/responder/echo.ts",
-        "src/deborah.ts"
-    ]
+	"include": [
+		"src/*.ts",
+		"src/driver/*.ts",
+		"src/responder/*.ts"
+	]
 }

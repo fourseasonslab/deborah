@@ -89,7 +89,8 @@ node .
 	* team : string
 		* 対象となるチーム `チーム名.slack.com`
 	* token : string
-		* APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
+		* APIトークン（ https://api.slack.com/bot-users で取得できる）
+		* トークン取得後は、クライアントのAppsよりボットを追加した上で、必要なチャンネルに招待すること。
 	* output : boolean
 		* このドライバを出力に使用するか否か（falseの場合、返答は送信されず標準出力に表示される。）
 * type: "slack-channel"

@@ -1,7 +1,11 @@
 /**
  * WebAPIを担当するドライバ
  */
-class DeborahDriverWebAPI extends DeborahDriver
+import {DeborahDriver} from "../driver";
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
+
+export class DeborahDriverWebAPI extends DeborahDriver
 {
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
@@ -37,7 +41,7 @@ class DeborahDriverWebAPI extends DeborahDriver
 		this.io = Sock.listen(this.httpServer);
 		
 		// OpenJTalkのインスタンスを生成しようと試みる
-		var OpenJTalk = this.tryRequire('openjtalk');
+		var OpenJTalk = require('openjtalk');
 		if(OpenJTalk){
 			this.openjtalk = new OpenJTalk();
 			//this.openjtalk.talk('音声合成が有効です');
@@ -58,21 +62,19 @@ class DeborahDriverWebAPI extends DeborahDriver
 		/** listenするポート番号 */
 		var port = 3000;
 
-		var that = this;
+		var app = require('express')();
+		var http = require('http').Server(app);
+		var io = require('socket.io')(http);
 
-		// HTTP要求を受け取ったときの動作
-		this.httpServer.on('request', function(req, res){
-			var stream = that.fs.createReadStream('index.html');
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			stream.pipe(res);
+		app.get('/', (req, res) => {
+			res.sendFile(__dirname + '/index.html');
 		});
 
-		// WebSocket通信が確立したときの動作
-		this.io.on('connection', function(socket){
+		io.on('connection', (socket) => {
 			console.log("connection established");
 			// console.log(client);
 			// socketに入力があったときの動作
-			socket.on('input', function(data){
+			socket.on('input', (data) => {
 				console.log("recv input:");
 				console.log(data);
 
@@ -85,13 +87,12 @@ class DeborahDriverWebAPI extends DeborahDriver
 				m.rawData = socket;
 				
 				// DeborahにMessageを渡す
-				that.bot.receive(m);
+				this.bot.receive(m);
 			});
 		});
-		
-		// 指定のポートをlistenする
-		console.log("Listen on port " + port);
-		this.httpServer.listen(port);
+		http.listen(port, () => {
+			console.log('listening on *:' + port);
+		});
 	}
 
 	/**

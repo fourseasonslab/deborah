@@ -2,20 +2,22 @@ SRCS = deborah.ts
 
 ALLSRC := $(wildcard src/*.ts src/responder/*.ts src/driver/*.ts)
 
+TARGET = js/deborah.js
+
 default :
-	make deborah.js
+	make $(TARGET)
 
-run :
-	node .
+run : $(TARGET)
+	node $(TARGET)
 
-deborah.js : $(ALLSRC) Makefile
+js/deborah.js : $(ALLSRC) tsconfig.json Makefile
 	tsc
 
 clean :
-	-rm deborah.js
+	-rm $(TARGET)
 	-rm *.wav
 
 test:
 	npm install --only=dev
-	-rm deborah.js
-	make deborah.js
+	-rm $(TARGET)
+	make $(TARGET)

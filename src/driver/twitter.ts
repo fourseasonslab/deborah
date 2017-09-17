@@ -1,7 +1,11 @@
 /**
  * Twitterを担当するドライバ
  */
-class DeborahDriverTwitter extends DeborahDriver
+import {DeborahDriver} from "../driver";
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
+
+export class DeborahDriverTwitter extends DeborahDriver
 {
 	/** 生成元であるDeborahのインスタンス */
 	bot: Deborah;
