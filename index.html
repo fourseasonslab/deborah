@@ -26,6 +26,7 @@ window.onload = function(){
 	var spIco = document.getElementById('speakicon');
 	var inIco = document.getElementById('inputicon');
 	var outIco = document.getElementById('outputicon');
+	var id = null;
 
 	// Socket.io
 	var socket = io(location.protocol + '//' + location.host);
@@ -38,6 +39,23 @@ window.onload = function(){
 	});
 	socket.on('reply', function(data){
 		outBox.value = data.text;
+
+		if(id!==null) clearInterval(id);
+
+		var blinkcount = 0;
+		var blink = function(){
+			if(blinkcount % 2 === 0){
+				outIco.style.color = "#FFFFFF"; // 明るく
+			} else {
+				outIco.style.color = "#E2E2E2"; // 暗く
+			}
+			blinkcount++;
+		};
+		id = setInterval(function(){
+			blink();
+			if(blinkcount === 8) clearInterval(id);
+		},300);
+
 		// log("response: " + data.text);
 		console.log("response: " + data.text);
 		var au = new Audio(data.voiceURL);
@@ -147,15 +165,6 @@ window.onload = function(){
 
 </script>
 <style>
-.blinking{
-	animation: blink 0.5s cubic-bezier(1,0,0,1) 8 alternate;
-}
-
-@keyframes blink{
-	0% { color: #E2E2E2; }
-	100% { color: #FFFFFF; }
-}
-
 html,body{
 	height: 100%;
 }
@@ -258,7 +267,7 @@ h1{
 		<textarea id="speakbox" class="box" placeholder="マイクをクリックしながら話しかけてみましょう。" disabled="disabled"></textarea>
 	</div>
 	<div class="wrap" id="outputwrap">
-		<div class="icon blinking">
+		<div id="outputicon" class="icon">
 			<i class="fa fa-envelope-o" aria-hidden="true"></i>
 		</div>
 		<textarea id="outputbox" class="box" placeholder="ここにDeborahからのメッセージが届きます。" disabled="disabled"></textarea>
