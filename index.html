@@ -113,12 +113,11 @@ window.onload = function(){
 				};
 				console.log(socket);
 				socket.emit("input", postData);
-				spBox.value = text;
-				spBox.style.color = "#00ff00";
+				spBox.placeholder = '送信しました：'+text+'\nさらにメッセージを送ってみましょう。';
+				spBox.value = "";
 			} else{
 				console.log(results[i][0].transcript);
-				spBox.value = results[i][0].transcript;
-				spBox.style.color = "#cc0000";
+				spBox.value = '認識中……\n'+results[i][0].transcript;
 			}
 		}
 	};
@@ -132,6 +131,7 @@ window.onload = function(){
 			text: inBox.value
 		};
 		socket.emit("input", postData);
+		inBox.placeholder = '送信しました：'+inBox.value+'\nさらにメッセージを送ってみましょう。';
 		inBox.value = "";
 	};
 
@@ -147,6 +147,15 @@ window.onload = function(){
 
 </script>
 <style>
+.blinking{
+	animation: blink 0.5s cubic-bezier(1,0,0,1) 8 alternate;
+}
+
+@keyframes blink{
+	0% { color: #E2E2E2; }
+	100% { color: #FFFFFF; }
+}
+
 html,body{
 	height: 100%;
 }
@@ -201,7 +210,7 @@ h1{
 	width: 80px;
 	height: 100%;
 	font-size: 50px;
-	color: #F5F5F5;
+	color: #E2E2E2;
 	display: flex;
 	flex-direction: column;
     justify-content: center;
@@ -210,7 +219,7 @@ h1{
 	margin-right: 10px;
 }
 
-.icon:hover{
+.btn:hover{
 	color: white;
 }
 
@@ -223,6 +232,11 @@ h1{
 	border: 0;
 	padding: 5px;
 }
+
+.box:disabled{
+	background: #FDFDFD;
+}
+
 </style>
 </head>
 <body>
@@ -232,19 +246,19 @@ h1{
 	</header>
 	
 	<div class="wrap" id="inputwrap">
-		<div id="inputicon" class="icon">
+		<div id="inputicon" class="icon btn">
 			<i class="fa fa-pencil" aria-hidden="true"></i>
 		</div>
 		<textarea id="inputbox" class="box" placeholder="メッセージを入力してからペンをクリックしてみましょう。"></textarea>
 	</div>
 	<div class="wrap" id="speakwrap">
-		<div id="speakicon" class="icon">
+		<div id="speakicon" class="icon btn">
 			<i class="fa fa-microphone" aria-hidden="true"></i>
 		</div>
 		<textarea id="speakbox" class="box" placeholder="マイクをクリックしながら話しかけてみましょう。" disabled="disabled"></textarea>
 	</div>
 	<div class="wrap" id="outputwrap">
-		<div class="icon">
+		<div class="icon blinking">
 			<i class="fa fa-envelope-o" aria-hidden="true"></i>
 		</div>
 		<textarea id="outputbox" class="box" placeholder="ここにDeborahからのメッセージが届きます。" disabled="disabled"></textarea>
