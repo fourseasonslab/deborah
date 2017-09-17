@@ -115,8 +115,12 @@ class Deborah
 		try {
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 
-			// 該当するコマンドがあればそれに即した行動をとって終了
-			if(DeborahCommand.analyze(data.text)) return;
+			// 該当するコマンドがあればそれに即した行動・返答をして終了
+			var result:string = DeborahCommand.analyze(data.text);
+			if(result!==null){
+				data.driver.reply(data, result);
+				return;
+			}
 
 			// 記憶に追加
 			this.memory.appendReceiveHistory(data);

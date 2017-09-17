@@ -4,7 +4,8 @@ class DeborahCommand {
             text: "コマンド",
             func: function(){
                 console.log("コマンドが実行されました");
-            } 
+            },
+            res: "かしこまりました。"
         }
     ];
 
@@ -13,13 +14,13 @@ class DeborahCommand {
      * @param mes 受け取ったメッセージ本文
      * @return 該当コマンドがあればtrue
      */
-    static analyze(mes : string) : boolean{
+    static analyze(mes : string) : string{
         for(var i=0; i<this.commands.length; i++){
             if(this.commands[i].text === mes){
                 this.commands[i].func();
-                return true;
+                return this.commands[i].res;
             }
         }
-        return false;
+        return null;
     }
 }
