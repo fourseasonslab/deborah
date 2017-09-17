@@ -1,6 +1,6 @@
 SRCS = deborah.ts
 
-ALLSRC := $(wildcard src/*.ts src/responder/*.ts src/driver/*.ts)
+ALLSRC := $(wildcard src/ts/*.ts src/ts/responder/*.ts src/ts/driver/*.ts)
 
 default :
 	make deborah.js

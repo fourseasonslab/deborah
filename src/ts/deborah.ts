@@ -113,8 +113,10 @@ class Deborah
 	 */
 	receive(data: DeborahMessage){
 		try {
-			// メッセージが空なら帰る
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
+
+			// 該当するコマンドがあればそれに即した行動をとって終了
+			if(DeborahCommand.analyze(data.text)) return;
 
 			// 記憶に追加
 			this.memory.appendReceiveHistory(data);

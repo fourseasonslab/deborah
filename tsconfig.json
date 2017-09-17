@@ -9,21 +9,22 @@
 		"outFile": "deborah.js"
     },
     "files": [
-        "src/driver.ts",
-        "src/responder.ts",
-        "src/message.ts",
-        "src/memory.ts",
-        "src/driver/lineapp.ts",
-        "src/driver/slack.ts",
-        "src/driver/stdio.ts",
-        "src/driver/twitter.ts",
-        "src/driver/webapi.ts",
-        "src/responder/cabocha.ts",
-        "src/responder/kano-bot.ts",
-        "src/responder/mecab.ts",
-        "src/responder/word2vec.ts",
-        "src/responder/memory.ts",
-        "src/responder/echo.ts",
-        "src/deborah.ts"
+        "src/ts/driver.ts",
+        "src/ts/responder.ts",
+        "src/ts/message.ts",
+        "src/ts/memory.ts",
+        "src/ts/command.ts",
+        "src/ts/driver/lineapp.ts",
+        "src/ts/driver/slack.ts",
+        "src/ts/driver/stdio.ts",
+        "src/ts/driver/twitter.ts",
+        "src/ts/driver/webapi.ts",
+        "src/ts/responder/cabocha.ts",
+        "src/ts/responder/kano-bot.ts",
+        "src/ts/responder/mecab.ts",
+        "src/ts/responder/word2vec.ts",
+        "src/ts/responder/memory.ts",
+        "src/ts/responder/echo.ts",
+        "src/ts/deborah.ts"
     ]
 }
