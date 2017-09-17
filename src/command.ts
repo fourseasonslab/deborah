@@ -1,4 +1,6 @@
-class DeborahCommand {
+import {DeborahMessage} from "./message";
+
+export class DeborahCommand {
     static commands = [
         {
             text: "スタート",

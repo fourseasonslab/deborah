@@ -130,7 +130,13 @@ class DeborahMessage {
                     importantWords.push(result.rankWords[i][2]);
                 }
             }
+            var kana = "";
+            for (var i = 0; i < result.words.length; i++) {
+                kana += result.words[i][8];
+            }
+            result.kana = kana.replace(/[^ァ-ヴー]/g, "");
             result.importantWords = importantWords;
+            console.log(result); // FOR DEBUG
             that.analytics = result;
             f(that);
         });

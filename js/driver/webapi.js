@@ -42,6 +42,7 @@ class DeborahDriverWebAPI extends driver_1.DeborahDriver {
     connect() {
         /** listenするポート番号 */
         var port = 3000;
+        var that = this;
         var app = require('express')();
         var http = require('http').Server(app);
         var io = require('socket.io')(http);
@@ -50,7 +51,7 @@ class DeborahDriverWebAPI extends driver_1.DeborahDriver {
         });
         io.on('connection', (socket) => {
             console.log("connection established");
-            //console.log(client);
+            // console.log(client);
             // socketに入力があったときの動作
             socket.on('input', (data) => {
                 console.log("recv input:");
@@ -59,8 +60,8 @@ class DeborahDriverWebAPI extends driver_1.DeborahDriver {
                 var m = new message_1.DeborahMessage();
                 m.text = data.text;
                 m.senderName = "unknown";
-                m.context = socket;
-                m.driver = this;
+                m.context = socket; //Memory化が循環参照でエラーになるおそれ
+                m.driver = that;
                 m.rawData = socket;
                 // DeborahにMessageを渡す
                 this.bot.receive(m);

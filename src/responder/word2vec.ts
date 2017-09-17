@@ -3,8 +3,6 @@ import {DeborahDriver} from "../driver";
 import {DeborahMessage} from "../message";
 import {DeborahResponder} from "../responder";
 
-import { Word2Vec } from "node-word2vec";
-
 export class DeborahResponderWord2Vec extends DeborahResponder
 {
 	bot: Deborah;
@@ -14,6 +12,7 @@ export class DeborahResponderWord2Vec extends DeborahResponder
 	constructor(bot: Deborah){
 		super(bot);
 		this.name ="Word2Vec";
+		var Word2Vec = require("node-word2vec");
 		this.w2v = new Word2Vec(this.bot.settings.lib.word2vec.vectorPath);
 	};
 	generateResponse(req: DeborahMessage){

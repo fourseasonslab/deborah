@@ -1,5 +1,7 @@
-class DeborahResponderEcho
-{
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
+
+export class DeborahResponderEcho{
 	name: string;
 	bot: Deborah;
 	constructor(bot: Deborah){

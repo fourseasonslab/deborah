@@ -61,6 +61,7 @@ export class DeborahDriverWebAPI extends DeborahDriver
 	connect() {
 		/** listenするポート番号 */
 		var port = 3000;
+		var that = this;
 
 		var app = require('express')();
 		var http = require('http').Server(app);

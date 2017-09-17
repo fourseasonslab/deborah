@@ -13,6 +13,8 @@ import {DeborahMemory} from "./memory";
 import {DeborahResponder} from "./responder";
 import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
+import {DeborahCommand} from "./command";
+import {DeborahResponderEcho} from "./responder/echo";
 
 export class Deborah
 {

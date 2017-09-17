@@ -18,7 +18,8 @@ class DeborahMemoryIOEntry {
             text: data.text,
             sender: data.senderName,
             date: new Date(),
-            context: data.context,
+            // context: data.context, //循環参照を避ける
+            context: null,
             driver: data.driver.constructor.name,
         });
     }
