@@ -62,21 +62,19 @@ export class DeborahDriverWebAPI extends DeborahDriver
 		/** listenするポート番号 */
 		var port = 3000;
 
-		var that = this;
+		var app = require('express')();
+		var http = require('http').Server(app);
+		var io = require('socket.io')(http);
 
-		// HTTP要求を受け取ったときの動作
-		this.httpServer.on('request', function(req, res){
-			var stream = that.fs.createReadStream('index.html');
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			stream.pipe(res);
+		app.get('/', (req, res) => {
+			res.sendFile(__dirname + '/index.html');
 		});
 
-		// WebSocket通信が確立したときの動作
-		this.io.on('connection', function(socket){
+		io.on('connection', (socket) => {
 			console.log("connection established");
 			//console.log(client);
 			// socketに入力があったときの動作
-			socket.on('input', function(data){
+			socket.on('input', (data) => {
 				console.log("recv input:");
 				console.log(data);
 
@@ -85,17 +83,16 @@ export class DeborahDriverWebAPI extends DeborahDriver
 				m.text = data.text;
 				m.senderName = "unknown";
 				m.context = socket;
-				m.driver = that;
+				m.driver = this;
 				m.rawData = socket;
 				
 				// DeborahにMessageを渡す
-				that.bot.receive(m);
+				this.bot.receive(m);
 			});
 		});
-		
-		// 指定のポートをlistenする
-		console.log("WebAPI: Listen on port " + port);
-		this.httpServer.listen(port);
+		http.listen(port, () => {
+			console.log('listening on *:' + port);
+		});
 	}
 
 	/**
