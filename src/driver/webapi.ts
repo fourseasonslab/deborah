@@ -68,7 +68,8 @@ export class DeborahDriverWebAPI extends DeborahDriver
 		var io = require('socket.io')(http);
 
 		app.get('/', (req, res) => {
-			res.sendFile(__dirname + '/index.html');
+			// ディレクトリ構造を変更した際は必ずここも変更を忘れないこと
+			res.sendFile(__dirname.replace(/\/js\/driver$/g,"") + '/index.html');
 		});
 
 		io.on('connection', (socket) => {
