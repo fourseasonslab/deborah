@@ -64,12 +64,13 @@ class Deborah
 		this.memory = new DeborahMemory("memory.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
-		//this.responderList.push(new DeborahResponder(this));
-		//this.responderList.push(new DeborahResponderCabocha(this));
-		//this.responderList.push(new DeborahResponderKano(this));
-		//this.responderList.push(new DeborahResponderWord2Vec(this));
-		//this.responderList.push(new DeborahResponderMeCab(this));
-		this.responderList.push(new DeborahResponderMemory(this));
+		this.responderList.push(new DeborahResponderEcho(this));
+		// this.responderList.push(new DeborahResponder(this));
+		// this.responderList.push(new DeborahResponderCabocha(this));
+		// this.responderList.push(new DeborahResponderKano(this));
+		// this.responderList.push(new DeborahResponderWord2Vec(this));
+		// this.responderList.push(new DeborahResponderMeCab(this));
+		// this.responderList.push(new DeborahResponderMemory(this));
 	}
 
 	/**

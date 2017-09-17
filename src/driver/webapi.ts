@@ -80,7 +80,7 @@ class DeborahDriverWebAPI extends DeborahDriver
 				var m = new DeborahMessage();
 				m.text = data.text;
 				m.senderName = "unknown";
-				m.context = socket;
+				m.context = socket; //Memory化が循環参照でエラーになるおそれ
 				m.driver = that;
 				m.rawData = socket;
 				
