@@ -115,25 +115,24 @@ class Deborah
 		try {
 			console.log("Deborah.receive: [" + data.text + "] in "+ data.context);
 
-			// 該当するコマンドがあればそれに即した行動・返答をして終了
-			var result:string = DeborahCommand.analyze(data.text);
-			if(result!==null){
-				data.driver.reply(data, result);
-				return;
-			}
-
 			// 記憶に追加
 			this.memory.appendReceiveHistory(data);
 
 			// この下4行はanalyzeに食べさせた結果を使うresponders用
 			var that = this;
 			data.analyze(function(data2: DeborahMessage){
+				// 該当するコマンドがあればそれに即した行動・返答をして終了
+				var result:string = DeborahCommand.analyze(data2);
+				if(result!==null){
+					data.driver.reply(data, result);
+					return;
+				}
 				if(that.responderList.length > 0){
 					// ランダムにresponderを選択して、それに処理を引き渡す。
 					var idx = Math.floor(Math.random() * that.responderList.length);
 					console.log("Responder: " + that.responderList[idx].name);
 					that.responderList[idx].generateResponse(data);
-				} else{
+				} else {
 					console.log("No responder available.");
 				}
 			});
