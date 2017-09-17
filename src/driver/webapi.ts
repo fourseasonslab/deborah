@@ -70,7 +70,7 @@ class DeborahDriverWebAPI extends DeborahDriver
 		// WebSocket通信が確立したときの動作
 		this.io.on('connection', function(socket){
 			console.log("connection established");
-			//console.log(client);
+			// console.log(client);
 			// socketに入力があったときの動作
 			socket.on('input', function(data){
 				console.log("recv input:");
