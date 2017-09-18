@@ -6,7 +6,7 @@
   "dependencies": {
     "@types/handlebars": "^4.0.33",
     "@types/node": "^7.0.43",
-    "body-parser": "^1.17.2",
+    "body-parser": "^1.18.1",
     "dataurl": "^0.1.0",
     "express": "^4.15.4",
     "flatten": "^1.0.2",
@@ -23,7 +23,7 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
-    "typescript": "^2.5.1"
+    "typescript": "^2.5.2"
   },
   "scripts": {
     "typedoc": "typedoc --out ./docs/typedoc/ ./src/",
