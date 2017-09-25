@@ -4,14 +4,19 @@ ALLSRC := $(wildcard src/*.ts src/responder/*.ts src/driver/*.ts)
 
 TARGET = js/deborah.js
 
-default :
-	make $(TARGET)
+TYPEDOC = docs/typedoc/index.html
 
-run : $(TARGET)
+default :
+	make $(TARGET) $(TYPEDOC)
+
+run : $(TARGET) $(TYPEDOC)
 	node $(TARGET)
 
 js/deborah.js : $(ALLSRC) tsconfig.json Makefile
 	tsc
+
+docs/typedoc/index.html : $(TARGET)
+	typedoc --out ./docs/typedoc/ ./src/
 
 clean :
 	-rm $(TARGET)
