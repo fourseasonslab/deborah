@@ -1,7 +1,7 @@
-"use strict";
 /**
  * slackBOTを担当するドライバ
  */
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const driver_1 = require("../driver");
 const message_1 = require("../message");

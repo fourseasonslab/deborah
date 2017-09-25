@@ -18,8 +18,7 @@ class DeborahMemoryIOEntry {
             text: data.text,
             sender: data.senderName,
             date: new Date(),
-            // context: data.context, //循環参照を避ける
-            context: null,
+            context: data.context,
             driver: data.driver.constructor.name,
         });
     }
@@ -32,7 +31,6 @@ class DeborahMemory {
             var data = JSON.parse(fs.readFileSync(filename));
             this.journal = data.journal;
             console.log("Memory file loaded: " + this.filename);
-            //this.logLatestEntries();
         }
         catch (e) {
             console.log("Memory file load failed: " + e);
@@ -48,7 +46,7 @@ class DeborahMemory {
         var fs = require("fs");
         fs.writeFileSync(filename, JSON.stringify({
             journal: this.journal
-        }));
+        }, null, " "));
         console.log("Memory saved to:" + this.filename);
         //this.logLatestEntries();
     }

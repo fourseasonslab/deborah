@@ -51,17 +51,17 @@ class DeborahDriverWebAPI extends driver_1.DeborahDriver {
             res.sendFile(__dirname.replace(/\/js\/driver$/g, "") + '/index.html');
         });
         io.on('connection', (socket) => {
-            console.log("connection established");
+            console.log("connection established: " + socket.id);
             // console.log(client);
             // socketに入力があったときの動作
             socket.on('input', (data) => {
-                console.log("recv input:");
-                console.log(data);
+                //console.log("recv input:");
+                //console.log(data);
                 // 受信したメッセージの情報をDeborahMessageに渡す
                 var m = new message_1.DeborahMessage();
                 m.text = data.text;
                 m.senderName = "unknown";
-                m.context = socket; //Memory化が循環参照でエラーになるおそれ
+                m.context = socket.id;
                 m.driver = that;
                 m.rawData = socket;
                 // DeborahにMessageを渡す
