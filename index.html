@@ -20,6 +20,7 @@ window.onload = function(){
 	var inIco = document.getElementById('inputicon');
 	var outIco = document.getElementById('outputicon');
 	var id = null;
+	var recording = false;
 
 	// Socket.io
 	var socket = io.connect(location.protocol + '//' + location.host);
@@ -71,15 +72,24 @@ window.onload = function(){
 	recognition.continuous = true;
 	recognition.interimResults = true;
 
-	spIco.onmousedown = function(){
-		recognition.lang = "ja-JP";
-		recognition.start();
+	var toggleRecog = function(event) {
+		if (recording) {
+			recognition.stop();
+			spIco.style.color = "#E2E2E2"; // 暗く
+			spIco.style.backgroundColor = "#D48C3E"; // 明るく
+			recording = false;
+		} else {
+			recognition.lang = "ja-JP";
+			recognition.start();
+			spIco.style.color = "#FFFFFF"; // 明るく
+			spIco.style.backgroundColor = "#94612B"; // 暗く
+			recording = true;
+		}
 	};
 
-	spIco.onmouseup = function(){
-		recognition.stop();
-	};
-
+	spIco.addEventListener("click", toggleRecog, false);
+	spIco.addEventListener("touchstart", toggleRecog, false);
+	
 	recognition.onstart = function(){
 		console.log("Recog begin.");
 		// log("Recog Begin");
@@ -146,7 +156,8 @@ window.onload = function(){
 		inBox.value = "";
 	};
 
-	inIco.onclick = submitInput;
+	inIco.addEventListener("click", submitInput, false);
+	inIco.addEventListener("touchstart", submitInput, false);
 
 	document.onkeydown = function(event){
 		if (event.key === 'Enter'){
@@ -158,7 +169,6 @@ window.onload = function(){
 
 </script>
 <style>
-
 
 body{
 	background: #FFF2DE;
@@ -188,7 +198,6 @@ h1{
 	display: flex;
 	width: 90%;
 	height: 80px;
-	background:#C85F69;
 	padding: 5px;
 	margin: 5px;
 	border-radius: 8px;
@@ -203,6 +212,7 @@ h1{
 }
 
 #outputwrap{
+	background:#C85F69;
 	margin-top: 50px;
 }
 
@@ -255,7 +265,7 @@ h1{
 		<div id="speakicon" class="icon btn">
 			<i class="fa fa-microphone" aria-hidden="true"></i>
 		</div>
-		<textarea id="speakbox" class="box" placeholder="マイクをクリックしながら話しかけてみましょう。" disabled="disabled"></textarea>
+		<textarea id="speakbox" class="box" placeholder="マイクをクリックして話しかけてみましょう。&#13;&#10;もう一度タップすると送信します。" disabled="disabled"></textarea>
 	</div>
 	<div class="wrap" id="outputwrap">
 		<div id="outputicon" class="icon">
