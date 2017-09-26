@@ -17,6 +17,8 @@
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
 		"src/responder/proton.ts",
+		"src/responder/probotdata.ts",
+		"src/responder/siritori.ts",
 		"src/deborah.ts"
     ]
 }
