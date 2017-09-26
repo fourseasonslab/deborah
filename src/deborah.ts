@@ -105,7 +105,7 @@ export class Deborah
 			try{
 				var iset = interfaces[i];
 				switch (iset.type) {
-					case 'slack-connection':
+					case 'slack':
 						this.driverList.push(new DeborahDriverSlack(this, iset));
 						break;
 					case 'stdio':
