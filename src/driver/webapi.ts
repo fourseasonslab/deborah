@@ -39,7 +39,7 @@ export class DeborahDriverWebAPI extends DeborahDriver
 		var OpenJTalk = require('openjtalk');
 		if(OpenJTalk){
 			this.openjtalk = new OpenJTalk();
-			//this.openjtalk.talk('音声合成が有効です');
+			// this.openjtalk.talk('音声合成が有効です');
 		} else{
 			// OpenJTalkがサポートされていなければnull
 			this.openjtalk = null;
