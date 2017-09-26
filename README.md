@@ -19,7 +19,7 @@
 ## 開発者向け
 ```bash
 # set up
-sudo npm install -g typescript forever
+sudo npm install -g typescript forever typedoc
 npm install
 git checkout develop
 git branch some_graceful_name
