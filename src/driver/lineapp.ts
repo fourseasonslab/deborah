@@ -1,7 +1,12 @@
 /**
  * LINEbotを担当するドライバ
  */
-class DeborahDriverLineApp extends DeborahDriver
+
+import {Deborah} from "../deborah";
+import {DeborahDriver} from "../driver";
+import {DeborahMessage} from "../message";
+
+export class DeborahDriverLineApp extends DeborahDriver
 {
 	// =============== 変数宣言 ===============
 	/** Require:LINEbotAPI */
@@ -40,10 +45,10 @@ class DeborahDriverLineApp extends DeborahDriver
 		console.log("Driver initialized: LINE (" + settings.team + ")");
 
 		// =============== 変数初期化 ===============
-		this.line    = this.tryRequire('node-line-bot-api');
-		this.express = this.tryRequire('express');
+		this.line    = require('node-line-bot-api');
+		this.express = require('express');
 		this.app = this.express();
-		this.bodyParser = this.tryRequire('body-parser');
+		this.bodyParser = require('body-parser');
 		this.lineClient = this.line.client;
 		this.lineValidator = this.line.validator;
 

@@ -3,8 +3,10 @@
 .DS_Store
 settings.json
 node_modules/*
+docs/typedoc/*
 .vscode/*
 data/*
+js/*
 *.json
-deborah.js
-docs/typedoc/*
+*.txt
+tmp

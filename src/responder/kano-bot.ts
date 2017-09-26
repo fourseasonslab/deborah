@@ -1,4 +1,9 @@
-class DeborahResponderKano extends DeborahResponder
+import {Deborah} from "../deborah";
+import {DeborahDriver} from "../driver";
+import {DeborahMessage} from "../message";
+import {DeborahResponder} from "../responder";
+
+export class DeborahResponderKano extends DeborahResponder
 {
 	w2v: any;
 	goodVector: any;
