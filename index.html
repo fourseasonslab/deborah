@@ -22,7 +22,7 @@ window.onload = function(){
 	var id = null;
 
 	// Socket.io
-	var socket = io(location.protocol + '//' + location.host);
+	var socket = io.connect(location.protocol + '//' + location.host);
 	socket.on('connect', function(){
 		console.log("sock: connect");
 	});

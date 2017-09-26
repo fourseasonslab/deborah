@@ -123,6 +123,7 @@ export class Deborah
 				}
 			} catch(e){
 				console.log("Failed to load Driver: " + iset.type);
+				console.log(e);
 			}
 		}
 	}
