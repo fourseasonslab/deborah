@@ -2,16 +2,18 @@
 
 [![CircleCI](https://circleci.com/gh/fourseasonslab/deborah.svg?style=svg)](https://circleci.com/gh/fourseasonslab/deborah)
 
-「deborah」は、以下の3つの環境で動作する、オープンソースのチャットbotです。
+「deborah」は、以下の複数環境で動作する、オープンソースのチャットbotです。
 - Slack
 - Twitter
 - LINE
+- Web (HTML5/CSS3/Javascript)
+- stdIO（標準入出力）
 
 ## 必要環境
 * Node.js
 * npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
- * typescript
- * forever
+	+ typescript
+	+ forever
 
 ## 開発者向け
 ```bash
@@ -63,8 +65,11 @@ node .
 		},
 		{
 			"type": "line",
-			"accessToken": "xxx",
-			"channelSecret": "xxx"
+			"accessToken": "???",
+			"channelSecret": "???"
+		},
+		{
+			"type": "webapi"
 		}
 	],
 	"profile": {
@@ -83,39 +88,42 @@ node .
 #### interfaces : any[]
 * この配列中に、接続先各デバイスの情報を格納します
 * type: "stdio"
-	* 標準入出力。特別に設定すべきパラメータはありません
+	+ 標準入出力。特別に設定すべきパラメータはありません
 * type: "slack-connection"
-	* チームへのアクセスに必要な情報を格納します
-	* team : string
-		* 対象となるチーム `チーム名.slack.com`
-	* token : string
-		* APIトークン（ https://api.slack.com/bot-users で取得できる）
-		* トークン取得後は、クライアントのAppsよりボットを追加した上で、必要なチャンネルに招待すること。
-	* output : boolean
-		* このドライバを出力に使用するか否か（falseの場合、返答は送信されず標準出力に表示される。）
+	+ チームへのアクセスに必要な情報を格納します
+	+ team : string
+		- 対象となるチーム `チーム名.slack.com`
+	+ token : string
+		- APIトークン（ https://api.slack.com/bot-users で取得できる）
+		- トークン取得後は、クライアントのAppsよりボットを追加した上で、必要なチャンネルに招待すること。
+	+ output : boolean
+		- このドライバを出力に使用するか否か（falseの場合、返答は送信されず標準出力に表示される。）
 * type: "slack-channel"
-	* botが動くチャンネルを制限する情報を格納します（未実装）
-	* team : string
-		* 対象となるチーム `チーム名.slack.com`
-	* channel : string
-		* 対象となるチャンネル `@hikalium` `#general`
+	+ botが動くチャンネルを制限する情報を格納します（未実装）
+	+ team : string
+		- 対象となるチーム `チーム名.slack.com`
+	+ channel : string
+		- 対象となるチャンネル `@hikalium` `#general`
 * type: "twitter"
-	* screen_name : string
-		* botのTwitterIDの@を取ったもの `michiru4s`
-	* consumer_key : string
-	* consumer_secret : string
-	* access\_token\_key : string
-	* access\_token\_secret : string
-		* APIトークン（いずれもhttps://apps.twitter.com/ で取得できる）
+	+ screen_name : string
+		- botのTwitterIDの@を取ったもの `michiru4s`
+	+ consumer_key : string
+	+ consumer_secret : string
+	+ access\_token\_key : string
+	+ access\_token\_secret : string
+		- APIトークン（いずれもhttps://apps.twitter.com/ で取得できる）
 * type: "line"
-	* accessToken : string
-	* channelSecret : string
+	+ accessToken : string
+	+ channelSecret : string
+* type: "webapi"
+	+ Web用。特別に設定すべきパラメータはありません
+	+ 起動中、localhostのポート3000にアクセスすると、Deborah Webの画面が表示される
 
 #### profile : any
 * name : string
- * 発言する際の名前
+	+ 発言する際の名前
 * slack-icon : string
- * slackで発言する際のアイコン（Slack上の絵文字の記法で書く）
+	+ slackで発言する際のアイコン（Slack上の絵文字の記法で書く）
  
 #### lib
  * vectorpath : string
