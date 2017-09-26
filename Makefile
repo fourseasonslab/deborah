@@ -7,10 +7,13 @@ TARGET = js/deborah.js
 TYPEDOC = docs/typedoc/index.html
 
 default :
-	make $(TARGET) $(TYPEDOC)
+	make $(TARGET)
 
-run : $(TARGET) $(TYPEDOC)
+run : $(TARGET)
 	node $(TARGET)
+
+doc :
+	make $(TYPEDOC)
 
 js/deborah.js : $(ALLSRC) tsconfig.json Makefile
 	tsc

@@ -14,6 +14,7 @@
 * npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
 	+ typescript
 	+ forever
+	+ typedoc
 
 ## 開発者向け
 ```bash
@@ -117,7 +118,7 @@ node .
 	+ channelSecret : string
 * type: "webapi"
 	+ Web用。特別に設定すべきパラメータはありません
-	+ 起動中、localhostのポート3000にアクセスすると、Deborah Webの画面が表示される
+	+ 起動中、localhostのポート3000にブラウザからアクセスすると、Deborah Webの画面が表示される
 
 #### profile : any
 * name : string
