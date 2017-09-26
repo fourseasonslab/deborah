@@ -19,7 +19,8 @@ docs/typedoc/index.html : $(TARGET)
 	typedoc --out ./docs/typedoc/ ./src/
 
 clean :
-	-rm $(TARGET)
+	-rm -rf js/*
+	-rm -rf docs/typedoc/*
 	-rm *.wav
 
 test:
