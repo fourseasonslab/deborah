@@ -21,7 +21,7 @@ class markov
 	}
 
 	loadText(){
-		this.text = fs.readFileSync('saishin.txt', 'utf-8');
+		this.text = fs.readFileSync('/Users/kano/Documents/TierIV/deborah/src/markov_chain/saishin.txt', 'utf-8');
 		var parseText = (inp) => {
 			this.segs = inp.split(" ");
 			return this.segs;
@@ -97,48 +97,53 @@ class markov
 		}
 	}
 
-	makeSentence(str: string){
+	makeSentence(str: string, f: Function){
 		//console.log("好きな単語を入れてね: ");
 
 		//reader.on('line', function(line) {
-			this.nextWord = str;
-			this.prevWord = str;
+		this.nextWord = str;
+		this.prevWord = str;
 
-			if(this.nextWords[this.nextWord] == undefined){
-				console.log("わっかんないや！もう一回！");
-				console.log("好きな単語を入れてね: ");
+		if(this.nextWords[this.nextWord] == undefined){
+			//console.log("わっかんないや！もう一回！");
+			//console.log("好きな単語を入れてね: ");
+			f("わっかんないや...");
+			return;
+		}
+
+		while(this.nextWords[this.nextWord] != undefined){
+			this.sentence.push(this.nextWord);
+			var nextIndex = Math.floor(Math.random() *
+				(this.nextWords[this.nextWord].length < 3 ? this.nextWords[this.nextWord].length : 3));
+
+			if(this.endmark.test(this.nextWords[this.nextWord][nextIndex][0])){
+				this.sentence.push(this.nextWords[this.nextWord][nextIndex][0]);
+				break;
 			}
+			this.nextWord = this.nextWords[this.nextWord][nextIndex][0];
+		}
 
-			while(this.nextWords[this.nextWord] != undefined){
-				this.sentence.push(this.nextWord);
-				var nextIndex = Math.floor(Math.random() *
-					(this.nextWords[this.nextWord].length < 3 ? this.nextWords[this.nextWord].length : 3));
+		this.sentence.shift();
+		while(this.prevWords[this.prevWord] != undefined){
+			this.sentence.unshift(this.prevWord);
+			var prevIndex = Math.floor(Math.random() *
+				(this.prevWords[this.prevWord].length < 4 ? this.prevWords[this.prevWord].length : 4));
 
-				if(this.endmark.test(this.nextWords[this.nextWord][nextIndex][0])){
-					this.sentence.push(this.nextWords[this.nextWord][nextIndex][0]);
-					break;
-				}
-				this.nextWord = this.nextWords[this.nextWord][nextIndex][0];
+			if(this.endmark.test(this.prevWords[this.prevWord][prevIndex][0])){
+				break;
 			}
-
-			this.sentence.shift();
-			while(this.prevWords[this.prevWord] != undefined){
-				this.sentence.unshift(this.prevWord);
-				var prevIndex = Math.floor(Math.random() *
-					(this.prevWords[this.prevWord].length < 4 ? this.prevWords[this.prevWord].length : 4));
-
-				if(this.endmark.test(this.prevWords[this.prevWord][prevIndex][0])){
-					break;
-				}
-				this.prevWord = this.prevWords[this.prevWord][prevIndex][0];
-			}
-			console.log("生成した文章: " + this.sentence.join(""));
-			this.sentence = [];
+			this.prevWord = this.prevWords[this.prevWord][prevIndex][0];
+		}
+		//console.log("生成した文章: " + this.sentence.join(""));
+		f(this.sentence.join(""));
+		this.sentence = [];
+		return;
 		//});
 	}
 }
 
-
-var nyaan = new markov();
-nyaan.loadText();
-nyaan.makeSentence("俺");
+/*
+ var nyaan = new markov();
+ nyaan.loadText();
+ nyaan.makeSentence("俺");
+ */

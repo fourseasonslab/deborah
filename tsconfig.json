@@ -20,6 +20,8 @@
         "src/driver/webapi.ts",
         "src/responder/cabocha.ts",
         "src/responder/kano-bot.ts",
+        "src/responder/markov-bot.ts",
+		"src/markov_chain/markov.ts",
         "src/responder/mecab.ts",
         "src/responder/word2vec.ts",
         "src/responder/memory.ts",
