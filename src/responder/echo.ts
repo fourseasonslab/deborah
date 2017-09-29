@@ -1,8 +1,7 @@
-import {Deborah} from "./deborah";
-import {DeborahMessage} from "./message";
+import {Deborah} from "../deborah";
+import {DeborahMessage} from "../message";
 
-export class DeborahResponder
-{
+export class DeborahResponderEcho{
 	name: string;
 	bot: Deborah;
 	constructor(bot: Deborah){

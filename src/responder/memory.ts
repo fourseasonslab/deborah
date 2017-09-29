@@ -1,4 +1,9 @@
-class DeborahResponderMemory extends DeborahResponder
+import {Deborah} from "../deborah";
+import {DeborahDriver} from "../driver";
+import {DeborahMessage} from "../message";
+import {DeborahResponder} from "../responder";
+
+export class DeborahResponderMemory extends DeborahResponder
 {
 	constructor(bot: Deborah){
 		super(bot);

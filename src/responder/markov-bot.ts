@@ -1,4 +1,10 @@
-class DeborahResponderMarkov extends DeborahResponder
+import {Deborah} from "../deborah";
+import {DeborahDriver} from "../driver";
+import {DeborahMessage} from "../message";
+import {DeborahResponder} from "../responder";
+import {markov} from "../markov";
+
+export class DeborahResponderMarkov extends DeborahResponder
 {
 	markov: any;
 	constructor(bot: Deborah){
