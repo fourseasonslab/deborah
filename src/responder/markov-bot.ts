@@ -1,3 +1,4 @@
+/*
 import {Deborah} from "../deborah";
 import {DeborahDriver} from "../driver";
 import {DeborahMessage} from "../message";
@@ -21,3 +22,4 @@ export class DeborahResponderMarkov extends DeborahResponder
 		});
 	}
 }
+*/

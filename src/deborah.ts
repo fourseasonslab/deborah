@@ -10,10 +10,11 @@ import {DeborahDriverTwitter} from "./driver/twitter";
 import {DeborahDriverWebAPI} from "./driver/webapi";
 import {DeborahMessage} from "./message";
 import {DeborahMemory} from "./memory";
+import {DeborahMarkovDictionary} from "./markov2"
 import {DeborahResponder} from "./responder";
 import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
-import {DeborahResponderMarkov} from "./responder/markov-bot";
+//import {DeborahResponderMarkov} from "./responder/markov-bot";
 import {DeborahCommand} from "./command";
 import {DeborahResponderEcho} from "./responder/echo";
 
@@ -28,6 +29,8 @@ export class Deborah
 	settings: any;
 	/** 現在のDeborahMemory */
 	memory: DeborahMemory;
+	/** マルコフ連鎖に用いる辞書 */
+	markov: DeborahMarkovDictionary;
 	/** MeCabのインスタンス */
 	mecab: any;
 	/** Cabochaのインスタンス */
@@ -78,6 +81,7 @@ export class Deborah
 		this.launchDate = new Date();
 		//console.log(JSON.stringify(this.settings, null, 1));
 		this.memory = new DeborahMemory("memory.json");
+		this.markov = new DeborahMarkovDictionary("nextWordsDic.json", "prevWordsDic.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		this.responderList.push(new DeborahResponderEcho(this));
@@ -88,7 +92,7 @@ export class Deborah
 		//this.responderList.push(new DeborahResponderMeCab(this));
 		//this.responderList.push(new DeborahResponderMemory(this));
 		//this.responderList.push(new DeborahResponderMichiru(this));
-		this.responderList.push(new DeborahResponderMarkov(this));
+		//this.responderList.push(new DeborahResponderMarkov(this));
 	}
 
 	/**
@@ -140,6 +144,9 @@ export class Deborah
 
 			// 記憶に追加
 			this.memory.appendReceiveHistory(data);
+
+			// マルコフ連鎖の辞書に追加
+			this.markov.addWordsToDic(data.text);
 
 			// この下4行はanalyzeに食べさせた結果を使うresponders用
 			var that = this;
@@ -253,10 +260,11 @@ export class Deborah
 	}
 
 	/**
-	 * 終了ハンドラ。プログラムの終了時に実行される。具体的にはmemoryをファイルに保存。
+	 * 終了ハンドラ。プログラムの終了時に実行される。具体的にはmemoryとマルコフ連鎖の辞書をファイルに保存する
 	 */
 	exitHandler(){
 		this.memory.saveToFile();
+		this.markov.saveToFile();
 		console.log("EXIT!!!!!!!");
 		process.exit();
 	}
