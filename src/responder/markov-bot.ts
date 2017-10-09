@@ -1,6 +1,4 @@
-/*
 import {Deborah} from "../deborah";
-import {DeborahDriver} from "../driver";
 import {DeborahMessage} from "../message";
 import {DeborahResponder} from "../responder";
 import {markov} from "../markov";
@@ -11,8 +9,7 @@ export class DeborahResponderMarkov extends DeborahResponder
 	constructor(bot: Deborah){
 		super(bot);
 		this.name ="Markov";
-			this.markov = new markov();
-		this.markov.loadText();
+		this.markov = new markov();
 	}
 	generateResponse(req: DeborahMessage){
 		var result = req.analytics;
@@ -22,4 +19,3 @@ export class DeborahResponderMarkov extends DeborahResponder
 		});
 	}
 }
-*/

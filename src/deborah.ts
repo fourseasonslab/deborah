@@ -10,11 +10,11 @@ import {DeborahDriverTwitter} from "./driver/twitter";
 import {DeborahDriverWebAPI} from "./driver/webapi";
 import {DeborahMessage} from "./message";
 import {DeborahMemory} from "./memory";
-import {DeborahMarkovDictionary} from "./markov2"
+import {DeborahMarkovDictionary} from "./dictionary"
 import {DeborahResponder} from "./responder";
 import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
-//import {DeborahResponderMarkov} from "./responder/markov-bot";
+import {DeborahResponderMarkov} from "./responder/markov-bot";
 import {DeborahCommand} from "./command";
 import {DeborahResponderEcho} from "./responder/echo";
 
@@ -85,7 +85,7 @@ export class Deborah
 		this.markov = new DeborahMarkovDictionary("src/nextWordsDic_wiki.json", "src/prevWordsDic_wiki.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
-		this.responderList.push(new DeborahResponderEcho(this));
+		//this.responderList.push(new DeborahResponderEcho(this));
 		//this.responderList.push(new DeborahResponder(this));
 		//this.responderList.push(new DeborahResponderCabocha(this));
 		//this.responderList.push(new DeborahResponderKano(this));
@@ -93,7 +93,7 @@ export class Deborah
 		//this.responderList.push(new DeborahResponderMeCab(this));
 		//this.responderList.push(new DeborahResponderMemory(this));
 		//this.responderList.push(new DeborahResponderMichiru(this));
-		//this.responderList.push(new DeborahResponderMarkov(this));
+		this.responderList.push(new DeborahResponderMarkov(this));
 	}
 
 	/**
