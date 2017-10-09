@@ -3,15 +3,18 @@ const reader = require('readline').createInterface({
 	output: process.stdout
 });
 
+const fs = require('fs');
+
 var lines = "";
-reader.on('line', function(line) {
-	lines += line;
-});
+//reader.on('line', function(line) {
+	//lines += line;
+//});
 
 var nextWords = {};
 var prevWords = {};
 
-reader.on('close', function() {
+lines = fs.readFileSync('../../wiki_sepAA.txt', 'utf-8');
+//reader.on('close', function() {
 	var loadText = (lines) =>{
 		//text = fs.readFileSync('/Users/kano/Documents/TierIV/deborah/src/saishin.txt', 'utf-8');
 		var parseText = (inp) => {
@@ -89,9 +92,14 @@ reader.on('close', function() {
 				return (b[1] - a[1]);
 			});
 		}
-		console.log(nextWords);
-		console.log(prevWords);
+		//console.log(nextWords);
+		//console.log(prevWords);
+		var Dic1 = "nextWordsDic_wiki.json";
+		var Dic2 = "prevWordsDic_wiki.json"
+		fs.writeFileSync(Dic1, JSON.stringify(nextWords), null, " ");
+		fs.writeFileSync(Dic2, JSON.stringify(prevWords), null, " ");
+		console.log("Dictionary saved to: " + Dic1 + ", " + Dic2);
 	}
 	//console.log(lines);
 	loadText(lines);
-});
+//});

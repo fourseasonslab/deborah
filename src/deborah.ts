@@ -81,7 +81,8 @@ export class Deborah
 		this.launchDate = new Date();
 		//console.log(JSON.stringify(this.settings, null, 1));
 		this.memory = new DeborahMemory("memory.json");
-		this.markov = new DeborahMarkovDictionary("nextWordsDic.json", "prevWordsDic.json");
+		//this.markov = new DeborahMarkovDictionary("nextWordsDic.json", "prevWordsDic.json");
+		this.markov = new DeborahMarkovDictionary("src/nextWordsDic_wiki.json", "src/prevWordsDic_wiki.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		this.responderList.push(new DeborahResponderEcho(this));

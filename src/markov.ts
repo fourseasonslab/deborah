@@ -11,7 +11,8 @@ const reader = require('readline').createInterface({   //#include 'readline'„ÅÆ‰
 });
 */
 
-export class markov
+//export class markov
+class markov
 {
 	text;
 	segs = [];
