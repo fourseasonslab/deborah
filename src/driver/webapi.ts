@@ -65,16 +65,26 @@ export class DeborahDriverWebAPI extends DeborahDriver
 
 		app.get('/', (req, res) => {
 			// ディレクトリ構造を変更した際は必ずここも変更を忘れないこと
-			res.sendFile(__dirname.replace(/\/js\/driver$/g,"") + '/index.html');
+			res.sendFile(__dirname.replace(/\/js\/driver$/g,"/web") + '/index.html');
+		});
+
+		app.get('/client.js', (req, res) => {
+			// ディレクトリ構造を変更した際は必ずここも変更を忘れないこと
+			res.sendFile(__dirname.replace(/\/js\/driver$/g,"/web") + '/client.js');
+		});
+
+		app.get('/client.js', (req, res) => {
+			// ディレクトリ構造を変更した際は必ずここも変更を忘れないこと
+			res.sendFile(__dirname.replace(/\/js\/driver$/g,"/web") + '/client.js');
 		});
 
 		io.on('connection', (socket) => {
 			console.log("connection established: " + socket.id);
 			// socketに入力があったときの動作
-			socket.on('input', (data) => {
+			socket.on('input', (text) => {
 				// 受信したメッセージの情報をDeborahMessageに渡す
 				var m = new DeborahMessage();
-				m.text = data.text;
+				m.text = text;
 				m.senderName = "unknown";
 				m.context = socket.id;
 				m.driver = that;

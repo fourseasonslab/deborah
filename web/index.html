@@ -10,6 +10,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/tamaina/The-Japanese-Web-Fonts/v6.0.0/css/JPWF-Addons.css"/> <!-- JpWF Addons -->
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/tamaina/The-Japanese-Web-Fonts/v6.0.0/css/GenJpFont-X.css"/> <!-- JpWF GenShin -->
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/tamaina/The-Japanese-Web-Fonts/v6.0.0/css/MgenP-X.css"/> <!-- JpWF Mgen+ -->
+<link rel="stylesheet" href="css/styles.css">
 <script>
 
 window.onload = function(){
@@ -20,22 +21,14 @@ window.onload = function(){
 	var inIco = document.getElementById('inputicon');
 	var outIco = document.getElementById('outputicon');
 	var id = null;
-	var recording = false;
 
-	// Socket.io
-	var socket = io.connect(location.protocol + '//' + location.host);
-	socket.on('connect', function(){
-		console.log("sock: connect");
-	});
-	socket.on('event', function(data){
-		console.log("sock: event");
-		console.log(data);
-	});
-	socket.on('reply', function(data){
+	var dc = new DeborahClient();
+
+	dc.onReply(function(data){
 		outBox.value = data.text;
-
+	
 		if(id!==null) clearInterval(id);
-
+	
 		var blinkcount = 0;
 		var blink = function(){
 			if(blinkcount % 2 === 0){
@@ -49,47 +42,54 @@ window.onload = function(){
 			blink();
 			if(blinkcount === 8) clearInterval(id);
 		},300);
-
+	
 		// log("response: " + data.text);
 		console.log("response: " + data.text);
 		var au = new Audio(data.voiceURL);
 		au.play();
 	});
-	socket.on('disconnect', function(){
-		console.log("sock: disconnected");
+
+	dc.onResult(function(e){
+		console.log("result");
+		//console.log(e);
+		var results = e.results;
+		console.log(results);
+		for(var i = e.resultIndex; i<results.length; i++){
+			if(results[i].isFinal){
+				var confidence = results[i][0].confidence;
+				var text = results[i][0].transcript;
+				console.log("" + confidence + ">> " + text);
+				// log("result: " + text);
+				var postData = {
+					type: 'speech',
+					confidence: confidence,
+					text: text
+				};
+				console.log(socket);
+				socket.emit("input", postData);
+				spBox.placeholder = '送信しました：'+text+'\nさらにメッセージを送ってみましょう。';
+				spBox.value = "";
+			} else{
+				console.log(results[i][0].transcript);
+				spBox.value = '認識中……\n'+results[i][0].transcript;
+			}
+		}
 	});
 
 	// Speech Recognition
-	if (!('webkitSpeechRecognition' in window)){
-		console.log("webkitSpeechRecognition not found");
-		// log("webkitSpeechRecognition not found");
-		return;
-	}
-	console.log("webkitSpeechRecognition found");
-	// log("webkitSpeechRecognition found");
-
-	var recognition = new webkitSpeechRecognition();
-	recognition.continuous = true;
-	recognition.interimResults = true;
-
-	var toggleRecog = function(event) {
-		if (recording) {
-			recognition.stop();
-			spIco.style.color = "#E2E2E2"; // 暗く
-			spIco.style.backgroundColor = "#D48C3E"; // 明るく
-			recording = false;
-		} else {
-			recognition.lang = "ja-JP";
-			recognition.start();
+	var toggleRecog = function(event){
+		if (dc.toggleRecog()){
 			spIco.style.color = "#FFFFFF"; // 明るく
 			spIco.style.backgroundColor = "#94612B"; // 暗く
-			recording = true;
+		} else {
+			spIco.style.color = "#E2E2E2"; // 暗く
+			spIco.style.backgroundColor = "#D48C3E"; // 明るく
 		}
-	};
+	}
 
 	spIco.addEventListener("click", toggleRecog, false);
 	spIco.addEventListener("touchstart", toggleRecog, false);
-	
+
 	recognition.onstart = function(){
 		console.log("Recog begin.");
 		// log("Recog Begin");
@@ -116,42 +116,10 @@ window.onload = function(){
 		console.log("error"); 
 	};
 
-	recognition.onresult = function(e){
-		console.log("result");
-		//console.log(e);
-		var results = e.results;
-		console.log(results);
-		for(var i = e.resultIndex; i<results.length; i++){
-			if(results[i].isFinal){
-				var confidence = results[i][0].confidence;
-				var text = results[i][0].transcript;
-				console.log("" + confidence + ">> " + text);
-				// log("result: " + text);
-				var postData = {
-					type: 'speech',
-					confidence: confidence,
-					text: text
-				};
-				console.log(socket);
-				socket.emit("input", postData);
-				spBox.placeholder = '送信しました：'+text+'\nさらにメッセージを送ってみましょう。';
-				spBox.value = "";
-			} else{
-				console.log(results[i][0].transcript);
-				spBox.value = '認識中……\n'+results[i][0].transcript;
-			}
-		}
-	};
-	
 	// Manual input
 	var submitInput = function(){
 		// log("manual input : " + manualInput.value);
-		var postData = {
-			type: 'manual',
-			confidence: 1,
-			text: inBox.value
-		};
-		socket.emit("input", postData);
+		dc.submitInput(inBox.value);
 		inBox.placeholder = '送信しました：'+inBox.value+'\nさらにメッセージを送ってみましょう。';
 		inBox.value = "";
 	};
@@ -170,86 +138,6 @@ window.onload = function(){
 </script>
 <style>
 
-body{
-	background: #FFF2DE;
-	color: rgb(214, 174, 104);
-	font-family: 'mgenplus-p-w', 'Noto Sans CJK JP', '源ノ角ゴシック', 'Source Han Sans', '源真ゴシック', 'GenShinGothic', 'M+ 2c', 'Mgen+ 2c', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'ヒラギノ角ゴ Pro W3' ,'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ ProN W3', 'Hiragino Kaku Gothic ProN', 'GenShinGothic-w', sans-serif;
-	font-weight: 400;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	align-content: space-around;
-}
-
-header{
-	text-align: center;
-	margin: 30px 5% 20px;
-}
-
-h1{
-	margin-top: 0;
-	padding-top: .5em;
-	font-weight: 400;
-	color: #D68800;
-}
-
-.wrap{
-	display: flex;
-	width: 90%;
-	height: 80px;
-	padding: 5px;
-	margin: 5px;
-	border-radius: 8px;
-}
-
-#inputwrap{
-	background: #509B87;
-}
-
-#speakwrap{
-	background: #D48C3E;
-}
-
-#outputwrap{
-	background:#C85F69;
-	margin-top: 50px;
-}
-
-.icon{
-	width: 80px;
-	height: 100%;
-	font-size: 50px;
-	color: #E2E2E2;
-	display: flex;
-	flex-direction: column;
-    justify-content: center;
-    align-items: center;
-	border-radius: 8px;
-	margin-right: 10px;
-}
-
-.btn{
-	cursor: pointer;
-}
-
-.btn:hover{
-	color: white;
-}
-
-.box{
-	overflow: auto;
-	flex-grow: 1;
-	border-radius: 8px;
-	resize: none;
-	background: #FDFDFD;
-	border: 0;
-	padding: 5px;
-}
-
-.box:disabled{
-	background: #FDFDFD;
-}
 
 </style>
 </head>
