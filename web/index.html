@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <title>Deborah Web</title>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/client.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/tamaina/The-Japanese-Web-Fonts/v6.0.0/css/JPWF-Addons.css"/> <!-- JpWF Addons -->
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/tamaina/The-Japanese-Web-Fonts/v6.0.0/css/GenJpFont-X.css"/> <!-- JpWF GenShin -->
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/tamaina/The-Japanese-Web-Fonts/v6.0.0/css/MgenP-X.css"/> <!-- JpWF Mgen+ -->
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="/styles.css">
 <script>
 
 window.onload = function(){
@@ -59,14 +60,7 @@ window.onload = function(){
 				var confidence = results[i][0].confidence;
 				var text = results[i][0].transcript;
 				console.log("" + confidence + ">> " + text);
-				// log("result: " + text);
-				var postData = {
-					type: 'speech',
-					confidence: confidence,
-					text: text
-				};
-				console.log(socket);
-				socket.emit("input", postData);
+				dc.submitInput(text);
 				spBox.placeholder = '送信しました：'+text+'\nさらにメッセージを送ってみましょう。';
 				spBox.value = "";
 			} else{

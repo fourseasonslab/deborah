@@ -73,9 +73,9 @@ export class DeborahDriverWebAPI extends DeborahDriver
 			res.sendFile(__dirname.replace(/\/js\/driver$/g,"/web") + '/client.js');
 		});
 
-		app.get('/client.js', (req, res) => {
+		app.get('/styles.css', (req, res) => {
 			// ディレクトリ構造を変更した際は必ずここも変更を忘れないこと
-			res.sendFile(__dirname.replace(/\/js\/driver$/g,"/web") + '/client.js');
+			res.sendFile(__dirname.replace(/\/js\/driver$/g,"/web") + '/styles.css');
 		});
 
 		io.on('connection', (socket) => {
