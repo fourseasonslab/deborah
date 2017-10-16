@@ -17,6 +17,7 @@ import {DeborahResponderMichiru} from "./responder/michiru";
 import {DeborahResponderMarkov} from "./responder/markov-bot";
 import {DeborahCommand} from "./command";
 import {DeborahResponderEcho} from "./responder/echo";
+import {DeborahResponderProton} from "./responder/proton";
 
 export class Deborah
 {
@@ -94,6 +95,7 @@ export class Deborah
 		//this.responderList.push(new DeborahResponderMemory(this));
 		//this.responderList.push(new DeborahResponderMichiru(this));
 		this.responderList.push(new DeborahResponderMarkov(this));
+		//this.responderList.push(new DeborahResponderProton(this));
 	}
 
 	/**
