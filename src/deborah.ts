@@ -15,6 +15,7 @@ import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
 import {DeborahCommand} from "./command";
 import {DeborahResponderEcho} from "./responder/echo";
+import {DeborahResponderProton} from "./responder/proton";
 
 export class Deborah
 {
@@ -85,8 +86,8 @@ export class Deborah
 		//this.responderList.push(new DeborahResponderKano(this));
 		//this.responderList.push(new DeborahResponderWord2Vec(this));
 		//this.responderList.push(new DeborahResponderMeCab(this));
-		//this.responderList.push(new DeborahResponderMemory(this));
-		//this.responderList.push(new DeborahResponderMichiru(this));
+		this.responderList.push(new DeborahResponderProton(this));
+	
 	}
 
 	/**
