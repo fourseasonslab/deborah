@@ -94,9 +94,9 @@ Example:
 		- name of your team `TEAMNAME.slack.com`
 	+ token : string
 		- API Token (Available: https://api.slack.com/bot-users)
-		- After you get token, you should add bot in slack>Apps, and then invite the bot to teams.
+		- After you get a token, you should add a bot in slack>Apps, and then invite the bot to teams.
 	+ output : boolean
-		- whether this driver is used to output(if false, replies are displayed on stdout, instead of sending to slack)
+		- whether this driver is used for output (if false, replies are displayed on stdout, instead of sending to slack)
 	+ channels : string[]
 		- the bot is available only in these channels.
 * type: "twitter"
