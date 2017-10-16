@@ -29,11 +29,8 @@ echo "{ \"interfaces\": [ { \"type\": \"stdio\" } ], \"profile\": { \"name\": \"
 
 # ... edit some code ...
 
-# compile *.ts to *.js
-tsc
-
-# run server on localhost
-node .
+# compile & run server on localhost
+make run
 
 ```
 
@@ -47,14 +44,10 @@ node .
 			"type": "stdio"
 		},
 		{
-			"type": "slack-connection",
+			"type": "slack",
 			"team": "????.slack.com",
-			"token": "?????"
-		},
-		{
-			"type": "slack-channel",
-			"team": "????.slack.com",
-			"channelName": "@hikalium"
+			"token": "?????",
+			"channels": ["@hikalium", "#general"]
 		},
 		{
 			"type": "twitter",
@@ -90,21 +83,16 @@ node .
 * この配列中に、接続先各デバイスの情報を格納します
 * type: "stdio"
 	+ 標準入出力。特別に設定すべきパラメータはありません
-* type: "slack-connection"
-	+ チームへのアクセスに必要な情報を格納します
+* type: "slack"
 	+ team : string
 		- 対象となるチーム `チーム名.slack.com`
 	+ token : string
 		- APIトークン（ https://api.slack.com/bot-users で取得できる）
 		- トークン取得後は、クライアントのAppsよりボットを追加した上で、必要なチャンネルに招待すること。
 	+ output : boolean
-		- このドライバを出力に使用するか否か（falseの場合、返答は送信されず標準出力に表示される。）
-* type: "slack-channel"
-	+ botが動くチャンネルを制限する情報を格納します（未実装）
-	+ team : string
-		- 対象となるチーム `チーム名.slack.com`
-	+ channel : string
-		- 対象となるチャンネル `@hikalium` `#general`
+		- このドライバを出力に使用するか否か（falseの場合、返答は送信されず標準出力に表示される）。
+	+ channels : string[]
+		- botが活動できるチャンネル。これ以外のチャンネルでは発言できない。
 * type: "twitter"
 	+ screen_name : string
 		- botのTwitterIDの@を取ったもの `michiru4s`
@@ -127,8 +115,8 @@ node .
 	+ slackで発言する際のアイコン（Slack上の絵文字の記法で書く）
  
 #### lib
- * vectorpath : string
- * word2vecで使う辞書のパスを指定する
+* vectorpath : string
+	+ word2vecで使う辞書のパスを指定する
 
 ## 起動方法
 
@@ -160,10 +148,6 @@ forever list
 ```Shell
 forever stop deborah.js
 ```
-
-## 注意点
-- Slackに関する制約
- - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
 
 ## このプロジェクトについて
 Deborahは [Tier IV, Inc.](http://tier4.jp/) の支援を受けて開発されています。
