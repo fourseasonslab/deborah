@@ -76,6 +76,8 @@ class DeborahClient {
     
     submitInput(text){
         var postData = {
+			type: 'unknown',
+			confidence: 1,
 			text: text
 		};
 		this.socket.emit("input", postData);

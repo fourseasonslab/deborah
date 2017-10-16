@@ -81,10 +81,10 @@ export class DeborahDriverWebAPI extends DeborahDriver
 		io.on('connection', (socket) => {
 			console.log("connection established: " + socket.id);
 			// socketに入力があったときの動作
-			socket.on('input', (text) => {
+			socket.on('input', (data) => {
 				// 受信したメッセージの情報をDeborahMessageに渡す
 				var m = new DeborahMessage();
-				m.text = text;
+				m.text = data.text;
 				m.senderName = "unknown";
 				m.context = socket.id;
 				m.driver = that;

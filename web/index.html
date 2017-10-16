@@ -76,7 +76,6 @@ window.onload = function(){
 		}
 	});
 
-	// Speech Recognition
 	var toggleRecog = function(event){
 		if (dc.toggleRecog()){
 			spIco.style.color = "#FFFFFF"; // 明るく
@@ -89,32 +88,6 @@ window.onload = function(){
 
 	spIco.addEventListener("click", toggleRecog, false);
 	spIco.addEventListener("touchstart", toggleRecog, false);
-
-	recognition.onstart = function(){
-		console.log("Recog begin.");
-		// log("Recog Begin");
-	};
-
-	recognition.onend = function(){
-		console.log("Recog end.");
-		// log("Recog End");
-	};
-
-	recognition.onspeechstart = function(){
-		console.log("sp begin.");
-	};
-
-	recognition.onspeechend = function(){
-		console.log("sp end"); 
-	};
-
-	recognition.onnomatch = function(){
-		console.log("no match"); 
-	};
-
-	recognition.onerror = function(){
-		console.log("error"); 
-	};
 
 	// Manual input
 	var submitInput = function(){
