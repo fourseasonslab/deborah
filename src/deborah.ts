@@ -5,6 +5,7 @@
 import {DeborahMessage} from "./message";
 import {DeborahMemory} from "./memory";
 import {DeborahCommand} from "./command";
+import {DeborahSettingsManager} from "./settingsManager";
 //
 import {DeborahDriver} from "./driver";
 import {DeborahDriverLineApp} from "./driver/lineapp";
@@ -19,6 +20,7 @@ import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
 import {DeborahResponderProton} from "./responder/proton";
 
+
 export class Deborah
 {
 	// =============== 変数宣言 ===============
@@ -28,7 +30,7 @@ export class Deborah
 	responderList: { [id: string] : ConstructableDeborahResponder; } = {};
 	responderInUseList: DeborahResponder[] = [];
 	/** settings.jsonの内容 */
-	settings: any;
+	settings: DeborahSettingsManager;
 	/** 現在のDeborahMemory */
 	memory: DeborahMemory;
 	/** MeCabのインスタンス */
@@ -38,15 +40,6 @@ export class Deborah
 	cabochaf1: any;
 	/** 起動時刻 */
 	launchDate: Date;
-	// /** 起動時に入ってくるメッセージを無視する時間[ms]（no longer used?） */
-	// initialIgnorePeriod: number = 5000;
-	// /** 定型文での返答パターン（no longer used?） */
-	// fixedResponseList: (string[])[] = [
-	// 	[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
-	// 	["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
-	// 	["死", "まだ死ぬには早いですよ！ :iconv:"],
-	// 	["test","test"]
-	// ];
 
 	/**
 	 * コンストラクタ。各種変数の初期化を担当。
@@ -63,27 +56,14 @@ export class Deborah
 		}
 		
 		// =============== Load Settings ===============
-		var fs = require("fs");
-		let fval, fname = "settings.json";
-		try {
-			fval = fs.readFileSync('settings.json');
-		} catch(e) {
-			console.log("settings.json not found.\nimporting settings from environmental variable...");
-			fval = process.env.DEBORAH_CONFIG;
-		}
-		if (!fval) {
-			console.log("Error: cannot load settings.");
-			process.exit(1);
-		}
-		this.settings = JSON.parse(fval);
+		this.settings = new DeborahSettingsManager();
+		this.settings.load();
 
-		// =============== others ===============
+		// =============== Init environment ===============
 		this.launchDate = new Date();
-		//console.log(JSON.stringify(this.settings, null, 1));
 		this.memory = new DeborahMemory("memory.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
-
 
 		var addResponder = (c: any) => {
 			this.responderList[c.name] = c;
@@ -92,6 +72,7 @@ export class Deborah
 		addResponder(DeborahResponderWord2Vec);
 		addResponder(DeborahResponderMichiru);
 		addResponder(DeborahResponderProton);
+		console.log("Available responders:")
 		console.log(this.responderList);
 
 		if(this.settings && this.settings.responders instanceof Array){
