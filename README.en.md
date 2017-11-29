@@ -1,23 +1,27 @@
 # deborah
 
+[![CircleCI](https://circleci.com/gh/fourseasonslab/deborah.svg?style=svg)](https://circleci.com/gh/fourseasonslab/deborah)
+
 deborah is an open source implemention of chat bot.
 
-It supports some communication platforms shown below:
+This bot supports some communication platforms shown below:
 
 - Slack
 - Twitter
 - LINE
+- Web (HTML5/CSS3/Javascript)
+- standard Input & Output
 
 ## Requirements
 * Node.js
-* npm（必要なグローバルモジュールは以下。これ以外の依存パッケージについては、``npm install``コマンドを実行すると、一括で入れることができる。）
- * typescript
- * forever
+* npm（required global packages are shown below. All other required packages are automatically installed by the command: ``npm install``.）
+	+ typescript
+	+ forever
 
 ## For developing
 ```bash
 # set up
-sudo npm install -g typescript forever
+sudo npm install -g typescript forever typedoc
 npm install
 git checkout develop
 git branch some_graceful_name
@@ -27,11 +31,8 @@ echo "{ \"interfaces\": [ { \"type\": \"stdio\" } ], \"profile\": { \"name\": \"
 
 # ... edit some code ...
 
-# compile *.ts to *.js
-tsc
-
-# run server on localhost
-node .
+# compile & server on localhost
+make run
 
 ```
 
@@ -65,8 +66,11 @@ Example:
 		},
 		{
 			"type": "line",
-			"accessToken": "xxx",
-			"channelSecret": "xxx"
+			"accessToken": "???",
+			"channelSecret": "???"
+		},
+		{
+			"type": "webapi"
 		}
 	],
 	"profile": {
@@ -80,56 +84,81 @@ Example:
 	}
 }
 ```
+### Parameters
+#### interfaces : any[] 
+* settings about devices
+* type: "stdio"
+	+ standard input & output. No parameters to set.
+* type: "slack"
+	+ team : string
+		- name of your team `TEAMNAME.slack.com`
+	+ token : string
+		- API Token (Available: https://api.slack.com/bot-users)
+		- After you get a token, you should add a bot in slack>Apps, and then invite the bot to teams.
+	+ output : boolean
+		- whether this driver is used for output (if false, replies are displayed on stdout, instead of sending to slack)
+	+ channels : string[]
+		- the bot is available only in these channels.
+* type: "twitter"
+	+ screen_name : string
+		- bot's twitter ID (without '@') `michiru4s`
+	+ consumer_key : string
+	+ consumer_secret : string
+	+ access\_token\_key : string
+	+ access\_token\_secret : string
+		- API Tokens (All available: https://apps.twitter.com/)
+* type: "line"
+	+ accessToken : string
+	+ channelSecret : string
+* type: "webapi"
+	+ for web interface. No parameters to set.
+	+ while the bot is running, you can try it in `localhost:3000`.
 
-### 設定パラメータの意味
-* token : string
- * APIトークン（https://api.slack.com/docs/oauth-test-tokens で取得できる）
+#### profile : any
 * name : string
- * BOTとして発言する際の名前
+	+ The screen-name of bot.
 * slack-icon : string
- * BOTとして発言する際のアイコン（Slack上の絵文字の記法で書く）
-* channels : string[]
- * BOTの発言を許可するチャンネル
-  * #から始まるものはChannel(public)
-  * @から始まるものはUserへのDirect Message
-  * %から始まるものはChannel(private) ← これをAPIではGroupとして扱う
-  * それ以外はChannelIDとみなされる
-* lib : string
+	+ The icon of bot (slack emoticons are available).
+ 
+#### lib
+* vectorpath : string
+	+ the path of dictionary used by word2vec.
 
-## 起動方法
+## How to run
 
-### テスト用にforegroundで起動する場合
+### Running in foreground (for testing)
 
-リポジトリ直下で下記コマンドを実行
+Execute this command in the root of repository.
 ```Shell
 node deborah.js
 ```
 
-### 継続的にデーモン化して動作させる場合
+### Running continually as a daemon process 
 
-まず`forever`パッケージをnpmでグローバルにインストールする。
+Install `forever` package in global by npm
 ```Shell
 sudo npm install -g forever
 ```
 
-起動コマンドは下記の通り。
+Launch:
 ```Shell
 forever start deborah.js
 ```
 
-動作状況の確認コマンドは下記の通り。
+Checking state of process:
 ```Shell
 forever list
 ```
 
-停止コマンドは下記の通り。
+Stop:
 ```Shell
 forever stop deborah.js
 ```
 
-## 注意点
-- Slackに関する制約
- - このBOTはAPIを取得したUserが所属していないGroupへは反応・発言できない。
+## About
+This project "Deborah" is sponsored by [Tier IV, Inc.](http://tier4.jp/).
+
+<a href="http://tier4.jp/"><img src="./docs/imgs/Tier_IV_logo_2.png" width="25%"></a>
 
 ## License
 MIT License

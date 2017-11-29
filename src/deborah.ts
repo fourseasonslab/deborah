@@ -2,22 +2,26 @@
  * chatbotの本体となるクラス。
  */
 
+import {DeborahMessage} from "./message";
+import {DeborahMemory} from "./memory";
+import {DeborahCommand} from "./command";
+import {DeborahSettingsManager} from "./settingsManager";
+//
 import {DeborahDriver} from "./driver";
 import {DeborahDriverLineApp} from "./driver/lineapp";
 import {DeborahDriverSlack} from "./driver/slack";
 import {DeborahDriverStdIO} from "./driver/stdio";
 import {DeborahDriverTwitter} from "./driver/twitter";
 import {DeborahDriverWebAPI} from "./driver/webapi";
-import {DeborahMessage} from "./message";
-import {DeborahMemory} from "./memory";
-import {DeborahMarkovDictionary} from "./dictionary"
-import {DeborahResponder} from "./responder";
+//
+import {DeborahResponder, ConstructableDeborahResponder} from "./responder";
+import {DeborahResponderEcho} from "./responder/echo";
 import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
 import {DeborahResponderMarkov} from "./responder/markov-bot";
-import {DeborahCommand} from "./command";
-import {DeborahResponderEcho} from "./responder/echo";
+import {DeborahMarkovDictionary} from "./dictionary"
 import {DeborahResponderProton} from "./responder/proton";
+
 
 export class Deborah
 {
@@ -25,9 +29,10 @@ export class Deborah
 	/** 利用可能なDriver */
 	driverList: DeborahDriver[] = [];
 	/** 利用可能なResponder */
-	responderList: DeborahResponder[] = [];
+	responderList: { [id: string] : ConstructableDeborahResponder; } = {};
+	responderInUseList: DeborahResponder[] = [];
 	/** settings.jsonの内容 */
-	settings: any;
+	settings: DeborahSettingsManager;
 	/** 現在のDeborahMemory */
 	memory: DeborahMemory;
 	/** マルコフ連鎖に用いる辞書 */
@@ -39,15 +44,6 @@ export class Deborah
 	cabochaf1: any;
 	/** 起動時刻 */
 	launchDate: Date;
-	// /** 起動時に入ってくるメッセージを無視する時間[ms]（no longer used?） */
-	// initialIgnorePeriod: number = 5000;
-	// /** 定型文での返答パターン（no longer used?） */
-	// fixedResponseList: (string[])[] = [
-	// 	[":fish_cake:", "やっぱなるとだよね！ :fish_cake:"],
-	// 	["むり", "まあまあ。:zabuton: 一休みですよ！ :sleeping:"],
-	// 	["死", "まだ死ぬには早いですよ！ :iconv:"],
-	// 	["test","test"]
-	// ];
 
 	/**
 	 * コンストラクタ。各種変数の初期化を担当。
@@ -64,38 +60,42 @@ export class Deborah
 		}
 		
 		// =============== Load Settings ===============
-		var fs = require("fs");
-		let fval, fname = "settings.json";
-		try {
-			fval = fs.readFileSync('settings.json');
-		} catch(e) {
-			console.log("settings.json not found.\nimporting settings from environmental variable...");
-			fval = process.env.DEBORAH_CONFIG;
-		}
-		if (!fval) {
-			console.log("Error: cannot load settings.");
-			process.exit(1);
-		}
-		this.settings = JSON.parse(fval);
+		this.settings = new DeborahSettingsManager();
+		this.settings.load();
 
-		// =============== others ===============
+		// =============== Init environment ===============
 		this.launchDate = new Date();
-		//console.log(JSON.stringify(this.settings, null, 1));
 		this.memory = new DeborahMemory("memory.json");
 		//this.markov = new DeborahMarkovDictionary("nextWordsDic.json", "prevWordsDic.json");
 		//this.markov = new DeborahMarkovDictionary("src/nextWordsDic_wiki.json", "src/prevWordsDic_wiki.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
-		//this.responderList.push(new DeborahResponderEcho(this));
-		//this.responderList.push(new DeborahResponder(this));
-		//this.responderList.push(new DeborahResponderCabocha(this));
-		//this.responderList.push(new DeborahResponderKano(this));
-		//this.responderList.push(new DeborahResponderWord2Vec(this));
-		//this.responderList.push(new DeborahResponderMeCab(this));
-		//this.responderList.push(new DeborahResponderMemory(this));
-		//this.responderList.push(new DeborahResponderMichiru(this));
-		this.responderList.push(new DeborahResponderMarkov(this));
-		//this.responderList.push(new DeborahResponderProton(this));
+		var addResponder = (c: any) => {
+			this.responderList[c.name] = c;
+		}
+		addResponder(DeborahResponderEcho);
+		addResponder(DeborahResponderWord2Vec);
+		addResponder(DeborahResponderMichiru);
+		addResponder(DeborahResponderProton);
+		addResponder(DeborahResponderMarkov);
+		console.log("Available responders:")
+		console.log(this.responderList);
+
+		if(this.settings && this.settings.responders instanceof Array){
+			for(var className of this.settings.responders){
+				var cls = this.responderList[className];
+				if(cls instanceof Function){
+					try{
+						this.responderInUseList.push(new cls(this));
+						console.log("Responder [" + className + "] loaded");
+					} catch(e){
+						console.log("Init responder [" + className + "] failed");
+					}
+				} else{
+					console.log("Responder [" + className + "] not found.");
+				}
+			}
+		}
 	}
 
 	/**
@@ -114,7 +114,7 @@ export class Deborah
 			try{
 				var iset = interfaces[i];
 				switch (iset.type) {
-					case 'slack-connection':
+					case 'slack':
 						this.driverList.push(new DeborahDriverSlack(this, iset));
 						break;
 					case 'stdio':
@@ -152,19 +152,19 @@ export class Deborah
 			//this.markov.addWordsToDic(data.text);
 
 			// この下4行はanalyzeに食べさせた結果を使うresponders用
-			var that = this;
-			data.analyze(function(data2: DeborahMessage){
+			data.analyze((data2: DeborahMessage) => {
 				// 該当するコマンドがあればそれに即した行動・返答をして終了
 				var result:string = DeborahCommand.analyze(data2);
 				if(result!==null){
 					data.driver.reply(data, result);
 					return;
 				}
-				if(that.responderList.length > 0){
+				if(this.responderInUseList.length > 0){
 					// ランダムにresponderを選択して、それに処理を引き渡す。
-					var idx = Math.floor(Math.random() * that.responderList.length);
-					console.log("Responder: " + that.responderList[idx].name);
-					that.responderList[idx].generateResponse(data);
+					var idx = Math.floor(Math.random() * this.responderInUseList.length);
+					var resp = this.responderInUseList[idx];
+					console.log("Responder: " + resp.name);
+					resp.generateResponse(data);
 				} else {
 					console.log("No responder available.");
 				}
