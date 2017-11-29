@@ -3,10 +3,11 @@ var reader = require('readline').createInterface({
     output: process.stdout
 });
 var fs = require('fs');
+var JSONStream = require('JSONStream');
 var lines = "";
 var nextWords = {};
 //var prevWords = {};
-lines = fs.readFileSync('../../wiki_sepAA.txt', 'utf-8');
+lines = fs.readFileSync('../../../wiki_sepAA.txt', 'utf-8');
 var loadText = function (lines) {
     var parseText = function (inp) {
         segs = inp.split(" ");
@@ -71,17 +72,16 @@ var loadText = function (lines) {
     */
     nextWords = nextWordCount(segs);
     //prevWords = prevWordCount(segs);
-    /*
     var keys = Object.keys(nextWords);
-    for(var i=0; i<keys.length; i++){
+    for (var i = 0; i < keys.length; i++) {
         var keys2 = Object.keys(nextWords[keys[i]]);
-        for(var k=0; k<keys2.length; k++){
-            nextWords[keys[i][keys2[k]]].sort(function(a, b){
+        for (var k = 0; k < keys2.length; k++) {
+            nextWords[keys[i]][keys2[k]].sort(function (a, b) {
                 return (b[1] - a[1]);
             });
         }
+        //nextWords[key[i]][keys[k]] = nextWords[key[i][keys[k]]].slice(0, 20);
     }
-    */
     /*
     keys = Object.keys(prevWords);
     for(var i=0; i<keys.length; i++){
@@ -89,12 +89,22 @@ var loadText = function (lines) {
             return (b[1] - a[1]);
         });
     }
-    */
-    var Dic1 = "nextWordsDic_wiki_3gram.json";
+     */
+    var Dic1 = "../nextWordsDic_wiki_3gram1.json";
     //var Dic2 = "prevWordsDic_wiki_3gram.json"
-    fs.writeFileSync(Dic1, JSON.stringify(nextWords), null, " ");
+    console.log("Dictionary saving started");
+    //fs.writeFileSync(Dic1, JSON.stringify(nextWords, null, "\t"), null, " ");
+    var outputStream = fs.createWriteStream(Dic1);
+    var transformStream = JSONStream.stringifyObject();
+    transformStream.pipe(outputStream);
+    Object.keys(nextWords).forEach(function (key) {
+        transformStream.write([key, nextWords[key]]);
+    });
+    transformStream.end();
     //fs.writeFileSync(Dic2, JSON.stringify(prevWords), null, " ");
     //console.log("Dictionary saved to: " + Dic1 + ", " + Dic2);
-    console.log("Dictionary saved to: " + Dic1);
+    outputStream.on("finish", function () {
+        console.log("Dictionary saved to: " + Dic1);
+    });
 };
 loadText(lines);

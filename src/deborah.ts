@@ -83,7 +83,7 @@ export class Deborah
 		//console.log(JSON.stringify(this.settings, null, 1));
 		this.memory = new DeborahMemory("memory.json");
 		//this.markov = new DeborahMarkovDictionary("nextWordsDic.json", "prevWordsDic.json");
-		this.markov = new DeborahMarkovDictionary("src/nextWordsDic_wiki.json", "src/prevWordsDic_wiki.json");
+		//this.markov = new DeborahMarkovDictionary("src/nextWordsDic_wiki.json", "src/prevWordsDic_wiki.json");
 		var MeCab = require('mecab-lite');
 		this.mecab = new MeCab();
 		//this.responderList.push(new DeborahResponderEcho(this));
@@ -149,7 +149,7 @@ export class Deborah
 			this.memory.appendReceiveHistory(data);
 
 			// マルコフ連鎖の辞書に追加
-			this.markov.addWordsToDic(data.text);
+			//this.markov.addWordsToDic(data.text);
 
 			// この下4行はanalyzeに食べさせた結果を使うresponders用
 			var that = this;
@@ -267,7 +267,7 @@ export class Deborah
 	 */
 	exitHandler(){
 		this.memory.saveToFile();
-		this.markov.saveToFile();
+		//this.markov.saveToFile();
 		console.log("EXIT!!!!!!!");
 		process.exit();
 	}

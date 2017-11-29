@@ -55,6 +55,7 @@ export class DeborahMessage
 			var depres = result.depRels;
 			var num;
 			var importantWords = [];
+			/*
 			for(var i = 0; i < depres.length; i++){
 				if(depres[i][0] === -1){
 					num = i;
@@ -62,22 +63,23 @@ export class DeborahMessage
 					break;
 				}
 			}
+			*/
 			for(var i = 0; i < result.words.length; i++){
-				if(result.words[i][2] === "固有名詞"){
+				if(result.words[i][2] === "固有名詞" || result.words[i][2] === "自立" || result.words[i][2] === "一般"){
 					importantWords.push(i);
-					importantWords.push(i);
+					//importantWords.push(i);
 				}
 			}
 			//console.log(JSON.stringify(result, null, " "));
 			for(var i = 0; i < num; i++){
 				if(depres[i][0] === num){
 					// req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
-					importantWords.push(result.depRels[i][2][0]);
+					//importantWords.push(result.depRels[i][2][0]);
 				}
 			}
 
 			var max = Math.max.apply(null, result.scores);
-			var min = Math.max.apply(null, result.scores);
+			var min = Math.min.apply(null, result.scores);
 			var normScores = [];
 			for(var i = 0; i < result.scores.length; i++){
 				normScores[i] = (result.scores[i] - min) / (max - min);
