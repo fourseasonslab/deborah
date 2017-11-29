@@ -2,7 +2,7 @@ import {Deborah} from "../deborah";
 import {DeborahDriver} from "../driver";
 import {DeborahMessage} from "../message";
 import {DeborahResponder} from "../responder";
-
+import {probot_keywords} from "./probotdata";
 export class DeborahResponderProton extends DeborahResponder
 {
 	constructor(bot: Deborah){
