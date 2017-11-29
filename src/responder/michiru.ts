@@ -316,8 +316,48 @@ export class DeborahResponderMichiru extends DeborahResponder
 		super(bot);
 		this.codingManager = new MichiruCoding();
 	}
+	procerssTrainTransferRoute(req: DeborahMessage, fromStr: string, toStr: string){
+		var scraperjs = require('scraperjs');
+		var from = encodeURIComponent(fromStr);
+		var to = encodeURIComponent(toStr);
+		var url = `https://www.jorudan.co.jp/norikae/cgi/nori.cgi?
+			eki1=${from}&
+			eki2=${to}&
+			eki3=&via_on=1&Dym=201711&Ddd=29&Dhh=17&Dmn1=2&Dmn2=2&
+			Cway=0&Cfp=1&Czu=2&C7=1&C2=0&C3=0&C1=0&C4=0&C6=2&
+			S.x=80&S.y=18&
+			S=%E6%A4%9C%E7%B4%A2&
+			Cmap1=&rf=nr&pg=0&eok1=&eok2=&eok3=&Csg=1`
+			.split("\n").join("").split("\t").join("");
+
+		console.log(url)
+
+		scraperjs.StaticScraper.create(url)
+			.scrape(function($) {
+				return $(".data_total-time dd").eq(0).map(function() {
+					return $(this).text();
+				}).get();
+			})
+			.then(function(news) {
+				var timeText = news.join("").split("\t").join("").split("\n\n").join("");
+				req.driver.reply(req, timeText + "くらいらしいよー！");
+			})
+	}
 	generateResponse(req: DeborahMessage){
-		this.codingManager.process(req);
+		var locWords = req.analytics.words.filter(
+			(v) => {
+				return v[3] == "地域" && v[0] != "駅";
+			}
+		).map(
+			(v) => {
+				return v[0];
+			}
+		);
+		console.log(locWords);
+		if(locWords.length == 2){
+			this.procerssTrainTransferRoute(req, locWords[0], locWords[1]);
+		}
+		//this.codingManager.process(req);
 		/*
 		if(req.analytics.words.length !== 1){
 			req.driver.reply(req, "それは単語じゃないよー");
@@ -327,6 +367,9 @@ export class DeborahResponderMichiru extends DeborahResponder
 		var first = yomi[yomi.length - 1];
 		req.driver.reply(req,"次は" + this.getNextYomiWord(first));
 		 */
+	}
+	processRouteSearch(from: string, to: string){
+	
 	}
 	getNextYomiWord(first: string)
 	{
