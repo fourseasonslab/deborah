@@ -18,7 +18,7 @@ const settingsSchema = {
 					"token": {
 						"type": "string"
 					},
-					"channel": {
+					"channels": {
 						"type": "array",
 						"items":{
 							"type": "string"
