@@ -91,8 +91,4 @@ class DeborahClient {
 		};
 		this.socket.emit("input", postData);
     }
-
-    sendRecogResult(e){
-        
-    }
 }
