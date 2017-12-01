@@ -25,7 +25,8 @@ window.onload = function(){
 
 	var dc = new DeborahClient();
 
-	dc.onReply(function(data){
+	dc.onSocketReply(function(data){
+		console.log(data);
 		outBox.value = data.text;
 	
 		if(id!==null) clearInterval(id);
@@ -50,7 +51,7 @@ window.onload = function(){
 		au.play();
 	});
 
-	dc.onResult(function(e){
+	dc.onRecogResult(function(e){
 		console.log("result");
 		//console.log(e);
 		var results = e.results;
@@ -60,10 +61,10 @@ window.onload = function(){
 				var confidence = results[i][0].confidence;
 				var text = results[i][0].transcript;
 				console.log("" + confidence + ">> " + text);
-				dc.submitInput(text);
+				dc.sendMessage(text);
 				spBox.placeholder = '送信しました：'+text+'\nさらにメッセージを送ってみましょう。';
 				spBox.value = "";
-			} else{
+			} else {
 				console.log(results[i][0].transcript);
 				spBox.value = '認識中……\n'+results[i][0].transcript;
 			}
@@ -85,8 +86,7 @@ window.onload = function(){
 
 	// Manual input
 	var submitInput = function(){
-		// log("manual input : " + manualInput.value);
-		dc.submitInput(inBox.value);
+		dc.sendMessage(inBox.value);
 		inBox.placeholder = '送信しました：'+inBox.value+'\nさらにメッセージを送ってみましょう。';
 		inBox.value = "";
 	};

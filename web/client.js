@@ -54,32 +54,45 @@ class DeborahClient {
         };
     }
 
-    onReply(f){
+    onSocketReply(f){
         this.socket.on('reply', f);
     }
 
-    onResult(f){
+    onRecogResult(f){
         this.recognition.onresult = f;
     }
 
     toggleRecog() {
-		if (recording) {
-			recognition.stop();
+		if (this.recording) {
+			this.recognition.stop();
 			this.recording = false;
 		} else {
-			recognition.lang = "ja-JP";
-			recognition.start();
+			this.recognition.lang = "ja-JP";
+			this.recognition.start();
 			this.recording = true;
         }
         return this.recording;
     }
     
-    submitInput(text){
+    sendMessage(text){
         var postData = {
 			type: 'unknown',
 			confidence: 1,
 			text: text
 		};
 		this.socket.emit("input", postData);
+    }
+
+    sendMessageProper(type, confidence, text){
+        var postData = {
+			type: type,
+			confidence: confidence,
+			text: text
+		};
+		this.socket.emit("input", postData);
+    }
+
+    sendRecogResult(e){
+        
     }
 }
