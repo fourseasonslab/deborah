@@ -19,6 +19,7 @@ import {DeborahResponderEcho} from "./responder/echo";
 import {DeborahResponderWord2Vec} from "./responder/word2vec";
 import {DeborahResponderMichiru} from "./responder/michiru";
 import {DeborahResponderMarkov} from "./responder/markov-bot";
+import {DeborahResponderKano} from "./responder/kano-bot";
 import {DeborahMarkovDictionary} from "./dictionary"
 import {DeborahResponderProton} from "./responder/proton";
 
@@ -78,6 +79,7 @@ export class Deborah
 		addResponder(DeborahResponderMichiru);
 		addResponder(DeborahResponderProton);
 		addResponder(DeborahResponderMarkov);
+		addResponder(DeborahResponderKano);
 		console.log("Available responders:")
 		console.log(this.responderList);
 

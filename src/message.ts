@@ -15,7 +15,7 @@ export class DeborahMessage
 		var that = this;
 		try{
 			var Cabocha = require('node-cabocha');
-			DeborahMessage.cabocha = new Cabocha();
+			DeborahMessage.cabocha = new Cabocha('/usr/local/lib/mecab/dic/mecab-ipadic-neologd');
 		} catch(e){
 			console.error(e);
 		}
@@ -45,7 +45,7 @@ export class DeborahMessage
 			}
 			return false;
 		}
-		var match: string[][] = [];
+		//var match: string[][] = [];
 		return matcher(pattern, this.analytics.words);
 	}
 	analyze(f : Function){
