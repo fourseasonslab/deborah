@@ -1,6 +1,10 @@
 import {Deborah} from "./deborah";
 import {DeborahMessage} from "./message";
 
+export interface ConstructableDeborahResponder{
+	new(bot: Deborah) : DeborahResponder;
+}
+
 export class DeborahResponder
 {
 	name: string;
