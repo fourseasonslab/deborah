@@ -84,6 +84,7 @@ export class Deborah
 						console.log("Responder [" + className + "] loaded");
 					} catch(e){
 						console.log("Init responder [" + className + "] failed");
+						console.log(e);
 					}
 				} else{
 					console.log("Responder [" + className + "] not found.");

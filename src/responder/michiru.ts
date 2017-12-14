@@ -12,6 +12,10 @@ function promiseCabocha(bot: Deborah, text: string) : Promise<{ result: any }>
 	});
 }
 
+async function getWords(bot: Deborah, text: string){
+	return await promiseCabocha(bot, text);
+}
+
 namespace MichiruCodingTemplate
 {
 	export const C = [
@@ -296,9 +300,11 @@ class MichiruCoding
 	}
 }
 
+const fs = require("fs");
 export class DeborahResponderMichiru extends DeborahResponder
 {
 	name = "michiru";
+	/*
 	codingManager: MichiruCoding;
 	yomiDict = [
 		"リンゴ",
@@ -312,9 +318,50 @@ export class DeborahResponderMichiru extends DeborahResponder
 		"ラクダ",
 		"サクラ"
 	];
+	 */
+	rules: any;
+	michiru_rules_name = "michiru_rules.json";
 	constructor(bot: Deborah){
 		super(bot);
-		this.codingManager = new MichiruCoding();
+		//this.codingManager = new MichiruCoding();
+		try{
+			var data = fs.readFileSync(this.michiru_rules_name);
+			this.rules = JSON.parse(data);
+		} catch(e){
+			this.rules = [
+				["こんにちは", "こんにちは"],
+				["もうだめ", "そんなことないよ"],
+				["「X」と言われたら「X」X言って", 1],
+			];
+			fs.writeFileSync(this.michiru_rules_name, JSON.stringify(this.rules));
+		}
+		this.parseRules();
+	}
+	async parseRules(){
+		for(var row of this.rules){
+			var result: any = await getWords(this.bot, row[0]);
+			var words = result.words.map((e) => {return e[0] != "X" ? e[0] : "*"});
+			words.push("*");
+			words.unshift("*");
+			row[2] = words;
+			console.log(row[2]);
+		}
+	}
+	getRuleJSON(){
+		return JSON.stringify(this.rules.map((e) => {
+			return [e[0], e[1]];
+		}), null, " ");
+	}
+	addRule(req: DeborahMessage, match: any){
+		req.driver.reply(req, "わかった！");
+		var from = match[2].map((e) => {return e[0];}).join("");
+		var to = match[9].map((e) => {return e[0];}).join("");
+		//console.log(match);
+		console.log(from);
+		console.log(to);
+		this.rules.push([from, to]);
+		this.parseRules();
+		fs.writeFileSync(this.michiru_rules_name, this.getRuleJSON());
 	}
 	procerssTrainTransferRoute(req: DeborahMessage, fromStr: string, toStr: string){
 		var scraperjs = require('scraperjs');
@@ -344,38 +391,23 @@ export class DeborahResponderMichiru extends DeborahResponder
 			})
 	}
 	generateResponse(req: DeborahMessage){
-		var locWords = req.analytics.words.filter(
-			(v) => {
-				return v[3] == "地域" && v[0] != "駅";
+		for(var row of this.rules){
+			console.log("check match: " + row[0]);
+			console.log("pattern: " + row[2].join(" "));
+			var match = req.wordMatch(row[2]);
+			if(match){
+				if(Number.isInteger(row[1])){
+					if(row[1] == 1){
+						this.addRule(req, match);
+					} else if(row[1] == 2){
+						req.driver.reply(req, "```\n" + this.getRuleJSON() + "\n```");
+					}
+				} else {
+					req.driver.reply(req, row[1]);
+				}
+				break;
 			}
-		).map(
-			(v) => {
-				return v[0];
-			}
-		);
-		console.log(locWords);
-		if(locWords.length == 2){
-			this.procerssTrainTransferRoute(req, locWords[0], locWords[1]);
 		}
-		//this.codingManager.process(req);
-		/*
-		if(req.analytics.words.length !== 1){
-			req.driver.reply(req, "それは単語じゃないよー");
-			return 0;
-		}
-		var yomi = req.analytics.words[0][8];
-		var first = yomi[yomi.length - 1];
-		req.driver.reply(req,"次は" + this.getNextYomiWord(first));
-		 */
-	}
-	processRouteSearch(from: string, to: string){
-	
-	}
-	getNextYomiWord(first: string)
-	{
-		for(var i = 0; i < this.yomiDict.length; i++){
-			if(this.yomiDict[i][0] === first) return this.yomiDict[i];
-		}
-		return null;
+		//if(req.wordMatch(row[2]))
 	}
 }
