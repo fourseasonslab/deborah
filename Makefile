@@ -9,13 +9,15 @@ TYPEDOC = docs/typedoc/index.html
 default :
 	make $(TARGET)
 
+.FORCE:
+
 run : $(TARGET)
 	node $(TARGET)
 
 doc :
 	make $(TYPEDOC)
 
-js/deborah.js : $(ALLSRC) tsconfig.json Makefile
+js/deborah.js : $(ALLSRC) tsconfig.json Makefile .FORCE
 	tsc
 
 docs/typedoc/index.html : $(TARGET)

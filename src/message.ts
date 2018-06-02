@@ -50,8 +50,8 @@ export class DeborahMessage
 	}
 	analyze(f : Function){
 		var that = this;
+		console.log("Analyze requested.");
 		DeborahMessage.cabocha.parse(this.text, function(result){
-			//console.log(JSON.stringify(result, null, " "));
 			var depres = result.depRels;
 			var num;
 			var importantWords = [];
@@ -68,10 +68,8 @@ export class DeborahMessage
 					importantWords.push(i);
 				}
 			}
-			//console.log(JSON.stringify(result, null, " "));
 			for(var i = 0; i < num; i++){
 				if(depres[i][0] === num){
-					// req.driver.reply(req, "Cabocha  " + "そうか、君は" + depres[i][1] + depres[num][1] + "フレンズなんだね！");
 					importantWords.push(result.depRels[i][2][0]);
 				}
 			}
@@ -85,12 +83,10 @@ export class DeborahMessage
 			result.normScores = normScores;
 			if(result.scores.indexOf(Math.max.apply(null, result.scores)) !== -1){
 				var maxScore = result.scores.indexOf(Math.max.apply(null, result.scores));
-				//console.log("へえ，" + result.words[maxScore][0] + "ね");
-				}
+			}
 
 			var types = [];
 			for(var i = 0; i < result.words.length; i++){
-				//this.w2v = new W2V();
 				if(result.words[i][0] === "昨日"){
 					types.push("time");
 				}else if(result.words[i][0] === "宇宙"){
@@ -104,12 +100,6 @@ export class DeborahMessage
 				}
 			}
 			result.types = types;
-
-			for(var i = 0; i< result.types.length; i++){
-				if(result.types[i] === "food"){
-					//req.driver.reply(req, "type: " + result.words[i][0] + "美味しかったですか？");
-					}
-			}
 
 			var count = [];
 			for(var i = 0; i < result.depRels.length; i++){
@@ -132,13 +122,12 @@ export class DeborahMessage
 				}
 			);
 			result.rankWords = rankWords;
-			//console.log(JSON.stringify(result.rankWords));
 			for(var i = 0; i< 4; i++){
 				if(i < result.rankWords.length){
 					importantWords.push(result.rankWords[i][2]);
 				}
 			}
-			
+
 			var kana = "";
 			for(var i=0; i<result.words.length; i++){
 				kana += result.words[i][8];
@@ -146,8 +135,8 @@ export class DeborahMessage
 			result.kana = kana.replace(/[^ァ-ヴー]/g,"");
 
 			result.importantWords = importantWords;
-			console.log(result); // FOR DEBUG
 			that.analytics = result;
+			console.log("DONE analyse");
 			f(that);
 		});
 	}
