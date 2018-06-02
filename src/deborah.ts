@@ -72,6 +72,7 @@ export class Deborah
 		addResponder(DeborahResponderWord2Vec);
 		addResponder(DeborahResponderMichiru);
 		addResponder(DeborahResponderProton);
+		//console.log(DeborahResponderProton);
 		console.log("Available responders:")
 		console.log(this.responderList);
 
