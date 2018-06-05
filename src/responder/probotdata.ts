@@ -10,7 +10,7 @@ var probot_off = [
 "おやすみ"
 ];
 
-var probot_keywords = [
+export var probot_keywords = [
 
 	/*
 	書き方
