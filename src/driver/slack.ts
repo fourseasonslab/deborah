@@ -255,10 +255,7 @@ export class DeborahDriverSlack extends DeborahDriver
 		rtm.start();
 		rtm.sendTyping(m.getChannelID());
 		setTimeout(() => {
-			//rtmのほうがTypingIndicatorとの時間差が少ないがslack-iconの指定ができない
-			//rtm.sendMessage("@"+replyTo.senderName+" "+message, m.getChannelID());
-			this.sendAs(m.getChannelID(), "@"+replyTo.senderName+" "+message, 
-				this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
+			rtm.sendMessage("@"+replyTo.senderName+" "+message, m.getChannelID());
 		},4500);
 	}
 	
