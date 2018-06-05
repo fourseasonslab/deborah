@@ -248,9 +248,20 @@ export class DeborahDriverSlack extends DeborahDriver
 		}
 		// sendAs関数に処理を引き渡す
 		var m: DeborahMessageSlack = <DeborahMessageSlack> replyTo;
-		this.sendAs(m.getChannelID(), "@"+replyTo.senderName+" "+message, this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
+		
+		//typing indicator
+		var {RTMClient} = require('@slack/client');
+		var rtm = new RTMClient(this.settings.token);
+		rtm.start();
+		rtm.sendTyping(m.getChannelID());
+		setTimeout(() => {
+			//rtmのほうがTypingIndicatorとの時間差が少ないがslack-iconの指定ができない
+			//rtm.sendMessage("@"+replyTo.senderName+" "+message, m.getChannelID());
+			this.sendAs(m.getChannelID(), "@"+replyTo.senderName+" "+message, 
+				this.bot.settings.profile.name, this.bot.settings.profile["slack-icon"]);
+		},4500);
 	}
-
+	
 	/**
 	 * 指定のchannelに対し、指定の名前とアイコンを使ってメッセージを送る
 	 * @param channel 送信先チャンネル
