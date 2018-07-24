@@ -7,7 +7,7 @@
 - Twitter
 - LINE
 - Web (HTML5/CSS3/Javascript)
-- stdIO（標準入出力）
+- stdio（標準入出力）
 
 ## 必要環境
 * Node.js
@@ -21,11 +21,12 @@
 # set up
 sudo npm install -g typescript forever typedoc
 npm install
-git checkout develop
+# 場合によっては npm install --python=python2.7 のようにpython2系のパスを指定する
+
+# 必要に応じてブランチを切る
 git branch some_graceful_name
 
-# minimal setting (using stdin/stdout)
-echo "{ \"interfaces\": [ { \"type\": \"stdio\" } ], \"profile\": { \"name\": \"botname\", \"slack-icon\": \":innocent:\" } }" > settings.json
+# 設定ファイルを作成(setting.jsonについてを参照)
 
 # ... edit some code ...
 
@@ -44,25 +45,6 @@ make run
 			"type": "stdio"
 		},
 		{
-			"type": "slack",
-			"team": "????.slack.com",
-			"token": "?????",
-			"channels": ["@hikalium", "#general"]
-		},
-		{
-			"type": "twitter",
-			"screen_name": "michiru4s",
-            "consumer_key": "???",
-            "consumer_secret": "???",
-            "access_token_key": "???",
-            "access_token_secret": "???"
-		},
-		{
-			"type": "line",
-			"accessToken": "???",
-			"channelSecret": "???"
-		},
-		{
 			"type": "webapi"
 		}
 	],
@@ -71,10 +53,8 @@ make run
 		"slack-icon": ":innocent:"
 	},
 	"lib": {
-		"word2vec":{
-			"vectorPath": "???"
-		}
-	}
+	},
+	"responders":["DeborahResponderEcho"]
 }
 ```
 
