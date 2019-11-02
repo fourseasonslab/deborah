@@ -24,6 +24,8 @@ export class DeborahDriverWebAPI extends DeborahDriver
 	dataurl: any;
 	/** Require: fs */
 	fs: any;
+	/** listenするポート番号 */
+	port: number;
 
 	/**
 	 * コンストラクタ。
@@ -40,9 +42,14 @@ export class DeborahDriverWebAPI extends DeborahDriver
 		if(OpenJTalk){
 			this.openjtalk = new OpenJTalk();
 			// this.openjtalk.talk('音声合成が有効です');
-		} else{
+		} else {
 			// OpenJTalkがサポートされていなければnull
 			this.openjtalk = null;
+		}
+		if (settings.port){
+			this.port = settings.port;
+		} else {
+			this.port = 3000;
 		}
 
 		// connect関数に処理を引き渡す
@@ -54,8 +61,6 @@ export class DeborahDriverWebAPI extends DeborahDriver
 	 * このドライバの場合は、標準入力をlistenする。
 	 */
 	connect() {
-		/** listenするポート番号 */
-		var port = 3000;
 		var that = this;
 
 		var app = require('express')();
@@ -94,8 +99,8 @@ export class DeborahDriverWebAPI extends DeborahDriver
 				this.bot.receive(m);
 			});
 		});
-		http.listen(port, () => {
-			console.log('listening on *:' + port);
+		http.listen(this.port, () => {
+			console.log('listening on *:' + this.port);
 		});
 	}
 
